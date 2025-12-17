@@ -54,9 +54,9 @@ Examples:
     # Backend selection
     parser.add_argument(
         "--backend", "-b",
-        choices=["auto", "gemini", "local"],
+        choices=["auto", "gemini", "local", "ollama_only"],
         default="auto",
-        help="Backend to use: auto (try local first), gemini (cloud), local (Qwen3-VL)"
+        help="Backend: auto, gemini (cloud), local (vision), ollama_only (Qwen3-VL for everything)"
     )
     
     # Browser options

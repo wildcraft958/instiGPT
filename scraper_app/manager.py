@@ -40,6 +40,7 @@ from .utils import (
 from .backends.base import BaseCrawlerBackend
 from .backends.gemini import GeminiBackend
 from .backends.ollama_vision import OllamaVisionBackend
+from .backends.ollama_only import OllamaOnlyBackend
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,7 @@ class CrawlerManager:
     
     def __init__(
         self,
-        backend_mode: Literal["auto", "gemini", "local"] = "auto",
+        backend_mode: Literal["auto", "gemini", "local", "ollama_only"] = "auto",
         headless: bool = False,
         debug: bool = False
     ):
@@ -74,6 +75,7 @@ class CrawlerManager:
         # Initialize backends
         self.gemini_backend: Optional[GeminiBackend] = None
         self.local_backend: Optional[OllamaVisionBackend] = None
+        self.ollama_only_backend: Optional[OllamaOnlyBackend] = None
         self.active_backend: Optional[BaseCrawlerBackend] = None
         
         # Build the state graph
@@ -88,8 +90,14 @@ class CrawlerManager:
         if self.backend_mode in ["auto", "local"]:
             self.local_backend = OllamaVisionBackend(self.browser)
         
+        if self.backend_mode == "ollama_only":
+            self.ollama_only_backend = OllamaOnlyBackend(self.browser)
+        
         # Set initial active backend
-        if self.backend_mode == "local":
+        if self.backend_mode == "ollama_only":
+            self.active_backend = self.ollama_only_backend
+            logger.info("🔄 Using Ollama-only backend (Qwen3-VL)")
+        elif self.backend_mode == "local":
             self.active_backend = self.local_backend
         elif self.backend_mode == "gemini":
             self.active_backend = self.gemini_backend

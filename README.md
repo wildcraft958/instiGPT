@@ -96,3 +96,25 @@ python -m scraper_app.main \
     --objective "Scrape CS faculty" \
     --backend local --headless
 ```
+
+## 🌐 Colab Workflow
+
+For running on Google Colab (no local GPU needed):
+
+1. **Open** `colab_scraper.ipynb` in Colab
+2. **Select GPU runtime** (T4 recommended)
+3. **Run cells in order:**
+   - Cell 1: Install Ollama & dependencies
+   - Cell 2: Start Ollama server
+   - Cell 3: Pull Qwen3-VL model (~4GB)
+   - Cell 4: Run scraper
+4. **Download** `faculty_data.json`
+
+Or run via CLI in Colab:
+```bash
+python -m scraper_app.main \
+    --url "https://engineering.wustl.edu/faculty" \
+    --objective "Scrape faculty" \
+    --backend ollama_only \
+    --headless
+```
