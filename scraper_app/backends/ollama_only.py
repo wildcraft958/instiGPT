@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup
 import sys
 sys.path.insert(0, '../..')
 from models import ProfessorProfile
+from prompts import GEMINI_ANALYSIS_PROMPT, OLLAMA_EXTRACTION_PROMPT, GEMINI_CORRECTION_PROMPT
 
 from ..state import CrawlerState, NavigationAction, ActionType
 from ..browser import BrowserManager
@@ -25,72 +26,18 @@ from .base import BaseCrawlerBackend
 logger = logging.getLogger(__name__)
 
 
-# Prompts optimized for Qwen3-VL
-QWEN_PLANNING_PROMPT = """Analyze this university faculty webpage screenshot.
+# Vision-specific wrapper for the analysis prompt
+VISION_PLANNING_PROMPT = """You are analyzing a SCREENSHOT of a university faculty webpage.
 
-Objective: {objective}
-URL: {current_url}
+{base_prompt}
 
-Determine:
-1. Is this a DIRECTORY (list of faculty) or a single PROFILE page?
-2. Where are the clickable faculty links?
-3. Is there a "Next" page or "Load More" button?
+IMPORTANT: Since you're looking at an image, describe what you SEE:
+- Look for a GRID of photos with names underneath
+- Faculty cards typically have: photo, name, title, department
+- Ignore navigation bars at top/bottom
+- Focus on the MAIN CONTENT area with the faculty listing
 
-Return ONLY this JSON:
-{{
-    "page_type": "directory" or "profile",
-    "action": "EXTRACT_LIST" or "EXTRACT_PROFILE" or "CLICK" or "FINISH",
-    "card_selector": "CSS selector for faculty cards",
-    "link_selector": "CSS selector for profile links",
-    "name_selector": "CSS selector for names",
-    "title_selector": "CSS selector for titles",
-    "next_page_selector": "pagination selector or null",
-    "reason": "brief explanation"
-}}
-"""
-
-QWEN_EXTRACTION_PROMPT = """Extract professor information from this page content.
-
-{markdown_content}
-
-Return ONLY this JSON (omit fields without data):
-{{
-    "name": "Full Name",
-    "title": "Position/Title",
-    "email": "email@university.edu",
-    "research_interests": ["area1", "area2"],
-    "publications": ["pub1", "pub2"],
-    "lab": "Lab name",
-    "description": "Short bio",
-    "image_url": "photo URL"
-}}
-"""
-
-QWEN_TEXT_PLANNING_PROMPT = """Analyze this faculty webpage HTML to plan scraping.
-
-Objective: {objective}
-URL: {current_url}
-
-HTML (truncated):
-{html_content}
-
-Common patterns to look for:
-- Faculty cards: .faculty-card, .person-card, .profile-card
-- Links: a.profile-link, a[href*="faculty"], a[href*="people"]
-- Names: h2, h3, .name, .faculty-name
-- Titles: .title, .position, .role
-- Pagination: .next, .pagination a, .load-more
-
-Return ONLY JSON:
-{{
-    "action": "EXTRACT_LIST" or "EXTRACT_PROFILE" or "CLICK" or "FINISH",
-    "card_selector": "selector for cards",
-    "link_selector": "selector for links",
-    "name_selector": "selector for names",
-    "title_selector": "selector for titles",
-    "next_page_selector": "pagination selector or null",
-    "reason": "explanation"
-}}
+Return ONLY valid JSON - no markdown blocks, no explanation text.
 """
 
 
@@ -164,22 +111,36 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
         
         current_url = self.browser.get_url()
         objective = state.get("objective", "")
+        html = self.browser.get_html()
         
         logger.info("👁️ Analyzing page with Qwen3-VL...")
         
-        # Try vision-based planning first
+        # Build the analysis prompt using the better GEMINI_ANALYSIS_PROMPT
+        base_prompt = GEMINI_ANALYSIS_PROMPT.format(
+            objective=objective,
+            current_url=current_url,
+            html_content=html[:25000]  # Truncate for context window
+        )
+        
+        # Try vision-based planning first (with screenshot + HTML context)
         result = None
         try:
             screenshot_b64 = self.browser.screenshot_base64()
             logger.info(f"📸 Screenshot captured ({len(screenshot_b64)} bytes)")
             
-            prompt = QWEN_PLANNING_PROMPT.format(
-                objective=objective,
-                current_url=current_url
-            )
-            result = self._vision_request(prompt, screenshot_b64)
+            # Wrap with vision instructions
+            vision_prompt = VISION_PLANNING_PROMPT.format(base_prompt=base_prompt)
+            result = self._vision_request(vision_prompt, screenshot_b64)
             
             if result:
+                # Handle nested 'args' structure from GEMINI_ANALYSIS_PROMPT
+                if 'args' in result:
+                    args = result['args']
+                    result['card_selector'] = args.get('card_selector')
+                    result['link_selector'] = args.get('link_selector')
+                    result['name_selector'] = args.get('name_selector')
+                    result['title_selector'] = args.get('title_selector')
+                    result['next_page_selector'] = args.get('next_page_selector')
                 logger.info(f"✅ Vision response: action={result.get('action')}, card_selector={result.get('card_selector')}")
             else:
                 logger.warning("⚠️ Vision request returned None/empty")
@@ -187,20 +148,22 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
         except Exception as e:
             logger.warning(f"Screenshot failed: {e}, trying text-based planning")
         
-        # Fallback to text-based planning
+        # Fallback to text-based planning (just HTML)
         if not result:
             logger.info("📝 Falling back to text-based planning...")
-            html = self.browser.get_html()
             logger.info(f"📄 Got HTML ({len(html)} chars)")
             
-            prompt = QWEN_TEXT_PLANNING_PROMPT.format(
-                objective=objective,
-                current_url=current_url,
-                html_content=html[:30000]
-            )
-            result = self._text_request(prompt)
+            result = self._text_request(base_prompt)
             
             if result:
+                # Handle nested 'args' structure
+                if 'args' in result:
+                    args = result['args']
+                    result['card_selector'] = args.get('card_selector')
+                    result['link_selector'] = args.get('link_selector')
+                    result['name_selector'] = args.get('name_selector')
+                    result['title_selector'] = args.get('title_selector')
+                    result['next_page_selector'] = args.get('next_page_selector')
                 logger.info(f"✅ Text response: action={result.get('action')}, card_selector={result.get('card_selector')}")
             else:
                 logger.warning("⚠️ Text request also returned None/empty")
@@ -239,15 +202,15 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
         html_or_markdown: str,
         partial_profiles: Optional[List[ProfessorProfile]] = None
     ) -> List[ProfessorProfile]:
-        """Extract profiles using Qwen3-VL."""
+        """Extract profiles using Qwen3-VL with the OLLAMA_EXTRACTION_PROMPT."""
         if not self.client:
             return partial_profiles or []
         
         # Convert to markdown for cleaner extraction
         if html_or_markdown.strip().startswith('<'):
-            markdown = html_to_markdown(html_or_markdown)
+            page_text = html_to_markdown(html_or_markdown)
         else:
-            markdown = html_or_markdown
+            page_text = html_or_markdown
         
         results = []
         profiles_to_process = partial_profiles or [
@@ -257,8 +220,10 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
         for partial in profiles_to_process:
             logger.info(f"🖋️ Extracting: {partial.name}")
             
-            prompt = QWEN_EXTRACTION_PROMPT.format(
-                markdown_content=markdown[:15000]
+            # Use the better OLLAMA_EXTRACTION_PROMPT from prompts.py
+            prompt = OLLAMA_EXTRACTION_PROMPT.format(
+                partial_data=partial.model_dump_json(indent=2),
+                page_text_content=page_text[:15000]
             )
             
             extracted = self._text_request(prompt)

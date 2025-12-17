@@ -405,7 +405,28 @@ class CrawlerManager:
                                 except:
                                     continue
                         
-                        if name != "Unknown":
+                        # Validate: skip nav items and obviously non-person names
+                        skip_names = {
+                            "home", "about", "contact", "faculty", "research", "news", 
+                            "events", "admissions", "students", "alumni", "departments",
+                            "programs", "academics", "resources", "support", "giving",
+                            "filter", "search", "menu", "navigation", "skip to content",
+                            "apply", "visit", "login", "sign in", "more", "view all"
+                        }
+                        name_lower = name.lower().strip()
+                        
+                        # Must be a real person name (at least 2 words or specific patterns)
+                        is_valid_name = (
+                            name != "Unknown" and
+                            len(name) >= 4 and
+                            name_lower not in skip_names and
+                            not name_lower.startswith("filter") and
+                            not name_lower.startswith("search") and
+                            # Names typically have letters and maybe spaces/hyphens
+                            any(c.isalpha() for c in name)
+                        )
+                        
+                        if is_valid_name:
                             partial = ProfessorProfile(name=name, title=title, profile_url=profile_url)
                             found_profiles.append(partial)
                             logger.info(f"  → Found: {name}")
