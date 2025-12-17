@@ -321,74 +321,104 @@ class CrawlerManager:
         found_profiles = state.get("found_profiles", [])
         
         if action.action_type == ActionType.EXTRACT_LIST:
-            # Extract from directory listing
             logger.info("📋 Extracting from faculty list...")
             
+            cards = []
+            used_selector = action.card_selector
+            
+            # Try the provided selector first
             if action.card_selector:
                 cards = self.browser.query_selector_all(action.card_selector)
-                logger.info(f"Found {len(cards)} faculty cards")
-                
+                logger.info(f"Found {len(cards)} cards with selector: {action.card_selector}")
+            
+            # Fallback: try common selectors if no cards found
+            if len(cards) == 0:
+                logger.info("🔄 Trying fallback selectors...")
+                fallback_selectors = [
+                    ".faculty-card", ".person-card", ".profile-card",
+                    ".faculty-item", ".person-item", ".staff-item",
+                    ".directory-item", ".people-item",
+                    "article.person", "div.person", "li.person",
+                    ".views-row",  # Drupal
+                    "[data-faculty]", "[data-person]",
+                    ".card", ".listing-item",
+                ]
+                for selector in fallback_selectors:
+                    try:
+                        cards = self.browser.query_selector_all(selector)
+                        if len(cards) > 0:
+                            logger.info(f"✅ Found {len(cards)} cards with fallback: {selector}")
+                            used_selector = selector
+                            break
+                    except:
+                        continue
+            
+            # If we found cards, extract from them
+            if len(cards) > 0:
                 for card in cards:
                     try:
-                        # Extract basic info from card
-                        name_el = card.query_selector(action.name_selector) if action.name_selector else None
-                        title_el = card.query_selector(action.title_selector) if action.title_selector else None
-                        link_el = card.query_selector(action.link_selector) if action.link_selector else None
-                        
-                        name = name_el.inner_text().strip() if name_el else "Unknown"
-                        title = title_el.inner_text().strip() if title_el else "Unknown"
+                        # Try to find name - look for links and headings
+                        name = "Unknown"
+                        title = "Unknown"
                         profile_url = ""
                         
-                        if link_el:
-                            href = link_el.get_attribute("href")
-                            if href:
-                                profile_url = ensure_absolute_url(base_url, href)
+                        # Try provided selectors first, then fallback
+                        name_selectors = [action.name_selector, "a", "h2", "h3", "h4", ".name", ".title a"] if action.name_selector else ["a", "h2", "h3", "h4", ".name", ".title a"]
+                        for sel in name_selectors:
+                            if sel:
+                                try:
+                                    el = card.query_selector(sel)
+                                    if el:
+                                        name = el.inner_text().strip()
+                                        if name and len(name) > 1:
+                                            break
+                                except:
+                                    continue
                         
-                        # Create partial profile
-                        partial = ProfessorProfile(
-                            name=name,
-                            title=title,
-                            profile_url=profile_url
-                        )
+                        # Try to find title
+                        title_selectors = [action.title_selector, ".title", ".position", ".role", "p", "span"] if action.title_selector else [".title", ".position", ".role", "p", "span"]
+                        for sel in title_selectors:
+                            if sel:
+                                try:
+                                    el = card.query_selector(sel)
+                                    if el:
+                                        t = el.inner_text().strip()
+                                        if t and t != name and len(t) > 3:
+                                            title = t
+                                            break
+                                except:
+                                    continue
                         
-                        # Navigate to profile page and extract full data
-                        if profile_url and profile_url not in state.get("visited_urls", []):
-                            profile_page = self.browser.new_page()
-                            try:
-                                profile_page.goto(profile_url, wait_until="domcontentloaded")
-                                time.sleep(settings.REQUEST_DELAY_MS / 1000)
-                                
-                                profile_html = profile_page.content()
-                                
-                                # Save profile HTML if debug
-                                if self.debug:
-                                    safe_name = sanitize_filename(name)
-                                    profile_dir = Path(self.output_dirs['output']) / safe_name
-                                    profile_dir.mkdir(exist_ok=True)
-                                    (profile_dir / "profile.html").write_text(profile_html, encoding='utf-8')
-                                
-                                # Extract full profile
-                                extracted = self.active_backend.extract_profiles(profile_html, [partial])
-                                if extracted:
-                                    found_profiles.extend(extracted)
-                                    
-                            except Exception as e:
-                                logger.error(f"Failed to extract profile for {name}: {e}")
-                                found_profiles.append(partial)  # Save partial data
-                            finally:
-                                profile_page.close()
-                        else:
+                        # Try to find profile link
+                        link_selectors = [action.link_selector, "a[href]", "a"] if action.link_selector else ["a[href]", "a"]
+                        for sel in link_selectors:
+                            if sel:
+                                try:
+                                    el = card.query_selector(sel)
+                                    if el:
+                                        href = el.get_attribute("href")
+                                        if href and ("faculty" in href or "people" in href or "profile" in href or "staff" in href):
+                                            profile_url = ensure_absolute_url(base_url, href)
+                                            break
+                                        elif href and not href.startswith("#"):
+                                            profile_url = ensure_absolute_url(base_url, href)
+                                except:
+                                    continue
+                        
+                        if name != "Unknown":
+                            partial = ProfessorProfile(name=name, title=title, profile_url=profile_url)
                             found_profiles.append(partial)
+                            logger.info(f"  → Found: {name}")
                             
                     except Exception as e:
                         logger.error(f"Error processing card: {e}")
             else:
-                # Fallback: extract from full page content
+                # Ultimate fallback: extract from full page content using LLM
+                logger.info("📝 No cards found, extracting from full page with LLM...")
                 extracted = self.active_backend.extract_profiles(html)
                 found_profiles.extend(extracted)
                 
         elif action.action_type == ActionType.EXTRACT_PROFILE:
-            # Single profile extraction
             logger.info("👤 Extracting single profile...")
             partial = ProfessorProfile(name="Unknown", title="Unknown", profile_url=base_url)
             extracted = self.active_backend.extract_profiles(html, [partial])

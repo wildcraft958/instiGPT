@@ -168,30 +168,45 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
         logger.info("👁️ Analyzing page with Qwen3-VL...")
         
         # Try vision-based planning first
+        result = None
         try:
             screenshot_b64 = self.browser.screenshot_base64()
+            logger.info(f"📸 Screenshot captured ({len(screenshot_b64)} bytes)")
+            
             prompt = QWEN_PLANNING_PROMPT.format(
                 objective=objective,
                 current_url=current_url
             )
             result = self._vision_request(prompt, screenshot_b64)
+            
+            if result:
+                logger.info(f"✅ Vision response: action={result.get('action')}, card_selector={result.get('card_selector')}")
+            else:
+                logger.warning("⚠️ Vision request returned None/empty")
+                
         except Exception as e:
             logger.warning(f"Screenshot failed: {e}, trying text-based planning")
-            result = None
         
         # Fallback to text-based planning
         if not result:
             logger.info("📝 Falling back to text-based planning...")
             html = self.browser.get_html()
+            logger.info(f"📄 Got HTML ({len(html)} chars)")
+            
             prompt = QWEN_TEXT_PLANNING_PROMPT.format(
                 objective=objective,
                 current_url=current_url,
-                html_content=html[:30000]  # Limit for context window
+                html_content=html[:30000]
             )
             result = self._text_request(prompt)
+            
+            if result:
+                logger.info(f"✅ Text response: action={result.get('action')}, card_selector={result.get('card_selector')}")
+            else:
+                logger.warning("⚠️ Text request also returned None/empty")
         
         if not result:
-            return NavigationAction(action_type=ActionType.FINISH, reason="Planning failed")
+            return NavigationAction(action_type=ActionType.FINISH, reason="Planning failed - no response")
         
         # Parse result into NavigationAction
         action_str = result.get("action", "FINISH").upper()
@@ -202,13 +217,20 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
             "FINISH": ActionType.FINISH,
         }
         
+        card_sel = result.get("card_selector") or ""
+        link_sel = result.get("link_selector") or ""
+        name_sel = result.get("name_selector") or ""
+        title_sel = result.get("title_selector") or ""
+        
+        logger.info(f"🎯 Parsed selectors: card='{card_sel}', link='{link_sel}', name='{name_sel}'")
+        
         return NavigationAction(
             action_type=action_mapping.get(action_str, ActionType.FINISH),
             reason=result.get("reason", ""),
-            card_selector=result.get("card_selector"),
-            link_selector=result.get("link_selector"),
-            name_selector=result.get("name_selector"),
-            title_selector=result.get("title_selector"),
+            card_selector=card_sel if card_sel else None,
+            link_selector=link_sel if link_sel else None,
+            name_selector=name_sel if name_sel else None,
+            title_selector=title_sel if title_sel else None,
             next_page_selector=result.get("next_page_selector"),
         )
     
