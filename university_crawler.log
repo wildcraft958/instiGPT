@@ -1,0 +1,2101 @@
+2025-09-15 11:14:04,944 - INFO - Gemini client initialized successfully.
+2025-09-15 11:14:07,409 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-15 11:14:07,443 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-15 11:14:07,444 - INFO - 🔧 Setting up browser...
+2025-09-15 11:14:09,791 - INFO - ✅ Browser setup complete
+2025-09-15 11:14:09,791 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-15 11:14:18,876 - INFO - 
+--- Step 1 ---
+2025-09-15 11:14:18,913 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-15 11:14:18,914 - ERROR - An error occurred during the run: Replacement index 0 out of range for positional args tuple
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 131, in run
+    action_plan = self.analyze_page_with_gemini(objective, html_content)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 77, in analyze_page_with_gemini
+    prompt = GEMINI_ANALYSIS_PROMPT.format(
+        objective=objective,
+        current_url=self.page.url,
+        html_content=html_content[:10000] # Truncate for performance
+    )
+IndexError: Replacement index 0 out of range for positional args tuple
+2025-09-15 11:15:05,644 - INFO - Gemini client initialized successfully.
+2025-09-15 11:15:06,746 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-15 11:15:06,782 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-15 11:15:06,782 - INFO - 🔧 Setting up browser...
+2025-09-15 11:15:09,397 - INFO - ✅ Browser setup complete
+2025-09-15 11:15:09,397 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-15 11:15:09,526 - INFO - 
+--- Step 1 ---
+2025-09-15 11:15:09,598 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-15 11:15:12,366 - ERROR - Error analyzing page with Gemini: Your default credentials were not found. To set up Application Default Credentials, see https://cloud.google.com/docs/authentication/external/set-up-adc for more information.
+2025-09-15 11:15:12,367 - INFO - Action: FINISH. Reason: Gemini analysis failed.
+2025-09-15 11:15:12,367 - INFO - 
+--- Crawling Finished ---
+2025-09-15 11:15:12,367 - INFO - Extracted 0 profiles.
+2025-09-15 11:15:12,548 - INFO - 🧹 Browser cleaned up.
+2025-09-15 11:18:02,850 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-15 11:18:02,859 - INFO - Gemini client initialized successfully.
+2025-09-15 11:18:04,080 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-15 11:18:04,115 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-15 11:18:04,116 - INFO - 🔧 Setting up browser...
+2025-09-15 11:18:06,778 - INFO - ✅ Browser setup complete
+2025-09-15 11:18:06,778 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-15 11:18:08,711 - INFO - 
+--- Step 1 ---
+2025-09-15 11:18:08,748 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-15 11:18:08,749 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-15 11:18:10,312 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-15 11:18:10,313 - INFO - AFC remote call 1 is done.
+2025-09-15 11:18:10,314 - INFO - 🤖 Gemini suggested action: FINISH
+2025-09-15 11:18:10,314 - INFO - Action: FINISH. Reason: The provided HTML snippet does not contain a list of faculty profiles or links to individual profiles.  The page is the main engineering department page, and further navigation is required to reach a list of faculty. The provided HTML lacks the necessary selectors to identify faculty links.
+2025-09-15 11:18:10,314 - INFO - 
+--- Crawling Finished ---
+2025-09-15 11:18:10,314 - INFO - Extracted 0 profiles.
+2025-09-15 11:18:10,470 - INFO - 🧹 Browser cleaned up.
+2025-09-15 13:31:12,580 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-15 13:31:12,586 - INFO - Gemini client initialized successfully.
+2025-09-15 13:31:14,231 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-15 13:31:14,266 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-15 13:31:14,267 - INFO - 🔧 Setting up browser...
+2025-09-15 13:31:17,450 - INFO - ✅ Browser setup complete
+2025-09-15 13:31:17,450 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-15 13:31:22,181 - INFO - 
+--- Step 1 ---
+2025-09-15 13:31:22,198 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-15 13:31:22,199 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-15 13:31:40,411 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-15 13:31:40,431 - INFO - AFC remote call 1 is done.
+2025-09-15 13:31:40,434 - INFO - 🤖 Gemini suggested action: NAVIGATE_TO_LIST
+2025-09-15 13:31:40,435 - INFO - Action: NAVIGATE_TO_LIST
+2025-09-15 13:31:40,598 - INFO - Found 193 professor cards.
+2025-09-15 13:31:41,331 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Lori-Setton.html...
+2025-09-15 13:31:53,123 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:31:53,128 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:31:54,646 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Kyle-Apley.html...
+2025-09-15 13:32:05,506 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:32:05,511 - INFO - ✅ Extracted profile for: Professor Name
+2025-09-15 13:32:06,171 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Dennis-Barbour.html...
+2025-09-15 13:32:15,417 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:32:15,424 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:32:16,307 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Cory-Berkland.html...
+2025-09-15 13:32:26,330 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:32:26,334 - INFO - ✅ Extracted profile for: Professor Name
+2025-09-15 13:32:27,466 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Hong-Chen.html...
+2025-09-15 13:32:37,260 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:32:37,265 - INFO - ✅ Extracted profile for: Professor Name
+2025-09-15 13:32:38,082 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Quentin-Coquerel.html...
+2025-09-15 13:32:48,313 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:32:48,316 - ERROR - Error extracting data with Ollama: Expecting value: line 1 column 1 (char 0)
+2025-09-15 13:32:49,109 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Jianmin-Cui.html...
+2025-09-15 13:32:59,664 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:32:59,678 - INFO - ✅ Extracted profile for: Professor Name
+2025-09-15 13:33:01,675 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Yifan-Dai.html...
+2025-09-15 13:33:14,170 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:33:14,176 - ERROR - Error extracting data with Ollama: Expecting value: line 1 column 1 (char 0)
+2025-09-15 13:33:15,100 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Song-Hu.html...
+2025-09-15 13:33:25,295 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:33:25,300 - ERROR - Error extracting data with Ollama: Expecting value: line 1 column 1 (char 0)
+2025-09-15 13:33:27,116 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Nathaniel-Huebsch.html...
+2025-09-15 13:33:37,131 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:33:37,134 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:33:38,051 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Abhinav-Jha.html...
+2025-09-15 13:33:51,882 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:33:51,890 - INFO - ✅ Extracted profile for: Professor Name
+2025-09-15 13:33:53,275 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Anastasia-Khokhlova.html...
+2025-09-15 13:34:04,877 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:34:04,881 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:34:06,186 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Joseph-Klaesner.html...
+2025-09-15 13:34:20,037 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:34:20,042 - ERROR - Error extracting data with Ollama: Expecting value: line 1 column 1 (char 0)
+2025-09-15 13:34:22,718 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Daniel-Moran.html...
+2025-09-15 13:34:33,467 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:34:33,471 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:34:35,150 - INFO - 🖋️ Extracting data with Ollama from https://engineering.washu.edu/faculty/Christine-OBrien.html...
+2025-09-15 13:39:39,953 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-15 13:39:39,959 - INFO - Gemini client initialized successfully.
+2025-09-15 13:39:41,324 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-15 13:39:41,344 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-15 13:39:41,345 - INFO - 🔧 Setting up browser...
+2025-09-15 13:39:44,063 - INFO - ✅ Browser setup complete
+2025-09-15 13:39:44,064 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-15 13:39:44,146 - INFO - 
+--- Step 1 ---
+2025-09-15 13:39:44,263 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-15 13:39:44,264 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-15 13:39:57,568 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-15 13:39:57,572 - INFO - AFC remote call 1 is done.
+2025-09-15 13:39:57,573 - INFO - 🤖 Gemini suggested action: NAVIGATE_TO_LIST
+2025-09-15 13:39:57,573 - INFO - Action: NAVIGATE_TO_LIST
+2025-09-15 13:39:57,699 - INFO - Found 193 professor cards.
+2025-09-15 13:39:57,969 - INFO - 🖋️ Extracting details for Lori Setton...
+2025-09-15 13:40:08,818 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:40:08,825 - INFO - ✅ Extracted profile for: Lori Setton
+2025-09-15 13:40:09,634 - INFO - 🖋️ Extracting details for Kyle Apley...
+2025-09-15 13:40:21,904 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:40:21,909 - INFO - ✅ Extracted profile for: Professor Name
+2025-09-15 13:40:22,189 - INFO - 🖋️ Extracting details for Dennis Barbour...
+2025-09-15 13:40:34,007 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:40:34,010 - INFO - ✅ Extracted profile for: Professor Name
+2025-09-15 13:40:34,241 - INFO - 🖋️ Extracting details for Cory Berkland...
+2025-09-15 13:40:43,064 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:40:43,067 - INFO - ✅ Extracted profile for: Cory Berkland
+2025-09-15 13:40:43,383 - INFO - 🖋️ Extracting details for Hong Chen...
+2025-09-15 13:40:55,462 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:40:55,465 - INFO - ✅ Extracted profile for: Professor Name
+2025-09-15 13:40:55,687 - INFO - 🖋️ Extracting details for Quentin R. R. Coquerel De Gracia...
+2025-09-15 13:41:09,679 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:41:09,683 - INFO - ✅ Extracted profile for: John Doe
+2025-09-15 13:41:09,946 - INFO - 🖋️ Extracting details for Jianmin Cui...
+2025-09-15 13:41:18,883 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:41:18,887 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:41:19,145 - INFO - 🖋️ Extracting details for Yifan Dai...
+2025-09-15 13:41:27,626 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:41:27,629 - INFO - ✅ Extracted profile for: Yifan Dai
+2025-09-15 13:41:27,866 - INFO - 🖋️ Extracting details for Song Hu...
+2025-09-15 13:41:41,206 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:41:41,210 - INFO - ✅ Extracted profile for: Professor Name
+2025-09-15 13:41:41,424 - INFO - 🖋️ Extracting details for Nathaniel Huebsch...
+2025-09-15 13:41:50,924 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:41:50,926 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:41:51,198 - INFO - 🖋️ Extracting details for Abhinav Jha...
+2025-09-15 13:42:01,337 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:42:01,342 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:42:01,698 - INFO - 🖋️ Extracting details for Anastasia Khokhlova...
+2025-09-15 13:42:15,577 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:42:15,583 - INFO - ✅ Extracted profile for: Anastasia Khokhlova
+2025-09-15 13:42:15,934 - INFO - 🖋️ Extracting details for Joseph Klaesner...
+2025-09-15 13:42:26,826 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:42:26,830 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:42:27,200 - INFO - 🖋️ Extracting details for Daniel Moran...
+2025-09-15 13:42:36,421 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:42:36,423 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:42:36,713 - INFO - 🖋️ Extracting details for Christine M. O'Brien...
+2025-09-15 13:42:47,520 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:42:47,523 - INFO - ✅ Extracted profile for: John Doe
+2025-09-15 13:42:50,905 - INFO - 🖋️ Extracting details for Rohit Pappu...
+2025-09-15 13:43:01,221 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:43:01,224 - INFO - ✅ Extracted profile for: Rohit Pappu
+2025-09-15 13:43:04,539 - INFO - 🖋️ Extracting details for Barani Raman...
+2025-09-15 13:43:13,880 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:43:13,882 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:43:17,105 - INFO - 🖋️ Extracting details for Jai Rudra...
+2025-09-15 13:43:26,206 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:43:26,210 - INFO - ✅ Extracted profile for: Jai Rudra
+2025-09-15 13:43:28,011 - INFO - 🖋️ Extracting details for Alexandra Rutz...
+2025-09-15 13:43:37,443 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:43:37,446 - INFO - ✅ Extracted profile for: Alexandra Rutz
+2025-09-15 13:43:38,911 - INFO - 🖋️ Extracting details for Katherine Schreiber...
+2025-09-15 13:43:47,830 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:43:47,832 - INFO - ✅ Extracted profile for: Katherine Schreiber
+2025-09-15 13:43:49,774 - INFO - 🖋️ Extracting details for Ismael Seáñez...
+2025-09-15 13:43:59,948 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:43:59,951 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:44:01,557 - INFO - 🖋️ Extracting details for Jin-Yu Shao...
+2025-09-15 13:44:12,848 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:44:12,851 - INFO - ✅ Extracted profile for: Jin-Yu Shao
+2025-09-15 13:44:15,477 - INFO - 🖋️ Extracting details for Piyoosh Sharma...
+2025-09-15 13:44:28,807 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:44:28,809 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:44:31,966 - INFO - 🖋️ Extracting details for Jingyi Shi...
+2025-09-15 13:44:44,901 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:44:44,905 - INFO - ✅ Extracted profile for: Jingyi Shi
+2025-09-15 13:44:47,618 - INFO - 🖋️ Extracting details for Jonathan Silva...
+2025-09-15 13:45:03,735 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 13:45:03,739 - INFO - ✅ Extracted profile for: 
+2025-09-15 13:45:06,518 - INFO - 🖋️ Extracting details for Kurt Thoroughman...
+2025-09-15 15:17:01,290 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-15 15:17:01,298 - INFO - Gemini client initialized successfully.
+2025-09-15 15:17:03,734 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-15 15:17:03,761 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-15 15:17:03,762 - INFO - 🔧 Setting up browser...
+2025-09-15 15:17:07,329 - INFO - ✅ Browser setup complete
+2025-09-15 15:17:07,329 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-15 15:17:11,329 - INFO - 
+--- Step 1 ---
+2025-09-15 15:17:11,350 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-15 15:17:11,353 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-15 15:17:21,710 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-15 15:17:21,711 - INFO - AFC remote call 1 is done.
+2025-09-15 15:17:21,712 - INFO - 🤖 Gemini suggested action: NAVIGATE_TO_LIST
+2025-09-15 15:17:21,712 - INFO - Action: NAVIGATE_TO_LIST
+2025-09-15 15:17:21,768 - INFO - Found 193 professor cards.
+2025-09-15 15:17:22,405 - INFO - 🖋️ Extracting details for Lori Setton...
+2025-09-15 15:17:29,242 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:17:29,247 - INFO - ✅ Extracted profile for: Lori Setton
+2025-09-15 15:17:30,657 - INFO - 🖋️ Extracting details for Kyle Apley...
+2025-09-15 15:17:35,022 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:17:35,023 - INFO - ✅ Extracted profile for: Kyle Apley
+2025-09-15 15:17:36,102 - INFO - 🖋️ Extracting details for Dennis Barbour...
+2025-09-15 15:17:40,694 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:17:40,698 - INFO - ✅ Extracted profile for: Dennis Barbour
+2025-09-15 15:17:41,535 - INFO - 🖋️ Extracting details for Cory Berkland...
+2025-09-15 15:17:45,701 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:17:45,702 - INFO - ✅ Extracted profile for: Cory Berkland
+2025-09-15 15:17:46,367 - INFO - 🖋️ Extracting details for Hong Chen...
+2025-09-15 15:17:50,396 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:17:50,396 - INFO - ✅ Extracted profile for: Hong Chen
+2025-09-15 15:17:51,109 - INFO - 🖋️ Extracting details for Quentin R. R. Coquerel De Gracia...
+2025-09-15 15:17:55,768 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:17:55,769 - INFO - ✅ Extracted profile for: Quentin R. R. Coquerel De Gracia
+2025-09-15 15:17:56,441 - INFO - 🖋️ Extracting details for Jianmin Cui...
+2025-09-15 15:18:02,751 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:18:02,753 - INFO - ✅ Extracted profile for: Jianmin Cui
+2025-09-15 15:18:04,200 - INFO - 🖋️ Extracting details for Yifan Dai...
+2025-09-15 15:18:11,140 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:18:11,146 - INFO - ✅ Extracted profile for: Yifan Dai
+2025-09-15 15:18:11,847 - INFO - 🖋️ Extracting details for Song Hu...
+2025-09-15 15:18:20,721 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:18:20,723 - INFO - ✅ Extracted profile for: Song Hu
+2025-09-15 15:18:21,489 - INFO - 🖋️ Extracting details for Nathaniel Huebsch...
+2025-09-15 15:18:26,521 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:18:26,523 - INFO - ✅ Extracted profile for: Nathaniel Huebsch
+2025-09-15 15:18:27,984 - INFO - 🖋️ Extracting details for Abhinav Jha...
+2025-09-15 15:18:33,187 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:18:33,189 - INFO - ✅ Extracted profile for: Abhinav Jha
+2025-09-15 15:18:34,385 - INFO - 🖋️ Extracting details for Anastasia Khokhlova...
+2025-09-15 15:18:38,249 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:18:38,250 - INFO - ✅ Extracted profile for: Anastasia Khokhlova
+2025-09-15 15:18:39,019 - INFO - 🖋️ Extracting details for Joseph Klaesner...
+2025-09-15 15:18:42,559 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:18:42,560 - INFO - ✅ Extracted profile for: Joseph Klaesner
+2025-09-15 15:18:43,214 - INFO - 🖋️ Extracting details for Daniel Moran...
+2025-09-15 15:18:47,719 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:18:47,720 - INFO - ✅ Extracted profile for: Daniel Moran
+2025-09-15 15:18:48,651 - INFO - 🖋️ Extracting details for Christine M. O'Brien...
+2025-09-15 15:18:55,428 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:18:55,429 - INFO - ✅ Extracted profile for: Christine M. O'Brien
+2025-09-15 15:18:56,118 - INFO - 🖋️ Extracting details for Rohit Pappu...
+2025-09-15 15:19:01,234 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:19:01,235 - INFO - ✅ Extracted profile for: Rohit Pappu
+2025-09-15 15:19:02,032 - INFO - 🖋️ Extracting details for Barani Raman...
+2025-09-15 15:19:06,025 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:19:06,027 - INFO - ✅ Extracted profile for: Barani Raman
+2025-09-15 15:19:06,700 - INFO - 🖋️ Extracting details for Jai Rudra...
+2025-09-15 15:19:11,182 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:19:11,183 - INFO - ✅ Extracted profile for: Jai Rudra
+2025-09-15 15:19:12,073 - INFO - 🖋️ Extracting details for Alexandra Rutz...
+2025-09-15 15:19:17,973 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:19:17,976 - INFO - ✅ Extracted profile for: Alexandra Rutz
+2025-09-15 15:19:19,459 - INFO - 🖋️ Extracting details for Katherine Schreiber...
+2025-09-15 15:19:23,510 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:19:23,511 - INFO - ✅ Extracted profile for: Katherine Schreiber
+2025-09-15 15:19:24,174 - INFO - 🖋️ Extracting details for Ismael Seáñez...
+2025-09-15 15:19:28,686 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:19:28,687 - INFO - ✅ Extracted profile for: Ismael Seáñez
+2025-09-15 15:19:29,582 - INFO - 🖋️ Extracting details for Jin-Yu Shao...
+2025-09-15 15:19:33,650 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:19:33,651 - INFO - ✅ Extracted profile for: Jin-Yu Shao
+2025-09-15 15:19:35,044 - INFO - 🖋️ Extracting details for Piyoosh Sharma...
+2025-09-15 15:19:40,177 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:19:40,178 - INFO - ✅ Extracted profile for: Piyoosh Sharma
+2025-09-15 15:19:41,615 - INFO - 🖋️ Extracting details for Jingyi Shi...
+2025-09-15 15:19:45,772 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-15 15:19:45,773 - INFO - ✅ Extracted profile for: Jingyi Shi
+2025-09-15 15:19:47,242 - INFO - 🖋️ Extracting details for Jonathan Silva...
+2025-09-28 23:06:13,912 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 503 Service Unavailable"
+2025-09-28 23:06:13,915 - ERROR - Failed to initialize Gemini client: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 23:06:15,991 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:06:16,018 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:17:57,996 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:17:58,004 - INFO - Gemini client initialized successfully.
+2025-09-28 23:18:00,096 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:18:00,127 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:23:50,329 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:23:50,334 - INFO - Gemini client initialized successfully.
+2025-09-28 23:23:51,988 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:23:52,016 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:23:52,017 - INFO - 🔧 Setting up browser...
+2025-09-28 23:26:34,169 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:26:34,176 - INFO - Gemini client initialized successfully.
+2025-09-28 23:26:36,100 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:26:36,129 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:26:36,130 - INFO - 🔧 Setting up browser...
+2025-09-28 23:26:41,173 - INFO - ✅ Browser setup complete
+2025-09-28 23:26:41,173 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-28 23:26:44,727 - INFO - 
+--- Step 1 ---
+2025-09-28 23:26:44,807 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-28 23:26:44,808 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:27:07,079 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-28 23:27:07,088 - INFO - AFC remote call 1 is done.
+2025-09-28 23:27:07,088 - INFO - 🤖 Gemini suggested action: None
+2025-09-28 23:27:07,088 - WARNING - Unknown action: None. Finishing.
+2025-09-28 23:27:07,088 - INFO - 
+--- Crawling Finished ---
+2025-09-28 23:27:07,088 - INFO - Extracted 0 profiles.
+2025-09-28 23:27:07,347 - INFO - 🧹 Browser cleaned up.
+2025-09-28 23:32:46,631 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:32:46,639 - INFO - Gemini client initialized successfully.
+2025-09-28 23:32:50,133 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:32:50,162 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:32:50,163 - INFO - 🔧 Setting up browser...
+2025-09-28 23:32:52,503 - INFO - ✅ Browser setup complete
+2025-09-28 23:32:52,503 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-28 23:32:52,716 - INFO - 
+--- Step 1 ---
+2025-09-28 23:32:52,797 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-28 23:32:52,797 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:33:06,914 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-28 23:33:06,918 - INFO - AFC remote call 1 is done.
+2025-09-28 23:33:06,918 - INFO - 🤖 Gemini suggested action: EXTRACT
+2025-09-28 23:33:06,918 - WARNING - Unknown action: EXTRACT. Finishing.
+2025-09-28 23:33:06,918 - INFO - 
+--- Crawling Finished ---
+2025-09-28 23:33:06,919 - INFO - Extracted 0 profiles.
+2025-09-28 23:33:07,164 - INFO - 🧹 Browser cleaned up.
+2025-09-28 23:35:49,545 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:35:49,548 - INFO - Gemini client initialized successfully.
+2025-09-28 23:35:51,246 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:35:51,275 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:35:51,276 - INFO - 🔧 Setting up browser...
+2025-09-28 23:35:53,808 - INFO - ✅ Browser setup complete
+2025-09-28 23:35:53,809 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-28 23:35:53,956 - INFO - 
+--- Step 1 ---
+2025-09-28 23:35:54,045 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-28 23:35:54,045 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:36:07,889 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-28 23:36:07,892 - INFO - AFC remote call 1 is done.
+2025-09-28 23:36:07,893 - INFO - 🤖 Gemini suggested action: EXTRACT_LIST
+2025-09-28 23:36:07,893 - WARNING - Unknown action: EXTRACT_LIST. Finishing.
+2025-09-28 23:36:07,893 - INFO - 
+--- Crawling Finished ---
+2025-09-28 23:36:07,893 - INFO - Extracted 0 profiles.
+2025-09-28 23:36:08,111 - INFO - 🧹 Browser cleaned up.
+2025-09-28 23:41:17,268 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:41:17,275 - INFO - Gemini client initialized successfully.
+2025-09-28 23:41:19,020 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:41:19,050 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:41:19,051 - INFO - 🔧 Setting up browser...
+2025-09-28 23:41:21,174 - INFO - ✅ Browser setup complete
+2025-09-28 23:41:21,175 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-28 23:41:21,352 - INFO - 
+--- Step 1 ---
+2025-09-28 23:41:21,450 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-28 23:41:21,450 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:41:22,262 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 503 Service Unavailable"
+2025-09-28 23:41:22,263 - ERROR - Error analyzing page with Gemini: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 23:41:22,263 - INFO - Action: FINISH. Reason: Gemini analysis failed.
+2025-09-28 23:41:22,264 - INFO - 
+--- Crawling Finished ---
+2025-09-28 23:41:22,264 - INFO - Extracted 0 profiles.
+2025-09-28 23:41:23,792 - INFO - 🧹 Browser cleaned up.
+2025-09-28 23:41:30,627 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:41:30,635 - INFO - Gemini client initialized successfully.
+2025-09-28 23:41:31,767 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:41:31,793 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:41:31,795 - INFO - 🔧 Setting up browser...
+2025-09-28 23:41:33,237 - INFO - ✅ Browser setup complete
+2025-09-28 23:41:33,237 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-28 23:41:33,334 - INFO - 
+--- Step 1 ---
+2025-09-28 23:41:33,414 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-28 23:41:33,414 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:41:34,197 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 503 Service Unavailable"
+2025-09-28 23:41:34,202 - ERROR - Error analyzing page with Gemini: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The service is currently unavailable.', 'status': 'UNAVAILABLE'}}
+2025-09-28 23:41:34,202 - INFO - Action: FINISH. Reason: Gemini analysis failed.
+2025-09-28 23:41:34,202 - INFO - 
+--- Crawling Finished ---
+2025-09-28 23:41:34,202 - INFO - Extracted 0 profiles.
+2025-09-28 23:41:34,414 - INFO - 🧹 Browser cleaned up.
+2025-09-28 23:42:43,178 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:42:43,182 - INFO - Gemini client initialized successfully.
+2025-09-28 23:42:44,561 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:42:44,588 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:43:31,519 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:43:31,526 - INFO - Gemini client initialized successfully.
+2025-09-28 23:43:33,092 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:43:33,119 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:44:02,900 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:44:02,908 - INFO - Gemini client initialized successfully.
+2025-09-28 23:44:04,105 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:44:04,128 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:44:04,128 - INFO - 🔧 Setting up browser...
+2025-09-28 23:44:06,436 - INFO - ✅ Browser setup complete
+2025-09-28 23:44:06,437 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-28 23:44:06,570 - INFO - 
+--- Step 1 ---
+2025-09-28 23:44:06,627 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-28 23:44:06,628 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:44:13,144 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-28 23:44:13,150 - INFO - AFC remote call 1 is done.
+2025-09-28 23:44:13,150 - INFO - 🤖 Gemini suggested action: EXTRACT_LIST
+2025-09-28 23:44:13,150 - INFO - Action: EXTRACT_LIST
+2025-09-28 23:44:13,150 - ERROR - Missing 'faculty_card_selector' for EXTRACT_LIST action. Finishing.
+2025-09-28 23:44:13,150 - INFO - 
+--- Crawling Finished ---
+2025-09-28 23:44:13,150 - INFO - Extracted 0 profiles.
+2025-09-28 23:44:13,365 - INFO - 🧹 Browser cleaned up.
+2025-09-28 23:45:47,513 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:45:47,521 - INFO - Gemini client initialized successfully.
+2025-09-28 23:45:49,113 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:45:49,140 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:45:49,140 - INFO - 🔧 Setting up browser...
+2025-09-28 23:45:51,394 - INFO - ✅ Browser setup complete
+2025-09-28 23:45:51,394 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-28 23:45:51,527 - INFO - 
+--- Step 1 ---
+2025-09-28 23:45:51,599 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-28 23:45:51,600 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:46:01,035 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-28 23:46:01,042 - INFO - AFC remote call 1 is done.
+2025-09-28 23:46:01,043 - INFO - 🤖 Gemini suggested action: CLICK
+2025-09-28 23:46:01,043 - INFO - Action: CLICK on selector 'None'
+2025-09-28 23:46:01,044 - ERROR - No selector provided for CLICK action. Finishing.
+2025-09-28 23:46:01,044 - INFO - 
+--- Crawling Finished ---
+2025-09-28 23:46:01,044 - INFO - Extracted 0 profiles.
+2025-09-28 23:46:01,249 - INFO - 🧹 Browser cleaned up.
+2025-09-28 23:48:19,547 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:48:19,553 - INFO - Gemini client initialized successfully.
+2025-09-28 23:48:21,377 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:48:21,404 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:48:21,405 - INFO - 🔧 Setting up browser...
+2025-09-28 23:48:23,482 - INFO - ✅ Browser setup complete
+2025-09-28 23:48:23,483 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-28 23:48:23,662 - INFO - 
+--- Step 1 ---
+2025-09-28 23:48:23,757 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-28 23:48:23,757 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:48:39,135 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-28 23:48:39,141 - INFO - AFC remote call 1 is done.
+2025-09-28 23:48:39,142 - INFO - 🤖 Gemini suggested action: NAVIGATE_TO_LIST
+2025-09-28 23:48:39,142 - WARNING - Attempt 1: Gemini plan is invalid. Reason: Action 'NAVIGATE_TO_LIST' is missing required arguments: card_selector, link_selector, name_selector, title_selector.
+2025-09-28 23:48:39,142 - INFO - 🧠 Re-analyzing page with Gemini for a correction...
+2025-09-28 23:48:39,142 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:48:55,957 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-28 23:48:55,962 - INFO - AFC remote call 1 is done.
+2025-09-28 23:48:55,962 - INFO - 🤖 Gemini suggested action: NAVIGATE_TO_LIST
+2025-09-28 23:48:55,962 - INFO - Action: NAVIGATE_TO_LIST
+2025-09-28 23:48:56,053 - INFO - Found 194 professor cards.
+2025-09-28 23:49:00,063 - INFO - 🖋️ Extracting details for Lori Setton...
+2025-09-28 23:49:00,311 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:01,221 - INFO - 🖋️ Extracting details for Kyle Apley...
+2025-09-28 23:49:01,251 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:01,785 - INFO - 🖋️ Extracting details for Dennis Barbour...
+2025-09-28 23:49:01,824 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:02,347 - INFO - 🖋️ Extracting details for Cory Berkland...
+2025-09-28 23:49:02,382 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:03,532 - INFO - 🖋️ Extracting details for Hong Chen...
+2025-09-28 23:49:03,564 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:04,105 - INFO - 🖋️ Extracting details for Quentin R. R. Coquerel De Gracia...
+2025-09-28 23:49:04,133 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:04,625 - INFO - 🖋️ Extracting details for Jianmin Cui...
+2025-09-28 23:49:04,656 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:05,789 - INFO - 🖋️ Extracting details for Yifan Dai...
+2025-09-28 23:49:05,820 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:07,034 - INFO - 🖋️ Extracting details for Song Hu...
+2025-09-28 23:49:07,074 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:08,326 - INFO - 🖋️ Extracting details for Nathaniel Huebsch...
+2025-09-28 23:49:08,353 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:08,889 - INFO - 🖋️ Extracting details for Abhinav Jha...
+2025-09-28 23:49:08,929 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:09,526 - INFO - 🖋️ Extracting details for Anastasia Khokhlova...
+2025-09-28 23:49:09,552 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:10,110 - INFO - 🖋️ Extracting details for Joseph Klaesner...
+2025-09-28 23:49:10,149 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:10,682 - INFO - 🖋️ Extracting details for Daniel Moran...
+2025-09-28 23:49:10,713 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:11,222 - INFO - 🖋️ Extracting details for Christine M. O'Brien...
+2025-09-28 23:49:11,250 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:11,741 - INFO - 🖋️ Extracting details for Rohit Pappu...
+2025-09-28 23:49:11,769 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:12,275 - INFO - 🖋️ Extracting details for Barani Raman...
+2025-09-28 23:49:12,305 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:13,601 - INFO - 🖋️ Extracting details for Jai Rudra...
+2025-09-28 23:49:13,628 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:14,963 - INFO - 🖋️ Extracting details for Alexandra Rutz...
+2025-09-28 23:49:14,990 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:15,776 - INFO - 🖋️ Extracting details for Katherine Schreiber...
+2025-09-28 23:49:15,793 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:16,929 - INFO - 🖋️ Extracting details for Ismael Seáñez...
+2025-09-28 23:49:16,953 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:17,463 - INFO - 🖋️ Extracting details for Jin-Yu Shao...
+2025-09-28 23:49:17,491 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:19,137 - INFO - 🖋️ Extracting details for Piyoosh Sharma...
+2025-09-28 23:49:19,154 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:19,625 - INFO - 🖋️ Extracting details for Jingyi Shi...
+2025-09-28 23:49:19,653 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:20,140 - INFO - 🖋️ Extracting details for Jonathan Silva...
+2025-09-28 23:49:20,168 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:20,657 - INFO - 🖋️ Extracting details for Kurt Thoroughman...
+2025-09-28 23:49:20,688 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:21,192 - INFO - 🖋️ Extracting details for Michael Vahey...
+2025-09-28 23:49:21,218 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:21,719 - INFO - 🖋️ Extracting details for Patricia Widder...
+2025-09-28 23:49:21,740 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:22,216 - INFO - 🖋️ Extracting details for Yan Yu...
+2025-09-28 23:49:22,237 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:22,775 - INFO - 🖋️ Extracting details for Chao Zhou...
+2025-09-28 23:49:22,810 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:23,288 - INFO - 🖋️ Extracting details for Quing Zhu...
+2025-09-28 23:49:23,312 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:23,775 - INFO - 🖋️ Extracting details for Kunal Agrawal...
+2025-09-28 23:49:23,792 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:24,272 - INFO - 🖋️ Extracting details for Sanjoy Baruah...
+2025-09-28 23:49:24,293 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:24,890 - INFO - 🖋️ Extracting details for Aaron Bobick...
+2025-09-28 23:49:24,908 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:26,779 - INFO - 🖋️ Extracting details for Ian Bogost...
+2025-09-28 23:49:26,798 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:27,633 - INFO - 🖋️ Extracting details for Michael Brent...
+2025-09-28 23:49:27,660 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:28,281 - INFO - 🖋️ Extracting details for Jeremy Buhler...
+2025-09-28 23:49:28,301 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:28,782 - INFO - 🖋️ Extracting details for Roger Chamberlain...
+2025-09-28 23:49:28,802 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:29,264 - INFO - 🖋️ Extracting details for Yixin Chen...
+2025-09-28 23:49:29,336 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:29,832 - INFO - 🖋️ Extracting details for Steve Cole...
+2025-09-28 23:49:29,850 - ERROR - Error processing a professor card: 'html_content'
+Traceback (most recent call last):
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 292, in run
+    final_profile = self.extract_faculty_data_with_ollama(profile_html, partial_profile)
+  File "/Users/praty/Downloads/Projects/igpt/crawler/university_crawler.py", line 164, in extract_faculty_data_with_ollama
+    prompt = OLLAMA_EXTRACTION_PROMPT.format(
+        partial_data=partial_data_json,
+        page_text_content=page_text
+    )
+KeyError: 'html_content'
+2025-09-28 23:49:52,103 - ERROR - Task was destroyed but it is pending!
+task: <Task pending name='Task-417' coro=<Page.close() running at /opt/miniconda3/lib/python3.13/site-packages/playwright/_impl/_page.py:830> cb=[SyncBase._sync.<locals>.<lambda>() at /opt/miniconda3/lib/python3.13/site-packages/playwright/_impl/_sync_base.py:111]>
+2025-09-28 23:49:52,103 - ERROR - Task was destroyed but it is pending!
+task: <Task pending name='Task-416' coro=<Page.goto() done, defined at /opt/miniconda3/lib/python3.13/site-packages/playwright/_impl/_page.py:549> wait_for=<Future pending cb=[Task.task_wakeup()]> cb=[SyncBase._sync.<locals>.<lambda>() at /opt/miniconda3/lib/python3.13/site-packages/playwright/_impl/_sync_base.py:111, ProtocolCallback.__init__.<locals>.cb() at /opt/miniconda3/lib/python3.13/site-packages/playwright/_impl/_connection.py:228]>
+2025-09-28 23:49:52,103 - ERROR - Task was destroyed but it is pending!
+task: <Task pending name='Task-418' coro=<BrowserContext.close() running at /opt/miniconda3/lib/python3.13/site-packages/playwright/_impl/_browser_context.py:588> cb=[SyncBase._sync.<locals>.<lambda>() at /opt/miniconda3/lib/python3.13/site-packages/playwright/_impl/_sync_base.py:111]>
+2025-09-28 23:52:03,268 - INFO - HTTP Request: GET https://generativelanguage.googleapis.com/v1beta/models "HTTP/1.1 200 OK"
+2025-09-28 23:52:03,274 - INFO - Gemini client initialized successfully.
+2025-09-28 23:52:05,555 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/pull "HTTP/1.1 200 OK"
+2025-09-28 23:52:05,584 - INFO - Ollama client initialized and model pulled successfully.
+2025-09-28 23:52:05,585 - INFO - 🔧 Setting up browser...
+2025-09-28 23:52:07,674 - INFO - ✅ Browser setup complete
+2025-09-28 23:52:07,674 - INFO - Navigating to https://engineering.wustl.edu/faculty/index.html
+2025-09-28 23:52:07,806 - INFO - 
+--- Step 1 ---
+2025-09-28 23:52:07,883 - INFO - 🧠 Analyzing page with Gemini...
+2025-09-28 23:52:07,884 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:52:18,127 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-28 23:52:18,137 - INFO - AFC remote call 1 is done.
+2025-09-28 23:52:18,137 - INFO - 🤖 Gemini suggested action: NAVIGATE_TO_LIST
+2025-09-28 23:52:18,137 - WARNING - Attempt 1: Gemini plan is invalid. Reason: Action 'NAVIGATE_TO_LIST' is missing required arguments: card_selector, link_selector, name_selector, title_selector.
+2025-09-28 23:52:18,137 - INFO - 🧠 Re-analyzing page with Gemini for a correction...
+2025-09-28 23:52:18,138 - INFO - AFC is enabled with max remote calls: 10.
+2025-09-28 23:52:25,704 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2025-09-28 23:52:25,726 - INFO - AFC remote call 1 is done.
+2025-09-28 23:52:25,728 - INFO - 🤖 Gemini suggested action: NAVIGATE_TO_LIST
+2025-09-28 23:52:25,729 - INFO - Action: NAVIGATE_TO_LIST
+2025-09-28 23:52:25,949 - INFO - Found 194 professor cards.
+2025-09-28 23:52:26,418 - INFO - 🖋️ Extracting details for Lori Setton...
+2025-09-28 23:52:51,636 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:52:51,642 - INFO - ✅ Extracted profile for: Lori Setton
+2025-09-28 23:52:52,139 - INFO - 🖋️ Extracting details for Kyle Apley...
+2025-09-28 23:52:54,375 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:52:54,376 - INFO - ✅ Extracted profile for: Kyle Apley
+2025-09-28 23:52:54,623 - INFO - 🖋️ Extracting details for Dennis Barbour...
+2025-09-28 23:52:58,181 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:52:58,182 - INFO - ✅ Extracted profile for: Dennis Barbour
+2025-09-28 23:52:58,424 - INFO - 🖋️ Extracting details for Cory Berkland...
+2025-09-28 23:53:01,277 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:01,278 - INFO - ✅ Extracted profile for: Cory Berkland
+2025-09-28 23:53:01,511 - INFO - 🖋️ Extracting details for Hong Chen...
+2025-09-28 23:53:04,380 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:04,381 - INFO - ✅ Extracted profile for: Hong Chen
+2025-09-28 23:53:04,635 - INFO - 🖋️ Extracting details for Quentin R. R. Coquerel De Gracia...
+2025-09-28 23:53:07,846 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:07,846 - INFO - ✅ Extracted profile for: Quentin R. R. Coquerel De Gracia
+2025-09-28 23:53:08,035 - INFO - 🖋️ Extracting details for Jianmin Cui...
+2025-09-28 23:53:10,845 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:10,847 - INFO - ✅ Extracted profile for: Jianmin Cui
+2025-09-28 23:53:11,112 - INFO - 🖋️ Extracting details for Yifan Dai...
+2025-09-28 23:53:14,908 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:14,909 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 6 (char 123)
+2025-09-28 23:53:14,910 - ERROR - Content that failed to parse: {
+        "name": "Yifan Dai",
+        "title": "Assistant Professor",
+        "department": "Biomedical Engineering"
+    },
+    {
+        "research_interests": [
+            "Applied Physics",
+            "Biomedical, Bio-inspired, and Bio-derived Materials",
+            "Cell & Molecular Bioengineering",
+            "Materials for Energy and Environmental Technologies"
+        ],
+        "phone": null,
+        "office": "Brauer Hall, Room 2028",
+        "email": "dyifan@wustl.edu",
+        "profile_url": "https://scholar.google.com/citations?user=5uM3aCAAAAJ&hl=en"
+    }
+2025-09-28 23:53:14,910 - ERROR - Could not parse JSON for Yifan Dai
+2025-09-28 23:53:15,196 - INFO - 🖋️ Extracting details for Song Hu...
+2025-09-28 23:53:21,437 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:21,440 - INFO - ✅ Extracted profile for: Song Hu
+2025-09-28 23:53:21,821 - INFO - 🖋️ Extracting details for Nathaniel Huebsch...
+2025-09-28 23:53:25,163 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:25,164 - INFO - ✅ Extracted profile for: Nathaniel Huebsch
+2025-09-28 23:53:25,416 - INFO - 🖋️ Extracting details for Abhinav Jha...
+2025-09-28 23:53:35,318 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:35,321 - ERROR - Failed to parse extracted JSON: Extra data: line 15 column 4 (char 633)
+2025-09-28 23:53:35,321 - ERROR - Content that failed to parse: {
+   "name": "Abhinav K. Jha",
+   "title": "Associate Professor, Biomedical Engineering, and courtesy appointments in Radiology and Electrical & Systems Engineering",
+   "email": "a.jha@wustl.edu",
+   "department": "Biomedical Engineering",
+   "research_interests": [
+    "Computational imaging methods for diagnosing and treating diseases",
+    "Design, evaluation, and translation of computational medical imaging methods",
+    "Quantitative measures of task performance in diagnostic and therapeutic tasks"
+   ],
+   "profile_url": null,
+   "image_url": null,
+   "phone": "314-273-2655",
+   "office": "Whitaker Hall, Room 200D"
+  },
+  {
+   "name": "Abhinav K. Jha",
+   "title": "Associate Professor, Biomedical Engineering, and courtesy appointments in Radiology and Electrical & Systems Engineering",
+   "email": "a.jha@wustl.edu",
+   "department": "Biomedical Engineering",
+   "research_interests": [
+    "Computational imaging methods for diagnosing and treating diseases",
+    "Design, evaluation, and translation of computational medical imaging methods",
+    "Quantitative measures of task performance in diagnostic and therapeutic tasks"
+   ],
+   "profile_url": null,
+   "image_url": null,
+   "phone": null,
+   "office": null
+  },
+  {
+   "name": "Abhinav K. Jha",
+   "title": "Associate Professor, Biomedical Engineering, and courtesy appointments in Radiology and Electrical & Systems Engineering",
+   "email": "a.jha@wustl.edu",
+   "department": "Biomedical Engineering",
+   "research_interests": [
+    "Computational imaging methods for diagnosing and treating diseases",
+    "Design, evaluation, and translation of computational medical imaging methods",
+    "Quantitative measures of task performance in diagnostic and therapeutic tasks"
+   ],
+   "profile_url": null,
+   "image_url": null,
+   "phone": null,
+   "office": null
+  }
+2025-09-28 23:53:35,321 - ERROR - Could not parse JSON for Abhinav Jha
+2025-09-28 23:53:35,546 - INFO - 🖋️ Extracting details for Anastasia Khokhlova...
+2025-09-28 23:53:38,091 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:38,091 - INFO - ✅ Extracted profile for: Anastasia Khokhlova
+2025-09-28 23:53:38,308 - INFO - 🖋️ Extracting details for Joseph Klaesner...
+2025-09-28 23:53:41,028 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:41,029 - INFO - ✅ Extracted profile for: Joseph Klaesner
+2025-09-28 23:53:41,261 - INFO - 🖋️ Extracting details for Daniel Moran...
+2025-09-28 23:53:44,270 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:44,271 - INFO - ✅ Extracted profile for: Daniel Moran
+2025-09-28 23:53:44,491 - INFO - 🖋️ Extracting details for Christine M. O'Brien...
+2025-09-28 23:53:47,135 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:47,136 - INFO - ✅ Extracted profile for: Christine M. O'Brien
+2025-09-28 23:53:47,361 - INFO - 🖋️ Extracting details for Rohit Pappu...
+2025-09-28 23:53:51,908 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:51,910 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 6 (char 143)
+2025-09-28 23:53:51,910 - ERROR - Content that failed to parse: {
+        "name": "Rohit Pappu",
+        "title": "Gene K. Beare Distinguished Professor",
+        "department": "Biomedical Engineering"
+    },
+    {
+        "research_interests": [
+            "Biomechanics & Mechanobiology",
+            "Biomedical, Bio-inspired, and Bio-derived Materials",
+            "Cell & Molecular Bioengineering",
+            "Computational Systems Biology"
+        ],
+        "profile_url": "https://wustl.edu/faculty/rohit-pappu/", 
+        "image_url": "https://wustl.edu/faculty/rohit-pappu/default-image.jpg", 
+        "phone": "314-935-7958",
+        "office": "Brauer Hall, Room 2015a"
+    }
+2025-09-28 23:53:51,910 - ERROR - Could not parse JSON for Rohit Pappu
+2025-09-28 23:53:52,116 - INFO - 🖋️ Extracting details for Barani Raman...
+2025-09-28 23:53:55,381 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:55,383 - INFO - ✅ Extracted profile for: Barani Raman
+2025-09-28 23:53:55,601 - INFO - 🖋️ Extracting details for Jai Rudra...
+2025-09-28 23:53:59,000 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:53:59,001 - INFO - ✅ Extracted profile for: Jai Rudra
+2025-09-28 23:53:59,210 - INFO - 🖋️ Extracting details for Alexandra Rutz...
+2025-09-28 23:54:03,126 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:03,128 - ERROR - Failed to parse extracted JSON: Extra data: line 11 column 4 (char 412)
+2025-09-28 23:54:03,128 - ERROR - Content that failed to parse: {
+    "name": "Alexandra Rutz",
+    "title": "Assistant Professor",
+    "email": "rutzalexandral@wustl.edu",
+    "department": "Biomedical Engineering",
+    "research_interests": ["Advances bioelectronics using materials and fabrication-based approaches", "Engineering electronic tissues"],
+    "profile_url": null,
+    "image_url": null,
+    "phone": "314-935-2348",
+    "office": "Whitaker Hall, Room 390D"
+  },
+  {
+    "name": null,
+    "title": null,
+    "email": null,
+    "department": null,
+    "research_interests": null,
+    "profile_url": null,
+    "image_url": null,
+    "phone": null,
+    "office": null
+  }
+2025-09-28 23:54:03,129 - ERROR - Could not parse JSON for Alexandra Rutz
+2025-09-28 23:54:03,330 - INFO - 🖋️ Extracting details for Katherine Schreiber...
+2025-09-28 23:54:05,558 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:05,559 - INFO - ✅ Extracted profile for: Katherine Schreiber
+2025-09-28 23:54:05,766 - INFO - 🖋️ Extracting details for Ismael Seáñez...
+2025-09-28 23:54:08,672 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:08,672 - INFO - ✅ Extracted profile for: Ismael Seáñez
+2025-09-28 23:54:08,865 - INFO - 🖋️ Extracting details for Jin-Yu Shao...
+2025-09-28 23:54:11,685 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:11,686 - INFO - ✅ Extracted profile for: Jin-Yu Shao
+2025-09-28 23:54:11,860 - INFO - 🖋️ Extracting details for Piyoosh Sharma...
+2025-09-28 23:54:14,161 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:14,162 - INFO - ✅ Extracted profile for: Piyoosh Sharma
+2025-09-28 23:54:14,347 - INFO - 🖋️ Extracting details for Jingyi Shi...
+2025-09-28 23:54:16,824 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:16,824 - INFO - ✅ Extracted profile for: Jingyi Shi
+2025-09-28 23:54:16,994 - INFO - 🖋️ Extracting details for Jonathan Silva...
+2025-09-28 23:54:20,629 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:20,629 - ERROR - Failed to parse extracted JSON: Extra data: line 17 column 6 (char 578)
+2025-09-28 23:54:20,629 - ERROR - Content that failed to parse: {
+        "name": "Jonathan R. Silva",
+        "title": "Professor",
+        "department": "Biomedical Engineering",
+        "research_interests": [
+            "Cardiovascular Engineering",
+            "Cell & Molecular Bioengineering",
+            "Computational Systems Biology",
+            "Regenerative Engineering in Medicine"
+        ],
+        "profile_url": "https://scholar.google.com/citations?user=2P0aKdQAaaAJ&hl=en",
+        "image_url": null,
+        "phone": "314-935-8837",
+        "office": {
+            "location": "Whitaker Hall, Room 290G"
+        }
+    },
+    {}
+2025-09-28 23:54:20,629 - ERROR - Could not parse JSON for Jonathan Silva
+2025-09-28 23:54:20,798 - INFO - 🖋️ Extracting details for Kurt Thoroughman...
+2025-09-28 23:54:23,297 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:23,298 - INFO - ✅ Extracted profile for: Kurt Thoroughman
+2025-09-28 23:54:24,315 - INFO - 🖋️ Extracting details for Michael Vahey...
+2025-09-28 23:54:27,476 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:27,477 - INFO - ✅ Extracted profile for: Michael Vahey
+2025-09-28 23:54:28,131 - INFO - 🖋️ Extracting details for Patricia Widder...
+2025-09-28 23:54:31,029 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:31,030 - INFO - ✅ Extracted profile for: Patricia Widder
+2025-09-28 23:54:31,353 - INFO - 🖋️ Extracting details for Yan Yu...
+2025-09-28 23:54:34,566 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:34,567 - INFO - ✅ Extracted profile for: Yan Yu
+2025-09-28 23:54:34,794 - INFO - 🖋️ Extracting details for Chao Zhou...
+2025-09-28 23:54:38,111 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:38,112 - INFO - ✅ Extracted profile for: Chao Zhou
+2025-09-28 23:54:38,307 - INFO - 🖋️ Extracting details for Quing Zhu...
+2025-09-28 23:54:42,396 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:42,401 - INFO - ✅ Extracted profile for: Quing Zhu
+2025-09-28 23:54:42,682 - INFO - 🖋️ Extracting details for Kunal Agrawal...
+2025-09-28 23:54:46,133 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:46,136 - INFO - ✅ Extracted profile for: Kunal Agrawal
+2025-09-28 23:54:46,366 - INFO - 🖋️ Extracting details for Sanjoy Baruah...
+2025-09-28 23:54:49,799 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:49,801 - INFO - ✅ Extracted profile for: Sanjoy Baruah
+2025-09-28 23:54:50,025 - INFO - 🖋️ Extracting details for Aaron Bobick...
+2025-09-28 23:54:55,484 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:55,485 - ERROR - Failed to parse extracted JSON: Extra data: line 10 column 4 (char 395)
+2025-09-28 23:54:55,485 - ERROR - Content that failed to parse: {
+   "name": "Aaron Bobick",
+   "title": "Dean & James M. McKelvey Professor",
+   "department": "Computer Science & Engineering",
+   "research_interests": [
+    "Studies how robots can more efficiently interact with objects",
+    "Biography"
+   ],
+   "profile_url": "https://news.wustl.edu/article/158942-aaron-bobick-dean-and-james-m-mckelvey-professor-of-computer-science-and-engineering/"
+  },
+  {
+   "name": "Jennifer DeLaney, MD '97",
+   "title": "Saving front-line workers",
+   "department": null,
+   "research_interests": [],
+   "profile_url": null,
+   "image_url": null,
+   "phone": "null",
+   "office": "null"
+  }
+2025-09-28 23:54:55,485 - ERROR - Could not parse JSON for Aaron Bobick
+2025-09-28 23:54:55,720 - INFO - 🖋️ Extracting details for Ian Bogost...
+2025-09-28 23:54:59,932 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:54:59,933 - INFO - ✅ Extracted profile for: Ian Bogost
+2025-09-28 23:55:00,177 - INFO - 🖋️ Extracting details for Michael Brent...
+2025-09-28 23:55:03,947 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:03,948 - INFO - ✅ Extracted profile for: Michael Brent
+2025-09-28 23:55:04,167 - INFO - 🖋️ Extracting details for Jeremy Buhler...
+2025-09-28 23:55:07,234 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:07,235 - INFO - ✅ Extracted profile for: Jeremy Buhler
+2025-09-28 23:55:07,453 - INFO - 🖋️ Extracting details for Roger Chamberlain...
+2025-09-28 23:55:10,657 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:10,658 - INFO - ✅ Extracted profile for: Roger Chamberlain
+2025-09-28 23:55:10,852 - INFO - 🖋️ Extracting details for Yixin Chen...
+2025-09-28 23:55:13,720 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:13,723 - INFO - ✅ Extracted profile for: Yixin Chen
+2025-09-28 23:55:13,942 - INFO - 🖋️ Extracting details for Steve Cole...
+2025-09-28 23:55:15,900 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:15,901 - INFO - ✅ Extracted profile for: Steve Cole
+2025-09-28 23:55:16,418 - INFO - 🖋️ Extracting details for Dennis Cosgrove...
+2025-09-28 23:55:18,403 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:18,405 - INFO - ✅ Extracted profile for: Dennis Cosgrove
+2025-09-28 23:55:18,931 - INFO - 🖋️ Extracting details for Patrick Crowley...
+2025-09-28 23:55:21,809 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:21,811 - INFO - ✅ Extracted profile for: Patrick Crowley
+2025-09-28 23:55:22,328 - INFO - 🖋️ Extracting details for Ron Cytron...
+2025-09-28 23:55:25,277 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:25,279 - INFO - ✅ Extracted profile for: Ron Cytron
+2025-09-28 23:55:25,775 - INFO - 🖋️ Extracting details for David Ferry...
+2025-09-28 23:55:27,001 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:27,002 - INFO - ✅ Extracted profile for: David Ferry
+2025-09-28 23:55:27,460 - INFO - 🖋️ Extracting details for Roman Garnett...
+2025-09-28 23:55:30,259 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:30,270 - INFO - ✅ Extracted profile for: Roman Garnett
+2025-09-28 23:55:31,606 - INFO - 🖋️ Extracting details for Brian Garnett...
+2025-09-28 23:55:34,175 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:34,177 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 6 (char 131)
+2025-09-28 23:55:34,177 - ERROR - Content that failed to parse: {
+        "name": "Brian Garnett",
+        "title": "Senior Lecturer",
+        "department": "Computer Science & Engineering"
+    },
+    {
+        "research_interests": ["discrete math", "algorithms", "cryptography"],
+        "profile_url": "https://wustl.edu/faculty/bcgarnett/",
+        "image_url": null,
+        "phone": null,
+        "office": "Urbauer Hall, Room 227",
+        "email": "bcgarnett@wustl.edu"
+    }
+2025-09-28 23:55:34,177 - ERROR - Could not parse JSON for Brian Garnett
+2025-09-28 23:55:35,527 - INFO - 🖋️ Extracting details for Christopher Gill...
+2025-09-28 23:55:38,994 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:38,996 - INFO - ✅ Extracted profile for: Christopher Gill
+2025-09-28 23:55:39,880 - INFO - 🖋️ Extracting details for Ilan Goodman...
+2025-09-28 23:55:42,072 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:42,073 - INFO - ✅ Extracted profile for: Ilan Goodman
+2025-09-28 23:55:43,214 - INFO - 🖋️ Extracting details for Roch Guérin...
+2025-09-28 23:55:46,613 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:46,614 - INFO - ✅ Extracted profile for: Roch Guérin
+2025-09-28 23:55:47,111 - INFO - 🖋️ Extracting details for Michael Hall...
+2025-09-28 23:55:49,581 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:49,582 - INFO - ✅ Extracted profile for: Michael Hall
+2025-09-28 23:55:51,351 - INFO - 🖋️ Extracting details for Chien-Ju Ho...
+2025-09-28 23:55:54,546 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:54,548 - INFO - ✅ Extracted profile for: Chien-Ju Ho
+2025-09-28 23:55:55,087 - INFO - 🖋️ Extracting details for Kate Holdener...
+2025-09-28 23:55:57,326 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:55:57,327 - ERROR - Failed to parse extracted JSON: Extra data: line 6 column 4 (char 152)
+2025-09-28 23:55:57,327 - ERROR - Content that failed to parse: {
+    "name": "Kate Holdener",
+    "title": "Senior Lecturer",
+    "department": "Computer Science & Engineering",
+    "email": "holdener@wustl.edu"
+  },
+  {
+    "research_interests": [
+      "Artificial Intelligence",
+      "Machine Learning"
+    ],
+    "profile_url": "https://example.com/kate-holdener-profile",
+    "image_url": null,
+    "phone": null,
+    "office": "Urbauer Hall, Room 221"
+  }
+2025-09-28 23:55:57,327 - ERROR - Could not parse JSON for Kate Holdener
+2025-09-28 23:55:57,874 - INFO - 🖋️ Extracting details for Jiaxin Huang...
+2025-09-28 23:56:00,288 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:00,290 - INFO - ✅ Extracted profile for: Jiaxin Huang
+2025-09-28 23:56:01,436 - INFO - 🖋️ Extracting details for Umar Iqbal...
+2025-09-28 23:56:04,591 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:04,592 - INFO - ✅ Extracted profile for: Umar Iqbal
+2025-09-28 23:56:05,142 - INFO - 🖋️ Extracting details for Nathan Jacobs...
+2025-09-28 23:56:10,837 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:10,839 - INFO - ✅ Extracted profile for: Nathan Jacobs
+2025-09-28 23:56:11,675 - INFO - 🖋️ Extracting details for Raj Jain...
+2025-09-28 23:56:15,958 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:15,958 - INFO - ✅ Extracted profile for: Raj Jain
+2025-09-28 23:56:16,963 - INFO - 🖋️ Extracting details for Tao Ju...
+2025-09-28 23:56:19,606 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:19,608 - INFO - ✅ Extracted profile for: Tao Ju
+2025-09-28 23:56:20,156 - INFO - 🖋️ Extracting details for Brendan Juba...
+2025-09-28 23:56:23,816 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:23,817 - INFO - ✅ Extracted profile for: Brendan Juba
+2025-09-28 23:56:24,355 - INFO - 🖋️ Extracting details for Ulugbek Kamilov...
+2025-09-28 23:56:28,063 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:28,065 - INFO - ✅ Extracted profile for: Ulugbek Kamilov
+2025-09-28 23:56:28,587 - INFO - 🖋️ Extracting details for Gregory Kehne...
+2025-09-28 23:56:30,908 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:30,909 - INFO - ✅ Extracted profile for: Gregory Kehne
+2025-09-28 23:56:31,430 - INFO - 🖋️ Extracting details for Caitlin Kelleher...
+2025-09-28 23:56:34,076 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:34,078 - INFO - ✅ Extracted profile for: Caitlin Kelleher
+2025-09-28 23:56:35,230 - INFO - 🖋️ Extracting details for I-Ting Angelina Lee...
+2025-09-28 23:56:37,604 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:37,605 - INFO - ✅ Extracted profile for: I-Ting Angelina Lee
+2025-09-28 23:56:39,487 - INFO - 🖋️ Extracting details for Fuhai Li...
+2025-09-28 23:56:41,884 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:41,884 - INFO - ✅ Extracted profile for: Fuhai Li
+2025-09-28 23:56:42,396 - INFO - 🖋️ Extracting details for Qinghua Liu...
+2025-09-28 23:56:44,333 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:44,334 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 6 (char 133)
+2025-09-28 23:56:44,334 - ERROR - Content that failed to parse: {
+        "name": "Qinghua Liu",
+        "title": "Assistant Professor",
+        "department": "Computer Science & Engineering"
+    },
+    {
+        "research_interests": ["Machine Learning & Artificial Intelligence", "Natural Language Processing", "Theoretical Computer Science"],
+        "phone": "None",
+        "office": "None"
+    }
+2025-09-28 23:56:44,334 - ERROR - Could not parse JSON for Qinghua Liu
+2025-09-28 23:56:44,851 - INFO - 🖋️ Extracting details for Chenyang Lu...
+2025-09-28 23:56:48,116 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:48,117 - INFO - ✅ Extracted profile for: Chenyang Lu
+2025-09-28 23:56:48,649 - INFO - 🖋️ Extracting details for Cynthia Ma...
+2025-09-28 23:56:50,238 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:50,240 - INFO - ✅ Extracted profile for: Cynthia Ma
+2025-09-28 23:56:51,655 - INFO - 🖋️ Extracting details for Marion Neumann...
+2025-09-28 23:56:54,538 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:54,541 - INFO - ✅ Extracted profile for: Marion Neumann
+2025-09-28 23:56:55,043 - INFO - 🖋️ Extracting details for Sara Nurollahian...
+2025-09-28 23:56:57,377 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:57,379 - INFO - ✅ Extracted profile for: Sara Nurollahian
+2025-09-28 23:56:57,944 - INFO - 🖋️ Extracting details for James Orr...
+2025-09-28 23:56:59,641 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:56:59,643 - INFO - ✅ Extracted profile for: James Orr
+2025-09-28 23:57:00,171 - INFO - 🖋️ Extracting details for Alvitta Ottley...
+2025-09-28 23:57:02,414 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:02,416 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 6 (char 136)
+2025-09-28 23:57:02,416 - ERROR - Content that failed to parse: {
+        "name": "Alvitta Ottley",
+        "title": "Associate Professor",
+        "department": "Computer Science & Engineering"
+    },
+    {
+        "name": "Alvitta Ottley",
+        "title": "Assistant Professor",
+        "department": "Psychological & Brain Sciences"
+    }
+2025-09-28 23:57:02,416 - ERROR - Could not parse JSON for Alvitta Ottley
+2025-09-28 23:57:02,953 - INFO - 🖋️ Extracting details for Netanel Raviv...
+2025-09-28 23:57:05,854 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:05,856 - INFO - ✅ Extracted profile for: Netanel Raviv
+2025-09-28 23:57:06,375 - INFO - 🖋️ Extracting details for Jonathan Shidal...
+2025-09-28 23:57:09,348 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:09,350 - INFO - ✅ Extracted profile for: Jonathan Shidal
+2025-09-28 23:57:09,890 - INFO - 🖋️ Extracting details for Doug Shook...
+2025-09-28 23:57:12,774 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:12,775 - ERROR - Failed to parse extracted JSON: Extra data: line 10 column 4 (char 264)
+2025-09-28 23:57:12,775 - ERROR - Content that failed to parse: {
+    "name": "Doug Shook",
+    "title": "Teaching Professor",
+    "department": "Computer Science & Engineering",
+    "research_interests": [],
+    "profile_url": null,
+    "image_url": null,
+    "phone": "314-935-6160",
+    "office": "Lopata Hall, Room 204H"
+  },
+  {
+    "name": "",
+    "title": "Pronouns: He/him/his",
+    "department": null,
+    "research_interests": [],
+    "profile_url": null,
+    "image_url": null,
+    "phone": null,
+    "office": null
+  }
+2025-09-28 23:57:12,775 - ERROR - Could not parse JSON for Doug Shook
+2025-09-28 23:57:13,300 - INFO - 🖋️ Extracting details for Hussein Sibai...
+2025-09-28 23:57:16,102 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:16,103 - INFO - ✅ Extracted profile for: Hussein Sibai
+2025-09-28 23:57:16,624 - INFO - 🖋️ Extracting details for Bill Siever...
+2025-09-28 23:57:20,293 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:20,294 - ERROR - Failed to parse extracted JSON: Extra data: line 15 column 4 (char 427)
+2025-09-28 23:57:20,294 - ERROR - Content that failed to parse: {
+    "name": "Bill Siever",
+    "title": "Teaching Professor & Associate Department Chair",
+    "email": "bsiever@wustl.edu",
+    "department": "Computer Science & Engineering",
+    "research_interests": [
+      "CS pedagogical research",
+      "IoT curricular development",
+      "K-12 outreach"
+    ],
+    "profile_url": null,
+    "image_url": null,
+    "phone": "573-364-8890",
+    "office": "McKelvey Hall, Room 1010F"
+  },
+  {
+    "name": "Pronouns: He/him/his",
+    "title": null,
+    "email": null,
+    "department": null,
+    "research_interests": [],
+    "profile_url": null,
+    "image_url": null,
+    "phone": null,
+    "office": null
+  }
+2025-09-28 23:57:20,294 - ERROR - Could not parse JSON for Bill Siever
+2025-09-28 23:57:20,809 - INFO - 🖋️ Extracting details for Todd Sproull...
+2025-09-28 23:57:22,642 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:22,643 - INFO - ✅ Extracted profile for: Todd Sproull
+2025-09-28 23:57:23,166 - INFO - 🖋️ Extracting details for Athena Tabakhi...
+2025-09-28 23:57:26,768 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:26,768 - INFO - ✅ Extracted profile for: Athena Tabakhi
+2025-09-28 23:57:27,350 - INFO - 🖋️ Extracting details for Yevgeniy Vorobeychik...
+2025-09-28 23:57:32,260 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:32,261 - INFO - ✅ Extracted profile for: Yevgeniy Vorobeychik
+2025-09-28 23:57:33,163 - INFO - 🖋️ Extracting details for William Yeoh...
+2025-09-28 23:57:36,968 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:36,969 - INFO - ✅ Extracted profile for: William Yeoh
+2025-09-28 23:57:38,226 - INFO - 🖋️ Extracting details for Chongjie Zhang...
+2025-09-28 23:57:40,341 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:40,344 - INFO - ✅ Extracted profile for: Chongjie Zhang
+2025-09-28 23:57:40,884 - INFO - 🖋️ Extracting details for Ning Zhang...
+2025-09-28 23:57:44,226 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:44,228 - INFO - ✅ Extracted profile for: Ning Zhang
+2025-09-28 23:57:44,738 - INFO - 🖋️ Extracting details for Bruno Sinopoli...
+2025-09-28 23:57:48,390 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:48,391 - INFO - ✅ Extracted profile for: Bruno Sinopoli
+2025-09-28 23:57:48,935 - INFO - 🖋️ Extracting details for Mark A. Anastasio...
+2025-09-28 23:57:54,427 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:54,428 - INFO - ✅ Extracted profile for: Mark A. Anastasio
+2025-09-28 23:57:55,009 - INFO - 🖋️ Extracting details for Shantanu Chakrabartty...
+2025-09-28 23:57:58,712 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:57:58,713 - INFO - ✅ Extracted profile for: Shantanu Chakrabartty
+2025-09-28 23:58:00,494 - INFO - 🖋️ Extracting details for Xudong Chen...
+2025-09-28 23:58:04,085 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:04,087 - INFO - ✅ Extracted profile for: Xudong Chen
+2025-09-28 23:58:06,554 - INFO - 🖋️ Extracting details for ShiNung Ching...
+2025-09-28 23:58:10,485 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:10,485 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 6 (char 127)
+2025-09-28 23:58:10,486 - ERROR - Content that failed to parse: {
+        "name": "ShiNung Ching",
+        "title": "Professor",
+        "department": "Electrical & Systems Engineering"
+    },
+    {
+        "research_interests": [
+            "Engineering Neuroscience",
+            "Dynamics",
+            "Control"
+        ],
+        "profile_url": "https://engineering.wustl.edu/directory/shinung-ching/",
+        "image_url": "https://engineering.wustl.edu/directory/images/ShiNung-Ching.jpg",
+        "phone": "314-935-6508",
+        "office": "Green Hall, Room 1120C"
+    }
+2025-09-28 23:58:10,486 - ERROR - Could not parse JSON for ShiNung Ching
+2025-09-28 23:58:12,017 - INFO - 🖋️ Extracting details for Andrew Clark...
+2025-09-28 23:58:16,836 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:16,838 - INFO - ✅ Extracted profile for: Andrew Clark
+2025-09-28 23:58:18,469 - INFO - 🖋️ Extracting details for Yingying Fan...
+2025-09-28 23:58:21,431 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:21,432 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 4 (char 122)
+2025-09-28 23:58:21,432 - ERROR - Content that failed to parse: {
+    "name": "Yingying Fan",
+    "title": "Assistant Professor",
+    "department": "Electrical & Systems Engineering"
+  },
+  {
+    "research_interests": [
+      "Biomedical & Biological Imaging",
+      "Devices & Circuits",
+      "Neural Engineering"
+    ],
+    "profile_url": null,
+    "image_url": null,
+    "phone": null,
+    "office": "Green Hall, room 2156",
+    "email": "fyingying@wustl.edu"
+  }
+2025-09-28 23:58:21,432 - ERROR - Could not parse JSON for Yingying Fan
+2025-09-28 23:58:22,051 - INFO - 🖋️ Extracting details for James Feher...
+2025-09-28 23:58:25,256 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:25,257 - INFO - ✅ Extracted profile for: James Feher
+2025-09-28 23:58:26,437 - INFO - 🖋️ Extracting details for Michael Hall...
+2025-09-28 23:58:29,228 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:29,228 - INFO - ✅ Extracted profile for: Michael Hall
+2025-09-28 23:58:31,576 - INFO - 🖋️ Extracting details for Martha Hasting...
+2025-09-28 23:58:33,680 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:33,681 - INFO - ✅ Extracted profile for: Martha Hasting
+2025-09-28 23:58:35,115 - INFO - 🖋️ Extracting details for Hong Hu...
+2025-09-28 23:58:37,525 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:37,527 - INFO - ✅ Extracted profile for: Hong Hu
+2025-09-28 23:58:39,867 - INFO - 🖋️ Extracting details for Ulugbek Kamilov...
+2025-09-28 23:58:43,776 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:43,777 - INFO - ✅ Extracted profile for: Ulugbek Kamilov
+2025-09-28 23:58:46,223 - INFO - 🖋️ Extracting details for Ioannis (Yiannis) Kantaros...
+2025-09-28 23:58:49,489 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:49,490 - INFO - ✅ Extracted profile for: Ioannis (Yiannis) Kantaros
+2025-09-28 23:58:50,930 - INFO - 🖋️ Extracting details for Vladimir Kurenok...
+2025-09-28 23:58:54,449 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:54,450 - INFO - ✅ Extracted profile for: Vladimir Kurenok
+2025-09-28 23:58:55,529 - INFO - 🖋️ Extracting details for Mark Lawrence...
+2025-09-28 23:58:59,199 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:58:59,200 - INFO - ✅ Extracted profile for: Mark Lawrence
+2025-09-28 23:59:00,721 - INFO - 🖋️ Extracting details for Matthew Lew...
+2025-09-28 23:59:06,794 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:06,796 - INFO - ✅ Extracted profile for: Matthew Lew
+2025-09-28 23:59:07,814 - INFO - 🖋️ Extracting details for Jr-Shin Li...
+2025-09-28 23:59:11,473 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:11,473 - INFO - ✅ Extracted profile for: Jr-Shin Li
+2025-09-28 23:59:12,034 - INFO - 🖋️ Extracting details for Dennis Mell...
+2025-09-28 23:59:15,662 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:15,663 - INFO - ✅ Extracted profile for: Dennis Mell
+2025-09-28 23:59:18,775 - INFO - 🖋️ Extracting details for Tsitsi Nussinov...
+2025-09-28 23:59:21,380 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:21,380 - INFO - ✅ Extracted profile for: Tsitsi Madziwa Nussinov
+2025-09-28 23:59:23,147 - INFO - 🖋️ Extracting details for Joseph O'Sullivan...
+2025-09-28 23:59:27,593 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:27,595 - INFO - ✅ Extracted profile for: Joseph O'Sullivan
+2025-09-28 23:59:29,453 - INFO - 🖋️ Extracting details for Ed Richter...
+2025-09-28 23:59:32,927 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:32,927 - INFO - ✅ Extracted profile for: Ed Richter
+2025-09-28 23:59:33,999 - INFO - 🖋️ Extracting details for Jung-Tsung Shen...
+2025-09-28 23:59:36,867 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:36,869 - INFO - ✅ Extracted profile for: Jung-Tsung Shen
+2025-09-28 23:59:37,403 - INFO - 🖋️ Extracting details for Janet Sorrells...
+2025-09-28 23:59:40,332 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:40,332 - INFO - ✅ Extracted profile for: Janet Sorrells
+2025-09-28 23:59:40,864 - INFO - 🖋️ Extracting details for Jason Trobaugh...
+2025-09-28 23:59:44,556 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:44,557 - INFO - ✅ Extracted profile for: Jason Trobaugh
+2025-09-28 23:59:46,177 - INFO - 🖋️ Extracting details for Zhiyang Wang...
+2025-09-28 23:59:49,075 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:49,077 - INFO - ✅ Extracted profile for: Zhiyang Wang
+2025-09-28 23:59:51,207 - INFO - 🖋️ Extracting details for Yunjing (Dorothy) Wang...
+2025-09-28 23:59:53,990 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:53,991 - INFO - ✅ Extracted profile for: Yunjing (Dorothy) Wang
+2025-09-28 23:59:55,136 - INFO - 🖋️ Extracting details for Chuan Wang...
+2025-09-28 23:59:59,535 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-28 23:59:59,536 - INFO - ✅ Extracted profile for: Chuan Wang
+2025-09-29 00:00:02,264 - INFO - 🖋️ Extracting details for Ben Wormleighton...
+2025-09-29 00:00:05,549 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:05,550 - INFO - ✅ Extracted profile for: Ben Wormleighton
+2025-09-29 00:00:07,109 - INFO - 🖋️ Extracting details for Lan Yang...
+2025-09-29 00:00:13,110 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:13,112 - INFO - ✅ Extracted profile for: Lan Yang
+2025-09-29 00:00:15,507 - INFO - 🖋️ Extracting details for Shen Zeng...
+2025-09-29 00:00:17,978 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:17,978 - INFO - ✅ Extracted profile for: Shen Zeng
+2025-09-29 00:00:19,463 - INFO - 🖋️ Extracting details for Jinsong Zhang...
+2025-09-29 00:00:24,565 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:24,566 - ERROR - Failed to parse extracted JSON: Extra data: line 15 column 6 (char 454)
+2025-09-29 00:00:24,566 - ERROR - Content that failed to parse: {
+        "name": "Jinsong Zhang",
+        "title": "Senior Lecturer",
+        "department": "Electrical & Systems Engineering",
+        "research_interests": [
+            "signal processing",
+            "data processing",
+            "information processing"
+        ],
+        "profile_url": null,
+        "image_url": null,
+        "phone": "314-935-4520",
+        "office": "Green Hall, Room 1156B",
+        "email": "jinsong.zhang@wustl.edu"
+    },
+    {
+        "name": "Jinsong Zhang",
+        "title": "Senior Lecturer",
+        "department": "Electrical & Systems Engineering",
+        "research_interests": [
+            "signal processing",
+            "data processing",
+            "information processing"
+        ],
+        "profile_url": null,
+        "image_url": null,
+        "phone": "314-935-4520",
+        "office": "Green Hall, Room 1156B",
+        "email": "jinsong.zhang@wustl.edu"
+    }
+2025-09-29 00:00:24,566 - ERROR - Could not parse JSON for Jinsong Zhang
+2025-09-29 00:00:27,087 - INFO - 🖋️ Extracting details for Joshua Yuan...
+2025-09-29 00:00:32,563 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:32,564 - INFO - ✅ Extracted profile for: Joshua Yuan
+2025-09-29 00:00:34,985 - INFO - 🖋️ Extracting details for Richard Axelbaum...
+2025-09-29 00:00:38,951 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:38,953 - INFO - ✅ Extracted profile for: Richard Axelbaum
+2025-09-29 00:00:39,527 - INFO - 🖋️ Extracting details for Peng Bai...
+2025-09-29 00:00:43,731 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:43,733 - INFO - ✅ Extracted profile for: Peng Bai
+2025-09-29 00:00:45,239 - INFO - 🖋️ Extracting details for Janie Brennan...
+2025-09-29 00:00:47,972 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:47,973 - INFO - ✅ Extracted profile for: Janie Brennan
+2025-09-29 00:00:49,858 - INFO - 🖋️ Extracting details for Rajan Chakrabarty...
+2025-09-29 00:00:54,650 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:54,651 - INFO - ✅ Extracted profile for: Rajan Chakrabarty
+2025-09-29 00:00:56,159 - INFO - 🖋️ Extracting details for Christopher Cooper...
+2025-09-29 00:00:59,988 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:00:59,989 - INFO - ✅ Extracted profile for: Christopher Cooper
+2025-09-29 00:01:02,723 - INFO - 🖋️ Extracting details for Jenna Ditto...
+2025-09-29 00:01:06,545 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:01:06,547 - INFO - ✅ Extracted profile for: Jenna Ditto
+2025-09-29 00:01:08,138 - INFO - 🖋️ Extracting details for Ray Ehrhard...
+2025-09-29 00:01:10,867 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:01:10,868 - INFO - ✅ Extracted profile for: Ray Ehrhard
+2025-09-29 00:01:12,074 - INFO - 🖋️ Extracting details for Marcus Foston...
+2025-09-29 00:01:16,010 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:01:16,011 - INFO - ✅ Extracted profile for: Marcus Foston
+2025-09-29 00:01:19,682 - INFO - 🖋️ Extracting details for Daniel Giammar...
+2025-09-29 00:01:24,539 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:01:24,540 - INFO - ✅ Extracted profile for: Daniel Giammar
+2025-09-29 00:01:26,989 - INFO - 🖋️ Extracting details for Zhen (Jason) He...
+2025-09-29 00:01:31,179 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:01:31,180 - INFO - ✅ Extracted profile for: Zhen (Jason) He
+2025-09-29 00:01:33,657 - INFO - 🖋️ Extracting details for Feng Jiao...
+2025-09-29 00:01:37,040 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:01:37,042 - INFO - ✅ Extracted profile for: Feng Jiao
+2025-09-29 00:01:39,126 - INFO - 🖋️ Extracting details for Young-Shin Jun...
+2025-09-29 00:01:45,494 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:01:45,496 - INFO - ✅ Extracted profile for: Young-Shin Jun
+2025-09-29 00:01:48,336 - INFO - 🖋️ Extracting details for Benjamin Kumfer...
+2025-09-29 00:01:51,538 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:01:51,539 - INFO - ✅ Extracted profile for: Benjamin Kumfer
+2025-09-29 00:01:53,993 - INFO - 🖋️ Extracting details for Chi Li...
+2025-09-29 00:01:56,862 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:01:56,864 - INFO - ✅ Extracted profile for: Chi Li
+2025-09-29 00:01:58,151 - INFO - 🖋️ Extracting details for Xinhua Liang...
+2025-09-29 00:02:05,221 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:02:05,222 - INFO - ✅ Extracted profile for: Xinhua Liang
+2025-09-29 00:02:08,159 - INFO - 🖋️ Extracting details for Fangqiong Ling...
+2025-09-29 00:02:17,169 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:02:17,172 - ERROR - Failed to parse extracted JSON: Expecting property name enclosed in double quotes: line 12 column 68 (char 856)
+2025-09-29 00:02:17,173 - ERROR - Content that failed to parse: {
+        "name": "Fangqiong Ling",
+        "title": "Assistant Professor",
+        "email": "fangqiong@wustl.edu",
+        "department": "Department of Biomedical Engineering, Department of Computer Science & Engineering, Division of Biology and Biomedical Sciences, Living Earth Collaborative, Institute of Clinical and Translational Sciences, Division of Computational & Data Sciences",
+        "research_interests": [
+            "Assembly, structure and dynamics of bacterial communities in tap water and water supply networks",
+            "Biodiversity and ecosystem functioning in biofuel production processes",
+            "Development of population matrices based on personal microbiome data",
+            "Development of tools to tackle hospital-acquired infections"
+        ],
+        "profile_url": "https://wustl.edu/people/fangqiong-ling/", // link is not provided
+        "image_url": null,
+        "phone": "314-935-2340",
+        "office": "Green Hall, Room 3120F"
+    }
+2025-09-29 00:02:17,173 - ERROR - Could not parse JSON for Fangqiong Ling
+2025-09-29 00:02:19,774 - INFO - 🖋️ Extracting details for Randall Martin...
+2025-09-29 00:02:22,434 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:02:22,436 - INFO - ✅ Extracted profile for: Randall Martin
+2025-09-29 00:02:24,517 - INFO - 🖋️ Extracting details for Kimberly Parker...
+2025-09-29 00:02:28,406 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:02:28,407 - INFO - ✅ Extracted profile for: Kimberly Parker
+2025-09-29 00:02:30,143 - INFO - 🖋️ Extracting details for Vijay Ramani...
+2025-09-29 00:02:36,735 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:02:36,736 - ERROR - Failed to parse extracted JSON: Extra data: line 16 column 6 (char 640)
+2025-09-29 00:02:36,737 - ERROR - Content that failed to parse: {
+        "name": "Vijay Ramani",
+        "title": "Senior Vice Provost for Graduate Education and International Affairs,Roma B. & Raymond H. Wittcoff Distinguished University Professor",
+        "email": "ramani@wustl.edu",
+        "department": "Energy, Environmental & Chemical Engineering",
+        "research_interests": [
+            "electrochemical energy conversion & storage",
+            "low temperature fuel cells",
+            "electrolyzers",
+            "redox-flow batteries"
+        ],
+        "profile_url": null,
+        "image_url": null,
+        "phone": "314-935-7924",
+        "office": "S. Brookings, Room 135"
+    },
+    {
+        "name": "Alex Rizvic",
+        "title": "Program Coordinator to Vice Provosts",
+        "email": "null",
+        "department": "The Institute of Materials Science & Engineering",
+        "research_interests": [
+            "null"
+        ],
+        "profile_url": null,
+        "image_url": null,
+        "phone": "314-935-6260",
+        "office": "null"
+    }
+2025-09-29 00:02:36,737 - ERROR - Could not parse JSON for Vijay Ramani
+2025-09-29 00:02:39,457 - INFO - 🖋️ Extracting details for Kurt Russell...
+2025-09-29 00:02:42,216 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:02:42,217 - INFO - ✅ Extracted profile for: Kurt Russell
+2025-09-29 00:02:44,755 - INFO - 🖋️ Extracting details for Trent Silbaugh...
+2025-09-29 00:02:47,399 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:02:47,400 - INFO - ✅ Extracted profile for: Trent Silbaugh
+2025-09-29 00:02:49,468 - INFO - 🖋️ Extracting details for Yinjie Tang...
+2025-09-29 00:02:54,158 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:02:54,159 - INFO - ✅ Extracted profile for: Yinjie Tang
+2025-09-29 00:02:56,918 - INFO - 🖋️ Extracting details for Elijah Thimsen...
+2025-09-29 00:03:01,293 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:03:01,295 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 6 (char 150)
+2025-09-29 00:03:01,295 - ERROR - Content that failed to parse: {
+        "name": "Elijah Thimsen",
+        "title": "Associate Professor",
+        "department": "Energy, Environmental & Chemical Engineering"
+    },
+    {
+        "research_interests": [
+            "Plasma science and technology",
+            "Aerosol science and technology",
+            "High temperature reaction engineering",
+            "Electrochemistry"
+        ],
+        "profile_url": "Google Scholar",
+        "image_url": "Lab website",
+        "phone": "314-935-6103",
+        "office": {
+            "street": "",
+            "city": "",
+            "state": "",
+            "zip": ""
+        },
+        "email": "elijah.thimsen@wustl.edu"
+    }
+2025-09-29 00:03:01,296 - ERROR - Could not parse JSON for Elijah Thimsen
+2025-09-29 00:03:03,395 - INFO - 🖋️ Extracting details for Jay Turner...
+2025-09-29 00:03:06,949 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:03:06,951 - INFO - ✅ Extracted profile for: Jay Turner
+2025-09-29 00:03:09,958 - INFO - 🖋️ Extracting details for Jian Wang...
+2025-09-29 00:03:17,795 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:03:17,798 - INFO - ✅ Extracted profile for: Jian Wang
+2025-09-29 00:03:19,114 - INFO - 🖋️ Extracting details for Gang Wu...
+2025-09-29 00:03:23,562 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:03:23,565 - INFO - ✅ Extracted profile for: Gang Wu
+2025-09-29 00:03:24,848 - INFO - 🖋️ Extracting details for Kristen Wyckoff...
+2025-09-29 00:03:29,063 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:03:29,065 - INFO - ✅ Extracted profile for: Kristen Wyckoff
+2025-09-29 00:03:30,340 - INFO - 🖋️ Extracting details for Lu Xu...
+2025-09-29 00:03:33,155 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:03:33,156 - INFO - ✅ Extracted profile for: Lu Xu
+2025-09-29 00:03:33,732 - INFO - 🖋️ Extracting details for Fuzhong Zhang...
+2025-09-29 00:03:39,031 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:03:39,033 - INFO - ✅ Extracted profile for: Fuzhong Zhang
+2025-09-29 00:03:40,227 - INFO - 🖋️ Extracting details for Spencer Lake...
+2025-09-29 00:03:46,591 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:03:46,592 - ERROR - Failed to parse extracted JSON: Extra data: line 20 column 6 (char 804)
+2025-09-29 00:03:46,592 - ERROR - Content that failed to parse: {
+        "name": "Spencer Lake",
+        "title": "Interim Department Chair & Professor, Mechanical Engineering & Materials Science",
+        "email": "lake.s@wustl.edu",
+        "department": "Mechanical Engineering & Materials Science",
+        "research_interests": [
+            "Biomechanics & Mechanobiology",
+            "Biomedical, Bio-inspired, and Bio-derived Materials",
+            "Imaging Science in Medicine",
+            "Orthopedic Engineering",
+            "Regenerative Engineering in Medicine"
+        ],
+        "profile_url": "",
+        "image_url": "https://en.wikipedia.org/wiki/File:Spencer_Lake.jpg",
+        "phone": "+1 314-935-3161",
+        "office": {
+            "location": "Jubel Hall, Room 303H",
+            "lab_location": "Whitaker Hall, Room 350"
+        }
+    },
+    {
+        "name": "",
+        "title": "",
+        "email": "",
+        "department": "",
+        "research_interests": [],
+        "profile_url": "",
+        "image_url": "",
+        "phone": "",
+        "office": ""
+    }
+2025-09-29 00:03:46,592 - ERROR - Could not parse JSON for Spencer Lake
+2025-09-29 00:03:50,118 - INFO - 🖋️ Extracting details for Ramesh Agarwal...
+2025-09-29 00:03:56,153 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:03:56,155 - INFO - ✅ Extracted profile for: Ramesh Agarwal
+2025-09-29 00:03:59,661 - INFO - 🖋️ Extracting details for Chiamaka Asinugo...
+2025-09-29 00:04:02,208 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:02,209 - INFO - ✅ Extracted profile for: Chiamaka Asinugo
+2025-09-29 00:04:03,666 - INFO - 🖋️ Extracting details for Sang-Hoon Bae...
+2025-09-29 00:04:08,837 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:08,838 - INFO - ✅ Extracted profile for: Sang-Hoon Bae
+2025-09-29 00:04:11,701 - INFO - 🖋️ Extracting details for Philip Bayly...
+2025-09-29 00:04:19,003 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:19,006 - ERROR - Failed to parse extracted JSON: Extra data: line 22 column 6 (char 907)
+2025-09-29 00:04:19,006 - ERROR - Content that failed to parse: {
+        "name": "Philip Bayly",
+        "title": "Lee Hunter Distinguished Professor, Mechanical Engineering & Materials Science",
+        "email": "pvb@wustl.edu",
+        "department": "Mechanical Engineering & Materials Science",
+        "research_interests": [
+            "Applications of Imaging in Science & Engineering",
+            "Biomechanics & Mechanobiology",
+            "Biomedical & Biological Imaging",
+            "Biomedical, Bio-inspired, and Bio-derived Materials",
+            "Neural Engineering",
+            "Neuroimaging",
+            "Quantitative Imaging",
+            "Women's Health Technologies"
+        ],
+        "profile_url": "https://www.wustl.edu/faculty/philip-bayly/",
+        "image_url": "https://www.wustl.edu/faculty/philip-bayly/image.jpg",
+        "phone": "+1 314-935-6081",
+        "office": {
+            "location": "Jubel Hall, Room 125G"
+        }
+    },
+    {
+        "name": "",
+        "title": "",
+        "email": "",
+        "department": "",
+        "research_interests": [],
+        "profile_url": "",
+        "image_url": "",
+        "phone": "",
+        "office": {}
+    }
+2025-09-29 00:04:19,006 - ERROR - Could not parse JSON for Philip Bayly
+2025-09-29 00:04:20,230 - INFO - 🖋️ Extracting details for Matthew Bersi...
+2025-09-29 00:04:23,336 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:23,337 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 4 (char 130)
+2025-09-29 00:04:23,337 - ERROR - Content that failed to parse: {
+   "name": "Matthew Bersi",
+   "title": "Assistant Professor",
+   "department": "Mechanical Engineering & Materials Science"
+  },
+  {
+   "research_interests": [
+    "Biomechanics & Mechanobiology",
+    "Cardiovascular Engineering",
+    "Cell & Molecular Bioengineering",
+    "Women's Health Technologies"
+   ],
+   "profile_url": "https://scholar.google.com/citations?user=6wVrj8AAAAJ&hl=en"
+  }
+2025-09-29 00:04:23,337 - ERROR - Could not parse JSON for Matthew Bersi
+2025-09-29 00:04:23,889 - INFO - 🖋️ Extracting details for Emily Boyd...
+2025-09-29 00:04:26,755 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:26,756 - INFO - ✅ Extracted profile for: Emily Boyd
+2025-09-29 00:04:27,936 - INFO - 🖋️ Extracting details for Edwin Carlen...
+2025-09-29 00:04:30,829 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:30,830 - INFO - ✅ Extracted profile for: Edwin Carlen
+2025-09-29 00:04:32,006 - INFO - 🖋️ Extracting details for Christopher Cooper...
+2025-09-29 00:04:36,104 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:36,105 - INFO - ✅ Extracted profile for: Christopher Cooper
+2025-09-29 00:04:37,756 - INFO - 🖋️ Extracting details for Katharine Flores...
+2025-09-29 00:04:42,580 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:42,581 - INFO - ✅ Extracted profile for: Katharine Flores
+2025-09-29 00:04:43,776 - INFO - 🖋️ Extracting details for James Friend...
+2025-09-29 00:04:47,651 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:47,652 - INFO - ✅ Extracted profile for: James Friend
+2025-09-29 00:04:49,273 - INFO - 🖋️ Extracting details for Guy Genin...
+2025-09-29 00:04:54,850 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:04:54,851 - INFO - ✅ Extracted profile for: Guy Genin
+2025-09-29 00:04:56,002 - INFO - 🖋️ Extracting details for Jianjun Guan...
+2025-09-29 00:05:00,902 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:00,903 - INFO - ✅ Extracted profile for: Jianjun Guan
+2025-09-29 00:05:02,071 - INFO - 🖋️ Extracting details for Sharniece Holland-Trogler...
+2025-09-29 00:05:04,590 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:04,590 - INFO - ✅ Extracted profile for: Sharniece Holland-Trogler
+2025-09-29 00:05:05,975 - INFO - 🖋️ Extracting details for Mark Jakiela...
+2025-09-29 00:05:09,448 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:09,450 - INFO - ✅ Extracted profile for: Mark Jakiela
+2025-09-29 00:05:11,670 - INFO - 🖋️ Extracting details for Swami Karunamoorthy...
+2025-09-29 00:05:15,064 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:15,065 - INFO - ✅ Extracted profile for: Swami Karunamoorthy
+2025-09-29 00:05:16,183 - INFO - 🖋️ Extracting details for Fanwei Kong...
+2025-09-29 00:05:20,174 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:20,175 - ERROR - Failed to parse extracted JSON: Extra data: line 19 column 6 (char 705)
+2025-09-29 00:05:20,175 - ERROR - Content that failed to parse: {
+        "name": "Fanwei Kong",
+        "title": "Assistant Professor",
+        "department": "Mechanical Engineering & Materials Science",
+        "research_interests": [
+            "Biomechanics & Mechanobiology",
+            "Cardiovascular Engineering",
+            "Computational Methodologies",
+            "Computer Vision",
+            "Machine Learning & Artificial Intelligence",
+            "Machine Learning in Image Science"
+        ],
+        "profile_url": "https://www.wustl.edu/people/fanwei-kong/",
+        "image_url": "https://web.stanford.edu/personal/fkong/images/kong.jpg",
+        "phone": null,
+        "office": {
+            "location": "Jubel Hall, Room 203C"
+        }
+    },
+    {}
+2025-09-29 00:05:20,175 - ERROR - Could not parse JSON for Fanwei Kong
+2025-09-29 00:05:21,505 - INFO - 🖋️ Extracting details for Jeff Krampf...
+2025-09-29 00:05:25,679 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:25,680 - ERROR - Failed to parse extracted JSON: Extra data: line 17 column 6 (char 517)
+2025-09-29 00:05:25,680 - ERROR - Content that failed to parse: {
+        "name": "Jeff Krampf",
+        "title": "Lecturer",
+        "department": "Mechanical Engineering & Materials Science",
+        "research_interests": [
+            "fluid mechanics",
+            "biological systems",
+            "blood flow modeling"
+        ],
+        "profile_url": null,
+        "image_url": null,
+        "phone": "314-935-7725",
+        "office": {
+            "address": "Urbauer Hall, Room 314A",
+            "department": "Mechanical Engineering & Materials Science"
+        }
+    },
+    {
+        "name": "",
+        "title": "",
+        "department": "",
+        "research_interests": [],
+        "profile_url": null,
+        "image_url": null,
+        "phone": null,
+        "office": {}
+    }
+2025-09-29 00:05:25,680 - ERROR - Could not parse JSON for Jeff Krampf
+2025-09-29 00:05:26,821 - INFO - 🖋️ Extracting details for Francisco Lagunas Vargas...
+2025-09-29 00:05:31,169 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:31,170 - INFO - ✅ Extracted profile for: Francisco Lagunas Vargas
+2025-09-29 00:05:31,373 - INFO - 🖋️ Extracting details for Spencer Lake...
+2025-09-29 00:05:36,293 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:36,294 - INFO - ✅ Extracted profile for: Spencer Lake
+2025-09-29 00:05:37,476 - INFO - 🖋️ Extracting details for Xianglin Li...
+2025-09-29 00:05:41,607 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:41,609 - INFO - ✅ Extracted profile for: Xianglin Li
+2025-09-29 00:05:42,117 - INFO - 🖋️ Extracting details for Afaque Manzoor...
+2025-09-29 00:05:45,049 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:45,049 - INFO - ✅ Extracted profile for: Afaque Manzoor
+2025-09-29 00:05:45,525 - INFO - 🖋️ Extracting details for Mark Meacham...
+2025-09-29 00:05:48,748 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:48,749 - INFO - ✅ Extracted profile for: Mark Meacham
+2025-09-29 00:05:49,261 - INFO - 🖋️ Extracting details for Rohan Mishra...
+2025-09-29 00:05:54,069 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:54,071 - INFO - ✅ Extracted profile for: Rohan Mishra
+2025-09-29 00:05:54,877 - INFO - 🖋️ Extracting details for Ruth Okamoto...
+2025-09-29 00:05:57,279 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:05:57,280 - INFO - ✅ Extracted profile for: Ruth Okamoto
+2025-09-29 00:05:57,788 - INFO - 🖋️ Extracting details for Amit Pathak...
+2025-09-29 00:06:01,253 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:01,254 - INFO - ✅ Extracted profile for: Amit Pathak
+2025-09-29 00:06:01,784 - INFO - 🖋️ Extracting details for David Peters...
+2025-09-29 00:06:05,110 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:05,110 - INFO - ✅ Extracted profile for: David Peters
+2025-09-29 00:06:05,595 - INFO - 🖋️ Extracting details for Jackson Potter...
+2025-09-29 00:06:09,409 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:09,410 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 4 (char 130)
+2025-09-29 00:06:09,410 - ERROR - Content that failed to parse: {
+    "name": "Jackson Potter",
+    "title": "Senior Lecturer",
+    "department": "Mechanical Engineering & Materials Science"
+  },
+  {
+    "research_interests": [
+      "Theoretical engineering",
+      "Practical engineering",
+      "Design of mechanical devices",
+      "Mechatronics",
+      "Engineering for hardware-in-the-loop and human-in-the-loop systems"
+    ]
+  },
+  {
+    "profile_url": "https://wustl.edu/faculty/jackson-potter/",
+    "image_url": "https://wustl.edu/faculty/jackson-potter/profile-picture.jpg",
+    "phone": "314-935-2717",
+    "office": "Urbauer Hall, Room 314E"
+  },
+  {
+    "email": "jjpotter@wustl.edu"
+  }
+2025-09-29 00:06:09,410 - ERROR - Could not parse JSON for Jackson Potter
+2025-09-29 00:06:09,927 - INFO - 🖋️ Extracting details for Sara Roccabianca...
+2025-09-29 00:06:13,566 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:13,567 - ERROR - Failed to parse extracted JSON: Extra data: line 5 column 6 (char 150)
+2025-09-29 00:06:13,567 - ERROR - Content that failed to parse: {
+        "name": "Sara Roccabianca",
+        "title": "Associate Professor",
+        "department": "Mechanical Engineering & Materials Science"
+    },
+    {
+        "research_interests": [
+            "Biomechanics & Mechanobiology",
+            "Biomedical & Biological Imaging",
+            "Cardiovascular Engineering",
+            "Women's Health Technologies"
+        ],
+        "profile_url": null,
+        "image_url": null,
+        "phone": "314-935-2606",
+        "office": "Jubel 303J",
+        "email": "sara.r@wustl.edu"
+    }
+2025-09-29 00:06:13,568 - ERROR - Could not parse JSON for Sara Roccabianca
+2025-09-29 00:06:14,650 - INFO - 🖋️ Extracting details for Shaun Sellers...
+2025-09-29 00:06:16,397 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:16,398 - INFO - ✅ Extracted profile for: Shaun Sellers
+2025-09-29 00:06:16,902 - INFO - 🖋️ Extracting details for Srikanth Singamaneni...
+2025-09-29 00:06:21,019 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:21,021 - INFO - ✅ Extracted profile for: Srikanth Singamaneni
+2025-09-29 00:06:21,519 - INFO - 🖋️ Extracting details for Jessica Wagenseil...
+2025-09-29 00:06:25,954 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:25,956 - INFO - ✅ Extracted profile for: Jessica Wagenseil
+2025-09-29 00:06:26,476 - INFO - 🖋️ Extracting details for Patricia Weisensee...
+2025-09-29 00:06:33,603 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:33,606 - INFO - ✅ Extracted profile for: Patricia Weisensee
+2025-09-29 00:06:34,194 - INFO - 🖋️ Extracting details for Ed Whalen...
+2025-09-29 00:06:37,794 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:37,795 - ERROR - Failed to parse extracted JSON: Extra data: line 17 column 6 (char 539)
+2025-09-29 00:06:37,795 - ERROR - Content that failed to parse: {
+        "name": "Ed Whalen",
+        "title": "Professor of Practice, Director of Master of Science in Aerospace Program",
+        "email": "newhalen@wustl.edu",
+        "department": "Mechanical Engineering & Materials Science",
+        "research_interests": [
+            "Thermal-Fluids in Energy",
+            "Aerospace",
+            "Biomedicine"
+        ],
+        "profile_url": null,
+        "image_url": null,
+        "phone": "314-935-6107",
+        "office": {
+            "location": "Jubel Hall, Room 203-L"
+        }
+    },
+    {}
+2025-09-29 00:06:37,796 - ERROR - Could not parse JSON for Ed Whalen
+2025-09-29 00:06:38,889 - INFO - 🖋️ Extracting details for Louis Woodhams...
+2025-09-29 00:06:41,253 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:41,254 - INFO - ✅ Extracted profile for: Louis Woodhams
+2025-09-29 00:06:42,098 - INFO - 🖋️ Extracting details for John Bade...
+2025-09-29 00:06:44,620 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:44,621 - INFO - ✅ Extracted profile for: John Bade
+2025-09-29 00:06:45,151 - INFO - 🖋️ Extracting details for Saeed Akbani...
+2025-09-29 00:06:47,983 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:47,984 - INFO - ✅ Extracted profile for: Saeed Akbani
+2025-09-29 00:06:48,492 - INFO - 🖋️ Extracting details for Steve W. Bannes...
+2025-09-29 00:06:51,416 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:51,417 - INFO - ✅ Extracted profile for: Steve W. Bannes
+2025-09-29 00:06:51,939 - INFO - 🖋️ Extracting details for Leroy Love...
+2025-09-29 00:06:54,326 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:54,329 - INFO - ✅ Extracted profile for: Leroy Love
+2025-09-29 00:06:54,506 - INFO - 🖋️ Extracting details for Jay Turner...
+2025-09-29 00:06:58,137 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:06:58,139 - INFO - ✅ Extracted profile for: Jay Turner
+2025-09-29 00:06:58,616 - INFO - 🖋️ Extracting details for James Ballard...
+2025-09-29 00:07:01,006 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:01,007 - INFO - ✅ Extracted profile for: James Ballard
+2025-09-29 00:07:01,461 - INFO - 🖋️ Extracting details for Lynnea Brumbaugh...
+2025-09-29 00:07:03,814 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:03,815 - INFO - ✅ Extracted profile for: Lynnea Brumbaugh
+2025-09-29 00:07:04,283 - INFO - 🖋️ Extracting details for Allison Creighton...
+2025-09-29 00:07:06,544 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:06,546 - INFO - ✅ Extracted profile for: Allison Creighton
+2025-09-29 00:07:07,019 - INFO - 🖋️ Extracting details for Seema Mukhi Dahlheimer...
+2025-09-29 00:07:10,019 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:10,020 - INFO - ✅ Extracted profile for: Seema Mukhi Dahlheimer
+2025-09-29 00:07:10,489 - INFO - 🖋️ Extracting details for Cathy Essner...
+2025-09-29 00:07:12,025 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:12,025 - INFO - ✅ Extracted profile for: Cathy Essner
+2025-09-29 00:07:12,199 - INFO - 🖋️ Extracting details for David Ferry...
+2025-09-29 00:07:13,416 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:13,417 - INFO - ✅ Extracted profile for: David Ferry
+2025-09-29 00:07:13,569 - INFO - 🖋️ Extracting details for Joseph Klaesner...
+2025-09-29 00:07:16,977 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:16,980 - INFO - ✅ Extracted profile for: Joseph Klaesner
+2025-09-29 00:07:17,493 - INFO - 🖋️ Extracting details for J. Tucker Krone...
+2025-09-29 00:07:20,283 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:20,284 - INFO - ✅ Extracted profile for: J. Tucker Krone
+2025-09-29 00:07:20,809 - INFO - 🖋️ Extracting details for Sandra Matteucci...
+2025-09-29 00:07:23,855 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:23,856 - INFO - ✅ Extracted profile for: Sandra Matteucci
+2025-09-29 00:07:24,365 - INFO - 🖋️ Extracting details for Cindy Mittanck...
+2025-09-29 00:07:26,783 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:26,784 - INFO - ✅ Extracted profile for: Cindy Mittanck
+2025-09-29 00:07:27,351 - INFO - 🖋️ Extracting details for Karen Schwelle...
+2025-09-29 00:07:30,286 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:30,286 - INFO - ✅ Extracted profile for: Karen Schwelle
+2025-09-29 00:07:30,813 - INFO - 🖋️ Extracting details for Peizhen Zhu...
+2025-09-29 00:07:33,564 - INFO - HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2025-09-29 00:07:33,565 - INFO - ✅ Extracted profile for: Peizhen Zhu
+2025-09-29 00:07:33,580 - INFO - No pagination detected. Finishing list navigation.
+2025-09-29 00:07:33,580 - INFO - 
+--- Crawling Finished ---
+2025-09-29 00:07:33,580 - INFO - Extracted 194 profiles.
+2025-09-29 00:07:33,585 - INFO - 💾 Saved data to faculty_data.json
+2025-09-29 00:07:33,830 - INFO - 🧹 Browser cleaned up.

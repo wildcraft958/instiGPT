@@ -1,0 +1,8 @@
+/sidecar
+/sidecar2
+/scraped_data
+/html_logs
+/agentic_crawler
+/__pycache__
+/config
+faculty_data.json
