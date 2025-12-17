@@ -1,0 +1,76 @@
+[
+  {
+    "name": "Luca Carlone",
+    "title": "Associate Professor",
+    "profile_url": "https://news.mit.edu/2025/expanding-robot-perception-luca-carlone-0128",
+    "email": "abbya@mit.edu",
+    "research_interests": [
+      "Robot perception",
+      "Deep learning",
+      "Autonomous vehicles",
+      "Large language models",
+      "Cognition and reasoning in robots",
+      "Simultaneous localization and mapping (SLAM)",
+      "Spatial AI",
+      "Scene-understanding algorithms"
+    ],
+    "publications": [],
+    "image_url": "https://news.mit.edu/sites/default/files/styles/news_article__download/public/download/202501/MIT-luca-carlone-01-press.jpg"
+  },
+  {
+    "name": "Sili Deng",
+    "title": "Associate Professor",
+    "profile_url": "https://news.mit.edu/2025/burning-things-to-make-things-sili-deng-1029",
+    "email": "anne@mit.edu",
+    "research_interests": [
+      "Sustainable and efficient combustion technologies",
+      "Flame-based materials for catalysis and energy storage",
+      "Alternative fuels and metal combustion",
+      "Low-cost, low-emission manufacturing of cathode materials for lithium-ion batteries",
+      "Aluminum combustion for civil applications",
+      "Combustion processes and emissions",
+      "Flame-assisted spray pyrolysis (FASP)"
+    ],
+    "publications": [],
+    "image_url": "https://news.mit.edu/sites/default/files/styles/news_article__image_gallery/public/images/202510/Sili%20Deng_07.PNG?itok=tn4Mq9UF"
+  },
+  {
+    "name": "Ellen Roche",
+    "title": "Abby Rockefeller Mauz\u00e9 Professor; Associate Department Head for Research",
+    "profile_url": "https://news.mit.edu/2024/ellen-roche-studies-engineering-and-the-heart-0821",
+    "email": "abbya@mit.edu",
+    "research_interests": [
+      "Computational analysis tools",
+      "Advanced fabrication methods",
+      "Digital twins",
+      "Heart and lung tissue repair",
+      "3D-printed heart models",
+      "Soft robotics",
+      "Medical devices",
+      "In silico trials",
+      "Patient-specific treatments",
+      "Biorobotic simulators"
+    ],
+    "publications": [],
+    "image_url": "https://news.mit.edu/sites/default/files/styles/news_article__image_gallery/public/images/202408/MIT-Ellen-Roche_Hilton-01-press_0.jpg?itok=DjG-pPo3"
+  },
+  {
+    "name": "Zachary Smith",
+    "title": "Associate Professor",
+    "profile_url": "https://news.mit.edu/2025/designing-tiny-filters-solving-big-problems-zachary-smith-0112",
+    "email": "expertrequests@mit.edu",
+    "research_interests": [
+      "Critical element recovery",
+      "Water purification",
+      "Carbon sequestration",
+      "Purifying biogas",
+      "Designing membranes with tiny pores for filtering molecules",
+      "Renewable energy",
+      "Battery development",
+      "Capturing carbon dioxide from power plant emissions",
+      "Generating hydrogen fuel"
+    ],
+    "publications": [],
+    "image_url": "https://news.mit.edu/sites/default/files/download/202501/MIT-Zachary-Smith-01-press.jpg"
+  }
+]
