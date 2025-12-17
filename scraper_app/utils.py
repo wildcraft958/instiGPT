@@ -154,6 +154,11 @@ def extract_json_from_response(text: str) -> Optional[dict]:
     """
     Extract a JSON object from a text response (handles LLM chatter around JSON).
     
+    Handles:
+    - Qwen3's <think>...</think> blocks
+    - Markdown code blocks
+    - Text before/after JSON
+    
     Args:
         text: Text response that may contain JSON
     
@@ -162,8 +167,18 @@ def extract_json_from_response(text: str) -> Optional[dict]:
     """
     import json
     
+    if not text or not text.strip():
+        logger.error("Empty response received")
+        return None
+    
+    # Remove Qwen3's thinking blocks
+    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    
     # Remove markdown code blocks
     text = text.replace("```json", "").replace("```", "")
+    
+    # Remove common prefixes like "Here's the JSON:" or "Output:"
+    text = re.sub(r'^.*?(?=\{)', '', text, flags=re.DOTALL)
     
     # Find JSON object bounds
     json_start = text.find('{')
@@ -175,15 +190,30 @@ def extract_json_from_response(text: str) -> Optional[dict]:
         json_end = text.rfind(']') + 1
     
     if json_start == -1 or json_end == 0:
-        logger.error("No JSON object found in response")
+        logger.error(f"No JSON object found in response. First 200 chars: {text[:200]}")
         return None
     
     json_str = text[json_start:json_end]
+    
+    # Clean up common issues
+    json_str = json_str.replace("'", '"')  # Single to double quotes
+    json_str = re.sub(r',\s*}', '}', json_str)  # Trailing commas
+    json_str = re.sub(r',\s*]', ']', json_str)  # Trailing commas in arrays
+    
     try:
         return json.loads(json_str)
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse JSON: {e}")
         logger.debug(f"Content: {json_str[:500]}")
+        
+        # Try one more time with more aggressive cleanup
+        try:
+            # Remove control characters
+            json_str = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', json_str)
+            return json.loads(json_str)
+        except:
+            pass
+        
         return None
 
 

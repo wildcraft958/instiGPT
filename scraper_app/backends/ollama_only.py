@@ -87,7 +87,9 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
                 prompt=prompt,
                 images=[screenshot_b64]
             )
-            return extract_json_from_response(response['response'])
+            raw_response = response['response']
+            logger.debug(f"Raw vision response (first 500 chars): {raw_response[:500]}")
+            return extract_json_from_response(raw_response)
         except Exception as e:
             logger.error(f"Vision request failed: {e}")
             return None
@@ -99,7 +101,9 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
                 model=self.model,
                 prompt=prompt
             )
-            return extract_json_from_response(response['response'])
+            raw_response = response['response']
+            logger.debug(f"Raw text response (first 500 chars): {raw_response[:500]}")
+            return extract_json_from_response(raw_response)
         except Exception as e:
             logger.error(f"Text request failed: {e}")
             return None
