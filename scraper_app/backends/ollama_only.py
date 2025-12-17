@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 import sys
 sys.path.insert(0, '../..')
 from models import ProfessorProfile
-from prompts import GEMINI_ANALYSIS_PROMPT, OLLAMA_EXTRACTION_PROMPT, GEMINI_CORRECTION_PROMPT
+from prompts import OLLAMA_EXTRACTION_PROMPT
 
 from ..state import CrawlerState, NavigationAction, ActionType
 from ..browser import BrowserManager
@@ -26,18 +26,55 @@ from .base import BaseCrawlerBackend
 logger = logging.getLogger(__name__)
 
 
-# Vision-specific wrapper for the analysis prompt
-VISION_PLANNING_PROMPT = """You are analyzing a SCREENSHOT of a university faculty webpage.
+# Simple, focused prompt that explicitly asks for CSS SELECTORS
+VISION_PLANNING_PROMPT = """Look at this webpage screenshot. I need CSS SELECTORS to scrape faculty data.
 
-{base_prompt}
+DO NOT describe what you see. DO NOT make up fake names.
+ONLY return CSS selectors for scraping.
 
-IMPORTANT: Since you're looking at an image, describe what you SEE:
-- Look for a GRID of photos with names underneath
-- Faculty cards typically have: photo, name, title, department
-- Ignore navigation bars at top/bottom
-- Focus on the MAIN CONTENT area with the faculty listing
+Look at the HTML structure and tell me:
+1. What CSS class or selector matches the repeating faculty cards/items?
+2. What selector finds the name within each card?
+3. What selector finds the title/position?
+4. What selector finds links to profile pages?
 
-Return ONLY valid JSON - no markdown blocks, no explanation text.
+Return ONLY this exact JSON format:
+{{
+    "action": "EXTRACT_LIST",
+    "card_selector": ".the-css-class-for-faculty-cards",
+    "name_selector": ".name-class-within-card",
+    "title_selector": ".title-class-within-card", 
+    "link_selector": "a",
+    "reason": "why you chose these selectors"
+}}
+
+IMPORTANT: Return real CSS selectors like ".faculty-card" or "div.person" - NOT fake data.
+"""
+
+# Simpler Markdown-based prompt for text fallback
+MARKDOWN_PLANNING_PROMPT = """Analyze this page content to find CSS selectors for faculty scraping.
+
+URL: {current_url}
+Objective: {objective}
+
+Here's the page content (converted to markdown):
+{content_sample}
+
+Find the CSS selectors for:
+- Faculty cards (the repeating container for each person)
+- Name element within each card
+- Title/position element
+- Link to profile page
+
+Return ONLY this JSON:
+{{
+    "action": "EXTRACT_LIST",
+    "card_selector": "the-css-selector",
+    "name_selector": "selector-for-name",
+    "title_selector": "selector-for-title",
+    "link_selector": "selector-for-link",
+    "reason": "explanation"
+}}
 """
 
 
@@ -82,10 +119,12 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
     def _vision_request(self, prompt: str, screenshot_b64: str) -> Optional[dict]:
         """Send vision request to Qwen3-VL."""
         try:
+            # Add timeout to avoid hanging for minutes
             response = self.client.generate(
                 model=self.model,
                 prompt=prompt,
-                images=[screenshot_b64]
+                images=[screenshot_b64],
+                options={"num_predict": 1024, "temperature": 0.1} # Limit output size
             )
             raw_response = response['response']
             logger.debug(f"Raw vision response (first 500 chars): {raw_response[:500]}")
@@ -99,7 +138,8 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
         try:
             response = self.client.generate(
                 model=self.model,
-                prompt=prompt
+                prompt=prompt,
+                options={"num_predict": 1024, "temperature": 0.1}
             )
             raw_response = response['response']
             logger.debug(f"Raw text response (first 500 chars): {raw_response[:500]}")
@@ -107,7 +147,7 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
         except Exception as e:
             logger.error(f"Text request failed: {e}")
             return None
-    
+
     def plan_next_action(self, state: CrawlerState) -> NavigationAction:
         """Use Qwen3-VL to analyze the page and plan next action."""
         if not self.client:
@@ -115,36 +155,19 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
         
         current_url = self.browser.get_url()
         objective = state.get("objective", "")
-        html = self.browser.get_html()
         
         logger.info("👁️ Analyzing page with Qwen3-VL...")
         
-        # Build the analysis prompt using the better GEMINI_ANALYSIS_PROMPT
-        base_prompt = GEMINI_ANALYSIS_PROMPT.format(
-            objective=objective,
-            current_url=current_url,
-            html_content=html[:25000]  # Truncate for context window
-        )
-        
-        # Try vision-based planning first (with screenshot + HTML context)
+        # Try vision-based planning first (simple prompt)
         result = None
         try:
             screenshot_b64 = self.browser.screenshot_base64()
             logger.info(f"📸 Screenshot captured ({len(screenshot_b64)} bytes)")
             
-            # Wrap with vision instructions
-            vision_prompt = VISION_PLANNING_PROMPT.format(base_prompt=base_prompt)
-            result = self._vision_request(vision_prompt, screenshot_b64)
+            # Use the simple, focused vision prompt
+            result = self._vision_request(VISION_PLANNING_PROMPT, screenshot_b64)
             
             if result:
-                # Handle nested 'args' structure from GEMINI_ANALYSIS_PROMPT
-                if 'args' in result:
-                    args = result['args']
-                    result['card_selector'] = args.get('card_selector')
-                    result['link_selector'] = args.get('link_selector')
-                    result['name_selector'] = args.get('name_selector')
-                    result['title_selector'] = args.get('title_selector')
-                    result['next_page_selector'] = args.get('next_page_selector')
                 logger.info(f"✅ Vision response: action={result.get('action')}, card_selector={result.get('card_selector')}")
             else:
                 logger.warning("⚠️ Vision request returned None/empty")
@@ -152,22 +175,26 @@ class OllamaOnlyBackend(BaseCrawlerBackend):
         except Exception as e:
             logger.warning(f"Screenshot failed: {e}, trying text-based planning")
         
-        # Fallback to text-based planning (just HTML)
+        # Fallback to text-based planning with MARKDOWN
         if not result:
             logger.info("📝 Falling back to text-based planning...")
-            logger.info(f"📄 Got HTML ({len(html)} chars)")
+            html = self.browser.get_html()
             
-            result = self._text_request(base_prompt)
+            # Convert to markdown to strip base64 images and reduce noise
+            content = html_to_markdown(html)
+            
+            # Take a healthy sample of the markdown
+            content_sample = content[:15000]
+            logger.info(f"📄 Using Markdown sample ({len(content_sample)} chars)")
+            
+            prompt = MARKDOWN_PLANNING_PROMPT.format(
+                current_url=current_url,
+                objective=objective,
+                content_sample=content_sample
+            )
+            result = self._text_request(prompt)
             
             if result:
-                # Handle nested 'args' structure
-                if 'args' in result:
-                    args = result['args']
-                    result['card_selector'] = args.get('card_selector')
-                    result['link_selector'] = args.get('link_selector')
-                    result['name_selector'] = args.get('name_selector')
-                    result['title_selector'] = args.get('title_selector')
-                    result['next_page_selector'] = args.get('next_page_selector')
                 logger.info(f"✅ Text response: action={result.get('action')}, card_selector={result.get('card_selector')}")
             else:
                 logger.warning("⚠️ Text request also returned None/empty")
