@@ -1,8 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Data files (keep examples, ignore outputs)
+*.json
+!examples/*.json
+
+# Excel files (raw data)
+*.xlsx
+*.xls
+
+# Environment
+.env
+.env.local
+
+# Cache
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# Project specific
 /sidecar
 /sidecar2
 /scraped_data
 /html_logs
 /agentic_crawler
-/__pycache__
 /config
-faculty_data.json
+/batch_results/
+
+# SDK docs (large file)
+Crawl4AI.md
