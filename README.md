@@ -64,6 +64,27 @@ Your Excel file should have a column named `Uni faculty link` containing faculty
 | MIT | https://web.mit.edu/faculty |
 | Stanford | https://profiles.stanford.edu |
 
+## Batch Output
+
+The batch scraper automatically detects problematic URLs and generates separate reports:
+
+```
+batch_results/
+├── MIT_20241218_120000.json          # Individual university data
+├── Stanford_20241218_120100.json
+├── batch_summary_20241218_120200.json # Overall summary
+├── bad_links_20241218_120200.json     # 🔴 Department pages (not faculty)
+└── warnings_20241218_120200.json      # ⚠️ URLs needing review
+```
+
+**URL Quality Detection:**
+- 🔴 **Bad**: `/faculties-and-departments/`, `/engineering/`, `/medicine/` (department pages)
+- ✅ **Good**: `/people/`, `/faculty/`, `/profiles/`, `/directory/` (faculty directories)
+
+**Result Quality Assessment:**
+- Detects when scraper extracts departments instead of professors
+- Flags results with no emails or very few profiles
+
 ## Development
 
 ```bash
