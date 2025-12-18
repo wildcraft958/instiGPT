@@ -189,7 +189,7 @@ async def scrape_single(scraper: UniversalScraper, uni_name: str, url: str, outp
     return result
 
 
-async def run_batch(excel_path: str, output_dir: str, model: str, limit: int = None):
+async def run_batch(excel_path: str, output_dir: str, model: str, limit: int = None, skip_bad: bool = False):
     """Run batch scraping on all universities in the Excel file."""
     os.makedirs(output_dir, exist_ok=True)
     
@@ -203,12 +203,26 @@ async def run_batch(excel_path: str, output_dir: str, model: str, limit: int = N
     results = []
     bad_links = []
     warnings = []
+    skipped = []
     
     total = len(df)
     for count, (idx, row) in enumerate(df.iterrows(), 1):
         uni_name = row.get("Name", f"University_{idx}")
         url = row["Uni faculty link"]
         rank = str(row.get("Rank", "N/A"))
+        
+        # Pre-check URL quality if skip_bad is enabled
+        if skip_bad:
+            url_quality, url_reason = analyze_url_quality(url)
+            if url_quality == "bad":
+                logger.warning(f"⏭️ SKIPPING [{rank}] {uni_name}: {url_reason}")
+                skipped.append({
+                    "name": uni_name,
+                    "url": url,
+                    "rank": rank,
+                    "reason": url_reason
+                })
+                continue
         
         logger.info(f"\n{'='*60}")
         logger.info(f"[{count}/{total}] Rank #{rank}: {uni_name}")
@@ -222,6 +236,22 @@ async def run_batch(excel_path: str, output_dir: str, model: str, limit: int = N
             bad_links.append(result)
         elif result["status"] == "warning":
             warnings.append(result)
+        
+        # Save progress incrementally (overwrites each time)
+        progress_file = os.path.join(output_dir, "progress.json")
+        progress = {
+            "last_updated": datetime.now().isoformat(),
+            "completed": count,
+            "total": total,
+            "success": sum(1 for r in results if r["status"] == "success"),
+            "warnings": sum(1 for r in results if r["status"] == "warning"),
+            "bad_links": sum(1 for r in results if r["status"] == "bad_link"),
+            "failed": sum(1 for r in results if r["status"] == "failed"),
+            "results": results
+        }
+        with open(progress_file, "w", encoding="utf-8") as f:
+            json.dump(progress, f, indent=2)
+        logger.debug(f"Progress saved: {count}/{total} completed")
         
         # Reset scraper state for next university
         scraper.seen_urls.clear()
@@ -281,20 +311,103 @@ async def run_batch(excel_path: str, output_dir: str, model: str, limit: int = N
     return summary
 
 
+def check_urls_only(excel_path: str, output_dir: str, limit: int = None):
+    """
+    Dry-run: Check all URLs without scraping.
+    Outputs a report of good, warning, and bad URLs.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    df = load_universities(excel_path)
+    
+    if limit:
+        df = df.head(limit)
+    
+    results = {"good": [], "warning": [], "bad": []}
+    
+    print(f"\n{'='*60}")
+    print(f"URL VALIDATION CHECK - {len(df)} URLs")
+    print(f"{'='*60}\n")
+    
+    for idx, row in df.iterrows():
+        uni_name = row.get("Name", f"University_{idx}")
+        url = row["Uni faculty link"]
+        rank = str(row.get("Rank", "N/A"))
+        
+        quality, reason = analyze_url_quality(url)
+        
+        entry = {
+            "rank": rank,
+            "name": uni_name,
+            "url": url,
+            "quality": quality,
+            "reason": reason
+        }
+        results[quality].append(entry)
+        
+        # Print colored output
+        if quality == "good":
+            symbol = "✅"
+        elif quality == "warning":
+            symbol = "⚠️"
+        else:
+            symbol = "🔴"
+        
+        print(f"{symbol} [{rank}] {uni_name}")
+        print(f"   URL: {url}")
+        print(f"   {reason}\n")
+    
+    # Save report
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_file = os.path.join(output_dir, f"url_check_report_{timestamp}.json")
+    
+    report = {
+        "timestamp": datetime.now().isoformat(),
+        "summary": {
+            "total": len(df),
+            "good": len(results["good"]),
+            "warning": len(results["warning"]),
+            "bad": len(results["bad"])
+        },
+        "good_urls": results["good"],
+        "warning_urls": results["warning"],
+        "bad_urls": results["bad"]
+    }
+    
+    with open(report_file, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+    
+    print(f"{'='*60}")
+    print(f"SUMMARY:")
+    print(f"  ✅ Good URLs: {len(results['good'])}")
+    print(f"  ⚠️ Warning URLs: {len(results['warning'])}")
+    print(f"  🔴 Bad URLs: {len(results['bad'])}")
+    print(f"\nReport saved to: {report_file}")
+    print(f"{'='*60}")
+    
+    return report
+
+
 def main():
     parser = argparse.ArgumentParser(description="Batch scrape universities from Excel file")
     parser.add_argument("--input", required=True, help="Input Excel file path")
     parser.add_argument("--output-dir", default="./batch_results", help="Output directory for results")
     parser.add_argument("--model", default="openai/gpt-4o-mini", help="LLM model to use")
     parser.add_argument("--limit", type=int, default=None, help="Limit number of universities to process")
+    parser.add_argument("--check-urls", action="store_true", help="Only check URLs without scraping (dry-run)")
+    parser.add_argument("--skip-bad", action="store_true", help="Skip URLs detected as bad quality")
     
     args = parser.parse_args()
+    
+    # Check URLs only mode (no API key needed)
+    if args.check_urls:
+        check_urls_only(args.input, args.output_dir, args.limit)
+        return
     
     if not os.getenv("OPENAI_API_KEY"):
         logger.error("OPENAI_API_KEY not found. Please set it before running.")
         return
     
-    asyncio.run(run_batch(args.input, args.output_dir, args.model, args.limit))
+    asyncio.run(run_batch(args.input, args.output_dir, args.model, args.limit, args.skip_bad))
 
 
 if __name__ == "__main__":

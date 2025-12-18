@@ -53,6 +53,12 @@ insti-scraper --url "https://university.edu/faculty" --output data.json
 
 # Batch from Excel
 insti-batch --input universities.xlsx --output-dir ./results --limit 5
+
+# 🛡️ Check URLs first (no API key needed, no scraping)
+insti-batch --input universities.xlsx --check-urls --limit 20
+
+# 🛡️ Skip bad URLs during scraping
+insti-batch --input universities.xlsx --skip-bad
 ```
 
 ## Excel Format
