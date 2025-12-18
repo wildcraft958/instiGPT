@@ -9,6 +9,27 @@ AI-powered universal faculty data scraper that extracts professor profiles from 
 - 📊 **Batch Processing** - Scrape multiple universities from Excel
 - 📝 **Detailed Logging** - Debug logs saved to `logs/`
 
+## ⚠️ Known Limitations
+
+> **🔴 IMPORTANT: URL Requirements**
+> 
+> This scraper works best with **direct faculty/people directory pages**, NOT department landing pages.
+> 
+> ❌ **Won't work well:**
+> - `https://university.edu/engineering/` (department homepage)
+> - `https://university.edu/faculties-and-departments/` (lists faculties, not people)
+> 
+> ✅ **Works best with:**
+> - `https://university.edu/people/` (people directory)
+> - `https://university.edu/faculty/directory/` (faculty listing)
+> - `https://profiles.university.edu/` (profile pages)
+
+> **🔴 Current Shortcomings:**
+> - May extract departments/faculties instead of individual professors
+> - Duplicate entries possible when same URL appears multiple times
+> - No pagination support for large directories yet
+> - Some universities require login or have anti-scraping measures
+
 ## Installation
 
 ```bash
