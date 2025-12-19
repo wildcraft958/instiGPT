@@ -1,5 +1,7 @@
 """
 Batch processing script for scraping multiple universities from an Excel file.
+
+Supports auto-discovery mode to find faculty pages from any university URL.
 """
 import argparse
 import asyncio
@@ -7,12 +9,14 @@ import json
 import os
 import re
 from datetime import datetime
-from typing import Tuple
+from typing import Tuple, List
 from urllib.parse import urlparse
 
 import pandas as pd
 
 from .crawler import UniversalScraper
+from .discovery import FacultyPageDiscoverer, DiscoveredPage
+from .config import settings
 from .logger import logger
 
 
@@ -122,14 +126,71 @@ def assess_result_quality(data: list, uni_name: str) -> Tuple[str, str]:
     return ("good", f"Extracted {len(data)} profiles successfully")
 
 
-async def scrape_single(scraper: UniversalScraper, uni_name: str, url: str, output_dir: str, rank: str) -> dict:
+async def scrape_with_discovery(
+    scraper: UniversalScraper,
+    uni_name: str,
+    url: str,
+    discover_mode: str = "auto"
+) -> List[dict]:
+    """
+    Scrape with auto-discovery: find faculty pages first, then scrape them.
+    """
+    discoverer = FacultyPageDiscoverer(
+        max_depth=settings.DISCOVER_MAX_DEPTH,
+        max_pages=settings.DISCOVER_MAX_PAGES
+    )
+    
+    logger.info(f"🔍 Discovering faculty pages for {uni_name}...")
+    result = await discoverer.discover(url, mode=discover_mode)
+    
+    if not result.pages:
+        logger.warning(f"No faculty pages discovered for {uni_name}")
+        return []
+    
+    logger.info(f"   Found {len(result.pages)} potential pages via {result.discovery_method}")
+    
+    # Get directory pages or top scoring pages
+    directory_pages = [p for p in result.pages if p.page_type == "directory"]
+    if not directory_pages:
+        directory_pages = result.faculty_pages[:3]  # Top 3 by score
+    
+    all_profiles = []
+    for page in directory_pages:
+        logger.info(f"   Scraping: {page.url}")
+        try:
+            profiles = await scraper.run(page.url)
+            all_profiles.extend(profiles)
+        except Exception as e:
+            logger.error(f"   Error scraping {page.url}: {e}")
+    
+    # Deduplicate by profile URL
+    seen = set()
+    unique = []
+    for p in all_profiles:
+        purl = p.get("profile_url", "")
+        if purl and purl not in seen:
+            seen.add(purl)
+            unique.append(p)
+    
+    return unique
+
+
+async def scrape_single(
+    scraper: UniversalScraper,
+    uni_name: str,
+    url: str,
+    output_dir: str,
+    rank: str,
+    discover: bool = False,
+    discover_mode: str = "auto"
+) -> dict:
     """Scrape a single university and save results."""
     logger.info(f"Starting scrape: {uni_name}")
     logger.debug(f"URL: {url}")
     
     # Pre-check URL quality
     url_quality, url_reason = analyze_url_quality(url)
-    if url_quality == "bad":
+    if url_quality == "bad" and not discover:
         logger.warning(f"⚠️ {uni_name}: {url_reason}")
     
     result = {
@@ -140,10 +201,16 @@ async def scrape_single(scraper: UniversalScraper, uni_name: str, url: str, outp
         "status": "pending",
         "url_quality": url_quality,
         "url_quality_reason": url_reason,
+        "discovery_used": discover,
     }
     
     try:
-        data = await scraper.run(url)
+        # Use discovery if enabled OR if URL quality is bad
+        if discover or url_quality == "bad":
+            logger.info(f"🔍 Using auto-discovery for {uni_name}")
+            data = await scrape_with_discovery(scraper, uni_name, url, discover_mode)
+        else:
+            data = await scraper.run(url)
         
         # Assess result quality
         result_quality, result_reason = assess_result_quality(data, uni_name)
@@ -152,7 +219,7 @@ async def scrape_single(scraper: UniversalScraper, uni_name: str, url: str, outp
         result["profiles"] = len(data)
         
         # Determine overall status
-        if result_quality == "bad" or (url_quality == "bad" and len(data) < 5):
+        if result_quality == "bad" or (url_quality == "bad" and len(data) < 5 and not discover):
             result["status"] = "bad_link"
         elif result_quality == "warning" or url_quality == "warning":
             result["status"] = "warning"
@@ -171,6 +238,7 @@ async def scrape_single(scraper: UniversalScraper, uni_name: str, url: str, outp
             "scraped_at": datetime.now().isoformat(),
             "url_quality": url_quality,
             "result_quality": result_quality,
+            "discovery_used": discover,
             "profiles_count": len(data),
             "profiles": data
         }
@@ -189,7 +257,15 @@ async def scrape_single(scraper: UniversalScraper, uni_name: str, url: str, outp
     return result
 
 
-async def run_batch(excel_path: str, output_dir: str, model: str, limit: int = None, skip_bad: bool = False):
+async def run_batch(
+    excel_path: str,
+    output_dir: str,
+    model: str,
+    limit: int = None,
+    skip_bad: bool = False,
+    discover: bool = False,
+    discover_mode: str = "auto"
+):
     """Run batch scraping on all universities in the Excel file."""
     os.makedirs(output_dir, exist_ok=True)
     
@@ -198,6 +274,9 @@ async def run_batch(excel_path: str, output_dir: str, model: str, limit: int = N
     if limit:
         df = df.head(limit)
         logger.info(f"Limited to first {limit} universities")
+    
+    if discover:
+        logger.info(f"🔍 Discovery mode enabled: {discover_mode}")
     
     scraper = UniversalScraper(model_name=model)
     results = []
@@ -228,7 +307,10 @@ async def run_batch(excel_path: str, output_dir: str, model: str, limit: int = N
         logger.info(f"[{count}/{total}] Rank #{rank}: {uni_name}")
         logger.info(f"{'='*60}")
         
-        result = await scrape_single(scraper, uni_name, url, output_dir, rank)
+        result = await scrape_single(
+            scraper, uni_name, url, output_dir, rank,
+            discover=discover, discover_mode=discover_mode
+        )
         results.append(result)
         
         # Track bad links and warnings separately
@@ -388,13 +470,35 @@ def check_urls_only(excel_path: str, output_dir: str, limit: int = None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Batch scrape universities from Excel file")
+    parser = argparse.ArgumentParser(
+        description="Batch scrape universities from Excel file",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Standard batch scraping
+  insti-batch --input universities.xlsx --output-dir ./results
+  
+  # Auto-discover faculty pages from any URL
+  insti-batch --input universities.xlsx --discover
+  
+  # Use Ollama for free local inference
+  insti-batch --input universities.xlsx --model "ollama/llama3.1:8b"
+        """
+    )
     parser.add_argument("--input", required=True, help="Input Excel file path")
     parser.add_argument("--output-dir", default="./batch_results", help="Output directory for results")
-    parser.add_argument("--model", default="openai/gpt-4o-mini", help="LLM model to use")
+    parser.add_argument("--model", default=None, help="LLM model (default: gpt-4o-mini or ollama if available)")
     parser.add_argument("--limit", type=int, default=None, help="Limit number of universities to process")
     parser.add_argument("--check-urls", action="store_true", help="Only check URLs without scraping (dry-run)")
     parser.add_argument("--skip-bad", action="store_true", help="Skip URLs detected as bad quality")
+    
+    # Discovery options
+    parser.add_argument("--discover", action="store_true",
+        help="Enable auto-discovery from any URL (not just faculty pages)")
+    parser.add_argument("--discover-mode", choices=["sitemap", "deep", "auto"],
+        default="auto", help="Discovery mode: sitemap (fast), deep (thorough), auto (default)")
+    parser.add_argument("--prefer-local", action="store_true",
+        help="Prefer Ollama models when available (saves API costs)")
     
     args = parser.parse_args()
     
@@ -403,11 +507,24 @@ def main():
         check_urls_only(args.input, args.output_dir, args.limit)
         return
     
-    if not os.getenv("OPENAI_API_KEY"):
-        logger.error("OPENAI_API_KEY not found. Please set it before running.")
+    # Determine model
+    if args.model:
+        model = args.model
+    elif args.prefer_local and settings.is_ollama_available():
+        model = settings.get_model_for_task("schema_discovery", prefer_local=True)
+        logger.info(f"🏠 Using local Ollama model: {model}")
+    else:
+        model = settings.MODEL_NAME
+    
+    # Check for API key (not needed for Ollama)
+    if "ollama" not in model.lower() and not os.getenv("OPENAI_API_KEY"):
+        logger.error("OPENAI_API_KEY not found. Please set it or use --prefer-local with Ollama.")
         return
     
-    asyncio.run(run_batch(args.input, args.output_dir, args.model, args.limit, args.skip_bad))
+    asyncio.run(run_batch(
+        args.input, args.output_dir, model, args.limit, args.skip_bad,
+        discover=args.discover, discover_mode=args.discover_mode
+    ))
 
 
 if __name__ == "__main__":
