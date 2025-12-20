@@ -296,7 +296,50 @@ class FacultyPageDiscoverer:
         if "/directory" in url_lower:
             return "directory"
         
+        # Query params that indicate directory
+        if "people_type" in url_lower or "?type=" in url_lower:
+            return "directory"
+        
         return "unknown"
+    
+    def _has_profile_content(self, html: str) -> bool:
+        """
+        Check if HTML content looks like a faculty profile listing.
+        Returns True if page has indicators of actual profile listings.
+        """
+        if not html:
+            return False
+        
+        html_lower = html.lower()
+        
+        # Count indicators
+        score = 0
+        
+        # Check for multiple .edu emails (strong indicator)
+        email_count = len(re.findall(r'[\w.-]+@[\w.-]+\.edu', html))
+        if email_count >= 3:
+            score += 3
+        elif email_count >= 1:
+            score += 1
+        
+        # Check for profile-style links (e.g., /people/name, /faculty/name)
+        profile_links = len(re.findall(r'href=["\']/(?:people|faculty|staff|profile)/[^"\']+["\']', html_lower))
+        if profile_links >= 3:
+            score += 3
+        elif profile_links >= 1:
+            score += 1
+        
+        # Check for title indicators (Professor, PhD, etc.)
+        title_count = len(re.findall(r'\b(?:professor|assistant professor|associate professor|phd|ph\.d|lecturer|researcher)\b', html_lower))
+        if title_count >= 3:
+            score += 2
+        
+        # Check for department mentions
+        if any(dept in html_lower for dept in ['department of', 'school of', 'faculty ']):
+            score += 1
+        
+        # Threshold: need at least 3 points to be considered a profile page
+        return score >= 3
     
     async def _deep_crawl(self, start_url: str) -> List[DiscoveredPage]:
         """
@@ -344,7 +387,8 @@ class FacultyPageDiscoverer:
         # Create deep crawl strategy
         strategy = BestFirstCrawlingStrategy(
             max_depth=self.max_depth,
-            include_external=False,
+            include_external=True,  # ALLOW external links to find subdomains (e.g. nse.mit.edu)
+            # The DomainFilter above will strictly keep us within the base_domain
             url_scorer=scorer,
             filter_chain=filter_chain,
             max_pages=self.max_pages
@@ -352,44 +396,56 @@ class FacultyPageDiscoverer:
         
         config = CrawlerRunConfig(
             deep_crawl_strategy=strategy,
-            stream=False  # Non-streaming to avoid Python 3.13 ContextVar bug
+            stream=True  # Back to streaming as it's more reliable
         )
         
         browser_config = BrowserConfig(headless=True, verbose=False)
         
         try:
             async with AsyncWebCrawler(config=browser_config) as crawler:
-                # Non-streaming mode returns a list of results
-                results = await crawler.arun(start_url, config=config)
-                
-                # Handle both single result and list of results
-                if not isinstance(results, list):
-                    results = [results]
-                
-                for result in results:
-                    if result.url not in self._seen_urls:
-                        # Get score from crawler (includes content relevance)
-                        crawl_score = result.metadata.get("score", 0) if result.metadata else 0
-                        url_score = self._score_url(result.url)
-                        page_type = self._classify_url(result.url)
-                        
-                        # Combined score: crawl4ai score + our URL score
-                        combined_score = (crawl_score * 0.6) + (url_score * 0.4)
-                        
-                        if combined_score > 0:
-                            pages.append(DiscoveredPage(
-                                url=result.url,
-                                score=combined_score,
-                                page_type=page_type,
-                                source="deep_crawl"
-                            ))
-                            self._seen_urls.add(result.url)
-                            logger.debug(f"   ✓ {result.url} (score: {combined_score:.2f}, type: {page_type})")
+                try:
+                    async for result in await crawler.arun(start_url, config=config):
+                        if result.url not in self._seen_urls:
+                            # Get score from crawler (includes content relevance)
+                            crawl_score = result.metadata.get("score", 0) if result.metadata else 0
+                            url_score = self._score_url(result.url)
+                            page_type = self._classify_url(result.url)
+                            
+                            # CONTENT-BASED VALIDATION: Check if page has actual profile listings
+                            has_profiles = self._has_profile_content(result.html or "")
+                            
+                            # Boost pages that have actual profile content
+                            if has_profiles:
+                                url_score += 0.5  # Big boost for pages with real profiles
+                                if page_type == "unknown":
+                                    page_type = "directory"  # Upgrade to directory
+                            elif page_type == "directory" and not has_profiles:
+                                # URL looks like directory but no profiles found - demote
+                                url_score *= 0.3
+                            
+                            # Combined score: crawl4ai score + our URL score
+                            combined_score = (crawl_score * 0.6) + (url_score * 0.4)
+                            
+                            if combined_score > 0:
+                                pages.append(DiscoveredPage(
+                                    url=result.url,
+                                    score=combined_score,
+                                    page_type=page_type,
+                                    source="deep_crawl"
+                                ))
+                                self._seen_urls.add(result.url)
+                                content_marker = "📄" if has_profiles else "⚪"
+                                logger.debug(f"   {content_marker} {result.url} (score: {combined_score:.2f}, type: {page_type})")
+
+                except Exception as e:
+                    # Ignore the ContextVar error which happens on cleanup
+                    if "ContextVar" in str(e) or "GeneratorExit" in str(e):
+                        logger.debug(f"Ignored cleanup error: {e}")
+                    else:
+                        logger.error(f"Stream error: {e}")
         
         except Exception as e:
             logger.error(f"Deep crawl error: {e}")
-            import traceback
-            logger.debug(traceback.format_exc())
         
         # Sort by score and prioritize directories over profiles
         pages.sort(key=lambda p: (p.page_type == "directory", p.score), reverse=True)

@@ -2,8 +2,10 @@ import argparse
 import asyncio
 import os
 import json
+from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 from .crawler import UniversalScraper
 from .discovery import FacultyPageDiscoverer, DiscoveryResult
+from .strategies import classify_page_type
 from .config import settings
 
 
@@ -13,8 +15,8 @@ async def run_with_discovery(
     discover_mode: str,
     prefer_local: bool
 ) -> list:
-    """Run scraper with automatic faculty page discovery."""
-    # Step 1: Discover faculty pages
+    """Run scraper with automatic faculty page discovery and LLM validation."""
+    # Step 1: Discover faculty pages (URL-based)
     discoverer = FacultyPageDiscoverer(
         max_depth=settings.DISCOVER_MAX_DEPTH,
         max_pages=settings.DISCOVER_MAX_PAGES
@@ -29,19 +31,54 @@ async def run_with_discovery(
     print(f"\n📋 Discovered {len(result.pages)} potential faculty pages")
     print(f"   Method: {result.discovery_method}")
     
-    # Filter for directory pages (most likely to have faculty lists)
-    directory_pages = [p for p in result.pages if p.page_type == "directory"]
-    if not directory_pages:
-        # Fall back to highest scoring pages
-        directory_pages = result.faculty_pages[:5]
+    # Step 2: LLM-based validation of top candidates
+    # Get top scoring pages to validate (limit to avoid excessive API calls)
+    candidates = result.faculty_pages[:10]
     
-    print(f"   Processing top {len(directory_pages)} pages...")
+    print(f"\n🤖 Validating top {len(candidates)} pages with LLM...")
+    validated_pages = []
     
-    # Step 2: Scrape each discovered page
+    browser_config = BrowserConfig(headless=True, verbose=False)
+    run_config = CrawlerRunConfig(cache_mode=CacheMode.ENABLED)
+    
+    async with AsyncWebCrawler(config=browser_config) as crawler:
+        for page in candidates:
+            try:
+                # Fetch page content
+                res = await crawler.arun(page.url, config=run_config)
+                if not res.success:
+                    continue
+                
+                # Classify with LLM
+                classification = await classify_page_type(page.url, res.html or "", model)
+                
+                page_type = classification.get("page_type", "other")
+                confidence = classification.get("confidence", 0)
+                reason = classification.get("reason", "")
+                
+                if page_type == "faculty_directory" and confidence >= 0.6:
+                    print(f"   ✅ {page.url}")
+                    print(f"      → Faculty Directory (confidence: {confidence:.0%})")
+                    validated_pages.append(page)
+                else:
+                    print(f"   ❌ {page.url}")
+                    print(f"      → {page_type} ({reason[:50]}...)")
+                    
+            except Exception as e:
+                print(f"   ⚠️ Error validating {page.url}: {e}")
+    
+    if not validated_pages:
+        print("\n❌ No faculty directories found after LLM validation.")
+        print("   Try a specific department URL like: https://nse.mit.edu/people")
+        return []
+    
+    print(f"\n📊 Found {len(validated_pages)} validated faculty directories")
+    
+    # Step 3: Scrape validated pages
     all_profiles = []
     scraper = UniversalScraper(model_name=model)
     
-    for page in directory_pages:
+    for page in validated_pages[:3]:  # Limit to top 3 to avoid over-extraction
         print(f"\n🔍 Scraping: {page.url}")
         try:
             profiles = await scraper.run(page.url)
@@ -54,9 +91,9 @@ async def run_with_discovery(
     seen_urls = set()
     unique_profiles = []
     for p in all_profiles:
-        url = p.get("profile_url", "")
-        if url and url not in seen_urls:
-            seen_urls.add(url)
+        profile_url = p.get("profile_url", "")
+        if profile_url and profile_url not in seen_urls:
+            seen_urls.add(profile_url)
             unique_profiles.append(p)
     
     return unique_profiles

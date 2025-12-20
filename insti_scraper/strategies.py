@@ -104,3 +104,61 @@ def create_detail_strategy(model_name: str) -> LLMExtractionStrategy:
         input_format="markdown",
         verbose=False
     )
+
+
+async def classify_page_type(url: str, html_content: str, model_name: str) -> dict:
+    """
+    Use LLM to classify a page type based on its content.
+    Returns dict with 'page_type' and 'confidence' (0-1).
+    
+    Page types:
+    - faculty_directory: List of faculty members with names, titles, profile links
+    - staff_directory: List of non-academic staff
+    - policy: HR policies, procedures, guidelines
+    - news: News articles, events, announcements
+    - other: Any other type of page
+    """
+    from litellm import completion
+    
+    # Take a sample of the content
+    content_sample = html_content[:15000] if html_content else ""
+    
+    system_prompt = """You are a page classifier. Analyze the webpage content and classify it.
+Return JSON with exactly these fields:
+- page_type: one of 'faculty_directory', 'staff_directory', 'policy', 'news', 'other'
+- confidence: float between 0.0 and 1.0
+- reason: brief explanation
+
+Classification criteria:
+- faculty_directory: Page listing ACADEMIC faculty/professors with names, often with photos, emails, titles like "Professor", "PhD", research areas
+- staff_directory: Page listing administrative/support staff (HR, admin assistants, etc)
+- policy: HR policies, leave policies, procedures, guidelines documents
+- news: News articles, event announcements, press releases
+- other: Homepage, about page, statistics, or anything else"""
+
+    user_prompt = f"""URL: {url}
+
+Page content:
+{content_sample}
+
+Classify this page. Return only valid JSON."""
+
+    try:
+        response = completion(
+            model=model_name,
+            messages=[
+                {'role': 'system', 'content': system_prompt},
+                {'role': 'user', 'content': user_prompt}
+            ],
+            response_format={"type": "json_object"},
+            api_base=os.getenv("OLLAMA_BASE_URL") if "ollama" in model_name.lower() else None
+        )
+        
+        result = json.loads(response.choices[0].message.content)
+        return {
+            "page_type": result.get("page_type", "other"),
+            "confidence": float(result.get("confidence", 0.5)),
+            "reason": result.get("reason", "")
+        }
+    except Exception as e:
+        return {"page_type": "other", "confidence": 0.0, "reason": str(e)}
