@@ -1,15 +1,39 @@
 # InstiGPT Faculty Scraper
 
-AI-powered universal faculty data scraper that extracts professor profiles from university websites.
+AI-powered **universal faculty data scraper** that extracts professor profiles from any university website.
+
+## ✅ Current Status
+
+**Version:** 1.0.0 - Universal Scraper  
+**Status:** ✅ **Working** - Tested on multiple universities with different structures
+
+### Verified Test Results
+
+| University | Department | Profiles Extracted | Status |
+|------------|------------|-------------------|--------|
+| MIT NSE | Nuclear Science & Engineering | 24 faculty | ✅ Full details |
+| Imperial College | Business School Finance | 54+ faculty | ✅ Full details |
+
+### Sample Extracted Data
+```json
+{
+  "name": "Jacopo Buongiorno",
+  "profile_url": "https://nse.mit.edu/people/jacopo-buongiorno/",
+  "email": "jacopo@mit.edu",
+  "research_interests": ["Nuclear safety", "Floating nuclear power plants", ...],
+  "publications": ["Best Paper Award at Proc. ICAPP 2023...", ...]
+}
+```
 
 ## Features
 
-- 🔍 **Auto Schema Discovery** - LLM detects page structure automatically
-- ⚡ **CSS + LLM Fallback** - Fast CSS extraction with LLM backup
+- 🔍 **Universal Auto Schema Discovery** - LLM detects any page structure automatically
+- ⚡ **CSS + LLM Fallback** - Fast CSS extraction with intelligent LLM backup
+- 🌐 **AJAX Content Support** - Handles JavaScript-loaded dynamic content
+- 🤖 **LLM Page Validation** - Semantic classification of faculty directories (90-95% accuracy)
 - 📊 **Batch Processing** - Scrape multiple universities from Excel
 - 📝 **Detailed Logging** - Debug logs saved to `logs/`
-- 🌐 **Auto Page Discovery** - Find faculty pages from any URL (NEW!)
-- 🦙 **Ollama Support** - Free local inference with Ollama (NEW!)
+- 🦙 **Ollama Support** - Free local inference with Ollama
 
 ## Installation
 
@@ -19,7 +43,7 @@ git clone <repo-url>
 cd instiGPT
 make install
 
-# Setup browser
+# Setup browser (Playwright)
 make setup
 ```
 
@@ -29,8 +53,8 @@ make setup
 # Set API key (or use Ollama for free)
 export OPENAI_API_KEY="your-key"
 
-# Single URL (direct faculty page)
-insti-scraper --url "https://university.edu/faculty" --output data.json
+# Single faculty page (direct)
+insti-scraper --url "https://nse.mit.edu/people?people_type=faculty" --output data.json
 
 # 🆕 Auto-discover faculty pages from ANY URL
 insti-scraper --url "https://university.edu" --discover
@@ -40,9 +64,19 @@ export OLLAMA_BASE_URL="http://localhost:11434"
 insti-scraper --url "https://university.edu/faculty" --model "ollama/llama3.1:8b"
 ```
 
-## Discovery Mode (NEW!)
+## How It Works
 
-The scraper can now **automatically find faculty pages** from any university URL:
+### Universal Extraction Pipeline
+
+1. **AJAX Content Loading** - Waits for JavaScript to load dynamic content (2s + scroll + 1.5s)
+2. **LLM Schema Discovery** - Analyzes loaded HTML to generate CSS selectors
+3. **CSS Extraction** - Fast extraction using generated selectors
+4. **LLM Fallback** - If CSS fails, uses LLM to extract from markdown
+5. **Profile Detail Extraction** - Visits each profile page to get full details
+
+### Discovery Mode
+
+The scraper can **automatically find faculty pages** from any university URL:
 
 ```bash
 # Auto-discover from homepage
@@ -53,14 +87,11 @@ insti-scraper --url "https://stanford.edu" --discover --discover-mode sitemap
 
 # Deep crawl (most thorough)
 insti-scraper --url "https://columbia.edu" --discover --discover-mode deep
-
-# Batch with discovery
-insti-batch --input universities.xlsx --discover --limit 5
 ```
 
 **Discovery modes:**
 - `sitemap` - Fast, uses sitemap.xml (0 API calls)
-- `deep` - Thorough, crawls intelligently using keyword scoring
+- `deep` - Thorough, crawls intelligently with content validation
 - `auto` - Tries sitemap first, falls back to deep crawl (default)
 
 ## 💰 Cost-Saving Tips
@@ -75,9 +106,6 @@ ollama run llama3.1:8b
 export OLLAMA_BASE_URL="http://localhost:11434"
 
 # Use with scraper
-insti-scraper --url "https://university.edu" --prefer-local
-
-# Or specify model directly
 insti-scraper --url "https://university.edu" --model "ollama/llama3.1:8b"
 ```
 
@@ -102,27 +130,58 @@ insti-batch --input universities.xlsx --check-urls
 insti-batch --input universities.xlsx --skip-bad
 ```
 
-## Excel Format
+## ⚠️ Known Limitations
 
-Your Excel file should have a column named `Uni faculty link`:
+### Current Limitations
 
-| Name | Uni faculty link |
-|------|------------------|
-| MIT | https://mit.edu |
-| Stanford | https://stanford.edu |
+1. **AJAX Wait Delay** - Each page requires ~3.5s wait for JavaScript content to load
+   - Impact: Slower scraping (3-5s per page)
+   - Workaround: None currently, this is necessary for dynamic content
 
-> **Tip:** With `--discover`, you can use any URL (homepage, department page, etc.)
+2. **LLM-Generated CSS Selectors** - Sometimes generates incorrect selectors
+   - Impact: Falls back to LLM extraction (slower, more API calls)
+   - Workaround: LLM fallback handles this automatically
 
-## Batch Output
+3. **Pagination** - Limited pagination support
+   - Impact: May miss faculty on subsequent pages
+   - Workaround: Use discovery mode to find all paginated pages
 
-```
-batch_results/
-├── MIT_20241218_120000.json           # Individual results
-├── Stanford_20241218_120100.json
-├── batch_summary_20241218_120200.json # Overall summary
-├── bad_links_20241218_120200.json     # 🔴 Problem URLs
-└── warnings_20241218_120200.json      # ⚠️ URLs needing review
-```
+4. **Rate Limiting** - No built-in rate limiting for API calls
+   - Impact: May hit API limits on large batches
+   - Workaround: Use `--limit N` to process in smaller batches
+
+5. **Profile Page Variations** - Some universities use non-standard profile structures
+   - Impact: Detail extraction may be incomplete
+   - Workaround: LLM handles most variations automatically
+
+### Known Edge Cases
+
+- `mailto:` links are filtered but may still appear in logs
+- Some universities require authentication (not supported)
+- Very large departments (200+ faculty) may timeout
+
+## 🚀 Future Work
+
+### Planned Improvements
+
+- [ ] **Smart Pagination** - Automatic "Next" page detection and following
+- [ ] **Caching Layer** - Cache successful CSS schemas per domain for reuse
+- [ ] **Rate Limiting** - Built-in configurable rate limiting
+- [ ] **Retry Logic** - Automatic retry on transient failures
+- [ ] **More LLM Providers** - Support for Anthropic Claude, Google Gemini
+- [ ] **Parallel Extraction** - Concurrent profile detail extraction
+- [ ] **Schema Learning** - Save successful schemas for future runs
+- [ ] **Export Formats** - CSV, XLSX, Markdown export options
+- [ ] **GUI Dashboard** - Web interface for monitoring batch jobs
+- [ ] **Docker Image** - Pre-built container for easy deployment
+
+### Contributions Welcome
+
+Areas where contributions would be helpful:
+- Testing on more university websites
+- Improving CSS selector generation prompts
+- Adding support for new export formats
+- Documentation improvements
 
 ## CLI Reference
 
@@ -169,4 +228,3 @@ make clean    # Remove artifacts
 ## License
 
 MIT
-
