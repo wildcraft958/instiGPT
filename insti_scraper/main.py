@@ -32,8 +32,9 @@ async def run_with_discovery(
     print(f"   Method: {result.discovery_method}")
     
     # Step 2: LLM-based validation of top candidates
-    # Get top scoring pages to validate (limit to avoid excessive API calls)
-    candidates = result.faculty_pages[:10]
+    # IMPORTANT: Exclude profile pages (individual person pages) - only validate directories
+    directory_candidates = [p for p in result.faculty_pages if p.page_type != "profile"]
+    candidates = directory_candidates[:10]
     
     print(f"\n🤖 Validating top {len(candidates)} pages with LLM...")
     validated_pages = []

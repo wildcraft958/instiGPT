@@ -9,8 +9,15 @@ async def determine_extraction_schema(url: str, model_name: str) -> SelectorSche
     """Determines the CSS extraction schema for a given URL using LLM analysis."""
     print(f"🧠 Analyzing structure of {url}...")
     
+    # JavaScript to wait for AJAX content to load (many sites load content dynamically)
+    ajax_wait_js = '''
+    await new Promise(r => setTimeout(r, 2000));
+    window.scrollTo(0, document.body.scrollHeight);
+    await new Promise(r => setTimeout(r, 1500));
+    '''
+    
     browser_conf = BrowserConfig(headless=True)
-    run_conf = CrawlerRunConfig(cache_mode=CacheMode.BYPASS)
+    run_conf = CrawlerRunConfig(cache_mode=CacheMode.BYPASS, js_code=ajax_wait_js, scan_full_page=True)
     
     async with AsyncWebCrawler(config=browser_conf) as crawler:
         result = await crawler.arun(url=url, config=run_conf)
@@ -29,21 +36,37 @@ async def determine_extraction_schema(url: str, model_name: str) -> SelectorSche
 
     from litellm import completion
     
-    system_prompt = """You are a Web Scraping Configuration Tool.
-    Your ONLY job is to return a JSON configuration with CSS selectors based on the provided HTML.
-    NEVER extract the actual data content.
-    ONLY return 'base_selector' and 'fields'.
-    """
+    system_prompt = """You are an expert web scraping configuration tool.
+Analyze the provided HTML and return a JSON with CSS selectors to extract faculty profiles.
+
+Common patterns for faculty/people listings:
+- Cards: div.person-card, article.faculty, div.card, div.profile
+- Grid items: div.people-grid > div, ul.faculty-list > li
+- Table rows: table.directory tbody tr
+- Links: a with href containing /people/, /faculty/, /profile/
+
+Return JSON with:
+{
+  "base_selector": "CSS selector for the repeating container (one per person)",
+  "fields": {
+    "name": "selector relative to base (often h2, h3, .name, .title)",
+    "profile_url": "selector for link (usually a, a.profile-link) - MUST use href attribute",
+    "title": "selector for job title (often .position, .role, span.title)"
+  }
+}
+
+IMPORTANT:
+- base_selector must match EACH person as a separate element
+- profile_url field MUST target an <a> tag for the href
+- If there's no separate link, use 'a' as profile_url selector
+- Look for patterns that repeat for each person listed"""
     
-    user_prompt = f"""
-    Goal: Find CSS selectors to extract a list of faculty profiles.
-    Target Fields: name, profile_url, title
-    
-    Input HTML:
-    {content_sample}
-    
-    RETURN ONLY JSON fitting SelectorSchema.
-    """
+    user_prompt = f"""Analyze this HTML and provide CSS selectors to extract the list of faculty/people profiles.
+
+HTML Content:
+{content_sample}
+
+Return ONLY valid JSON with base_selector and fields. The fields MUST include 'name' and 'profile_url'."""
     
     print(f"🤖 Asking LLM ({model_name}) to analyze structure...")
     response = completion(
@@ -59,7 +82,18 @@ async def determine_extraction_schema(url: str, model_name: str) -> SelectorSche
     # Normalize keys
     if 'baseSelector' in data: data['base_selector'] = data.pop('baseSelector')
     
-    return SelectorSchema(base_selector=data.get('base_selector', 'div'), fields=data.get('fields', {}))
+    # Ensure profile_url field exists (normalize various names)
+    fields = data.get('fields', {})
+    if 'profile_url' not in fields:
+        for key in ['link', 'url', 'profileUrl', 'href', 'profile_link']:
+            if key in fields:
+                fields['profile_url'] = fields.pop(key)
+                break
+    
+    # Filter out None values and non-string values (LLM may return null for optional fields)
+    fields = {k: v for k, v in fields.items() if v is not None and isinstance(v, str)}
+    
+    return SelectorSchema(base_selector=data.get('base_selector', 'div'), fields=fields)
 
 def create_css_strategy(schema: SelectorSchema) -> JsonCssExtractionStrategy:
     css_schema_dict = {
@@ -81,9 +115,22 @@ def create_css_strategy(schema: SelectorSchema) -> JsonCssExtractionStrategy:
 def create_fallback_strategy(model_name: str) -> LLMExtractionStrategy:
     return LLMExtractionStrategy(
         llm_config=LLMConfig(provider=model_name, api_token=os.getenv("OPENAI_API_KEY")),
-        instruction="Find all faculty/staff profile URLs, names, and titles in this content. Return a JSON list of objects, each with 'name', 'profile_url', and optionally 'title'.",
+        instruction="""Extract ALL faculty/professor profiles from this page.
+
+For EACH person found, extract:
+- name: Full name of the faculty member
+- profile_url: URL to their profile page (look for links with /people/, /faculty/, /profile/ in href)
+- title: Academic title (Professor, Associate Professor, Lecturer, etc.)
+
+Return a JSON array with ALL people found. Each object MUST have 'name' and 'profile_url' fields.
+IMPORTANT: Extract EVERY faculty member you can find on the page, not just one.""",
         schema=FallbackProfileSchema.model_json_schema(),
-        extraction_type="schema"
+        extraction_type="schema",
+        chunk_token_threshold=12000,
+        overlap_rate=0.2,
+        apply_chunking=True,
+        input_format="markdown",
+        verbose=True
     )
 
 def create_detail_strategy(model_name: str) -> LLMExtractionStrategy:

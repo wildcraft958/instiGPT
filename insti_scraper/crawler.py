@@ -40,6 +40,13 @@ class UniversalScraper:
         current_url = start_url
         page_count = 0
         
+        # JavaScript to wait for AJAX content and scroll
+        ajax_wait_js = '''
+        await new Promise(r => setTimeout(r, 2000));
+        window.scrollTo(0, document.body.scrollHeight);
+        await new Promise(r => setTimeout(r, 1500));
+        '''
+        
         async with AsyncWebCrawler(config=BrowserConfig(headless=True, verbose=True)) as crawler:
             while current_url and page_count < settings.MAX_PAGES:
                 page_count += 1
@@ -50,18 +57,32 @@ class UniversalScraper:
                     schema = await determine_extraction_schema(current_url, self.model_name)
                     css_strategy = create_css_strategy(schema)
                     
+                    # Debug: show schema
+                    print(f"  📋 Schema: base={schema.base_selector}, fields={list(schema.fields.keys())}")
+                    
+                    # BYPASS cache and wait for AJAX content
                     res = await crawler.arun(
                         url=current_url,
-                        config=run_config.clone(extraction_strategy=css_strategy)
+                        config=CrawlerRunConfig(
+                            extraction_strategy=css_strategy,
+                            cache_mode=CacheMode.BYPASS,
+                            scan_full_page=True,
+                            js_code=ajax_wait_js
+                        )
                     )
                     
                     extracted = []
                     if res.success and res.extracted_content:
                         try:
                             data = json.loads(res.extracted_content)
+                            # Debug: show what we got
+                            print(f"  📊 Raw extracted: {len(data) if isinstance(data, list) else 'not a list'} items")
+                            if isinstance(data, list) and data:
+                                print(f"  📊 First item keys: {list(data[0].keys()) if isinstance(data[0], dict) else 'not dict'}")
+                            
                             extracted = [item for item in data if isinstance(item, dict) and item.get("profile_url")]
-                        except:
-                            pass
+                        except Exception as e:
+                            print(f"  ❌ JSON parse error: {e}")
                     
                     # Step 2: Fallback
                     if not extracted:
@@ -81,14 +102,32 @@ class UniversalScraper:
         print("  ⚠️ CSS extraction yielded 0 results. Switching to LLM Fallback...")
         fallback_strategy = create_fallback_strategy(self.model_name)
         
+        # JavaScript to wait for AJAX content
+        ajax_wait_js = '''
+        await new Promise(r => setTimeout(r, 2000));
+        window.scrollTo(0, document.body.scrollHeight);
+        await new Promise(r => setTimeout(r, 1500));
+        '''
+        
+        # BYPASS cache and wait for AJAX content with scrolling
         res_fallback = await crawler.arun(
             url=url,
-            config=base_config.clone(extraction_strategy=fallback_strategy)
+            config=CrawlerRunConfig(
+                extraction_strategy=fallback_strategy,
+                cache_mode=CacheMode.BYPASS,
+                scan_full_page=True,
+                js_code=ajax_wait_js
+            )
         )
+        
+        # Debug: Show markdown length
+        if res_fallback.markdown:
+            print(f"  📊 Markdown length: {len(res_fallback.markdown)} chars")
         
         if res_fallback.success and res_fallback.extracted_content:
             try:
                 extracted = json.loads(res_fallback.extracted_content)
+                print(f"  📊 LLM Fallback raw: {len(extracted) if isinstance(extracted, list) else type(extracted).__name__}")
                 if isinstance(extracted, list):
                     extracted = [x for x in extracted if x.get('profile_url')]
                 print(f"  ✅ LLM Fallback found {len(extracted)} profiles.")
