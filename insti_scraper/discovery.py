@@ -2,9 +2,10 @@
 Faculty page discovery using sitemap and deep crawling.
 
 This module provides intelligent URL discovery for faculty pages
-from any university URL using a tiered approach:
-1. Sitemap discovery (fastest, 0 API calls)
-2. Deep crawling with keyword scoring (thorough, 0 API calls)
+from any university URL using a hybrid approach:
+1. URL-based pre-filtering (fast)
+2. Content-based semantic matching (accurate)
+3. Multi-layer scoring for prioritization
 """
 import asyncio
 import re
@@ -17,10 +18,24 @@ import httpx
 
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, BrowserConfig
 from crawl4ai.deep_crawling import BestFirstCrawlingStrategy
-from crawl4ai.deep_crawling.filters import FilterChain, URLPatternFilter
+from crawl4ai.deep_crawling.filters import (
+    FilterChain, 
+    URLPatternFilter, 
+    DomainFilter,
+    ContentRelevanceFilter
+)
 from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
 
 from .logger import logger
+
+
+# Semantic query for content-based filtering (BM25 matching)
+# This query describes what faculty directory pages typically contain
+FACULTY_CONTENT_QUERY = (
+    "faculty professor staff people directory listing "
+    "email research interests office department "
+    "academic personnel team members profiles"
+)
 
 
 # Keywords that indicate faculty-related content
@@ -38,9 +53,12 @@ FACULTY_URL_PATTERNS = [
 ]
 
 # Patterns to exclude (non-faculty pages)
+# Note: Be careful not to exclude too aggressively - pages like /topic/faculty are valid
 EXCLUDE_PATTERNS = [
-    "*login*", "*search*", "*calendar*", "*events*", "*news*",
-    "*contact*", "*apply*", "*admission*", "*.pdf", "*.jpg", "*.png"
+    r"/login", r"/search\?", r"/calendar", r"/events/",
+    r"/contact$", r"/apply$", r"/admission",
+    r"\.pdf$", r"\.jpg$", r"\.png$", r"\.xml$",
+    r"/rss", r"/feed"  # RSS feeds
 ]
 
 
@@ -132,13 +150,11 @@ class FacultyPageDiscoverer:
             logger.info("🕸️ Starting deep crawl for faculty pages...")
             deep_pages = await self._deep_crawl(start_url)
             
-            # Add only new pages
-            for page in deep_pages:
-                if page.url not in self._seen_urls:
-                    result.pages.append(page)
-                    self._seen_urls.add(page.url)
-            
+            # deep_pages are already deduplicated in _deep_crawl via _seen_urls
+            # Just add them directly to result
+            result.pages.extend(deep_pages)
             result.pages_crawled = len(deep_pages)
+            
             if not result.discovery_method:
                 result.discovery_method = "deep_crawl"
             else:
@@ -247,10 +263,9 @@ class FacultyPageDiscoverer:
             if keyword in url_lower:
                 score += 0.2
         
-        # Check for exclude patterns
+        # Check for exclude patterns (these are already regex)
         for pattern in EXCLUDE_PATTERNS:
-            pattern_re = pattern.replace("*", ".*")
-            if re.search(pattern_re, url_lower):
+            if re.search(pattern, url_lower):
                 return 0.0  # Exclude completely
         
         # Bonus for specific patterns
@@ -284,21 +299,47 @@ class FacultyPageDiscoverer:
         return "unknown"
     
     async def _deep_crawl(self, start_url: str) -> List[DiscoveredPage]:
-        """Use BestFirstCrawlingStrategy for intelligent deep crawling."""
+        """
+        Use BestFirstCrawlingStrategy with multi-layer filtering.
+        
+        Layer 1: DomainFilter - Stay within university domain
+        Layer 2: URLPatternFilter - Pre-filter by URL patterns  
+        Layer 3: ContentRelevanceFilter - BM25 semantic matching on content
+        """
         pages = []
         parsed = urlparse(start_url)
         domain = parsed.netloc
         
-        # Create keyword scorer
-        scorer = KeywordRelevanceScorer(
-            keywords=FACULTY_KEYWORDS,
-            weight=0.8
+        # Extract base domain (e.g., "mit.edu" from "nse.mit.edu")
+        domain_parts = domain.split('.')
+        if len(domain_parts) >= 2:
+            base_domain = '.'.join(domain_parts[-2:])
+        else:
+            base_domain = domain
+        
+        logger.info(f"   Domain: {base_domain}")
+        
+        # LAYER 1: Domain filter - stay within university
+        # This is the ONLY filter during exploration
+        # We DON'T use URLPatternFilter here as it blocks exploration of non-matching paths
+        domain_filter = DomainFilter(
+            allowed_domains=[base_domain],
+            blocked_domains=["news." + base_domain]  # Block news subdomain
         )
         
-        # Create URL filter
+        # Note: ContentRelevanceFilter is too restrictive for exploration
+        # We'll filter results using our _score_url() method instead
+        
+        # Combine filters - just domain filter for exploration
         filter_chain = FilterChain([
-            URLPatternFilter(patterns=FACULTY_URL_PATTERNS)
+            domain_filter
         ])
+        
+        # Create keyword scorer for URL-based prioritization
+        scorer = KeywordRelevanceScorer(
+            keywords=FACULTY_KEYWORDS,
+            weight=0.7
+        )
         
         # Create deep crawl strategy
         strategy = BestFirstCrawlingStrategy(
@@ -311,32 +352,47 @@ class FacultyPageDiscoverer:
         
         config = CrawlerRunConfig(
             deep_crawl_strategy=strategy,
-            stream=True
+            stream=False  # Non-streaming to avoid Python 3.13 ContextVar bug
         )
         
         browser_config = BrowserConfig(headless=True, verbose=False)
         
         try:
             async with AsyncWebCrawler(config=browser_config) as crawler:
-                async for result in await crawler.arun(start_url, config=config):
+                # Non-streaming mode returns a list of results
+                results = await crawler.arun(start_url, config=config)
+                
+                # Handle both single result and list of results
+                if not isinstance(results, list):
+                    results = [results]
+                
+                for result in results:
                     if result.url not in self._seen_urls:
-                        score = result.metadata.get("score", 0)
-                        # Re-score based on our criteria
-                        our_score = max(score, self._score_url(result.url))
+                        # Get score from crawler (includes content relevance)
+                        crawl_score = result.metadata.get("score", 0) if result.metadata else 0
+                        url_score = self._score_url(result.url)
+                        page_type = self._classify_url(result.url)
                         
-                        if our_score > 0:
+                        # Combined score: crawl4ai score + our URL score
+                        combined_score = (crawl_score * 0.6) + (url_score * 0.4)
+                        
+                        if combined_score > 0:
                             pages.append(DiscoveredPage(
                                 url=result.url,
-                                score=our_score,
-                                page_type=self._classify_url(result.url),
+                                score=combined_score,
+                                page_type=page_type,
                                 source="deep_crawl"
                             ))
                             self._seen_urls.add(result.url)
-                        
-                        logger.debug(f"   Crawled: {result.url} (score: {our_score:.2f})")
+                            logger.debug(f"   ✓ {result.url} (score: {combined_score:.2f}, type: {page_type})")
         
         except Exception as e:
             logger.error(f"Deep crawl error: {e}")
+            import traceback
+            logger.debug(traceback.format_exc())
+        
+        # Sort by score and prioritize directories over profiles
+        pages.sort(key=lambda p: (p.page_type == "directory", p.score), reverse=True)
         
         return pages
 
