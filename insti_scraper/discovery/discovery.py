@@ -26,7 +26,7 @@ from crawl4ai.deep_crawling.filters import (
 )
 from crawl4ai.deep_crawling.scorers import KeywordRelevanceScorer
 
-from .logger import logger
+from insti_scraper.core.logger import logger
 
 
 # Semantic query for content-based filtering (BM25 matching)

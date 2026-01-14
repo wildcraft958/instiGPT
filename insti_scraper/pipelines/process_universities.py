@@ -14,89 +14,54 @@ from urllib.parse import urlparse
 
 import pandas as pd
 
-from .orchestration.pipeline import ScrapingPipeline
-from .discovery import FacultyPageDiscoverer, DiscoveredPage
-from .config import settings
-from .logger import logger
-
-
-# Patterns that indicate a URL is likely a department/landing page, not faculty directory
-BAD_URL_PATTERNS = [
-    r"/faculties-and-departments/?$",
-    r"/departments/?$",
-    r"/schools/?$",
-    r"/colleges/?$",
-    r"/about/?$",
-    r"/engineering/?$",
-    r"/medicine/?$",
-    r"/science/?$",
-    r"/arts/?$",
-    r"/business/?$",
-    r"/law/?$",
-]
-
-# Patterns that indicate a URL is likely a good faculty/people directory
-GOOD_URL_PATTERNS = [
-    r"/people",
-    r"/faculty",
-    r"/staff",
-    r"/profiles",
-    r"/directory",
-    r"/academics",
-    r"/researchers",
-    r"/our-people",
-    r"/team",
-    r"/members",
-]
+from insti_scraper.orchestration.pipeline import ScrapingPipeline
+from insti_scraper.discovery.discovery import FacultyPageDiscoverer, DiscoveredPage
+from insti_scraper.core.config import settings
+from insti_scraper.core.logger import logger
 
 
 def analyze_url_quality(url: str) -> Tuple[str, str]:
     """
-    Analyze URL to detect if it's likely a good faculty directory or a bad department page.
-    
-    Returns:
-        Tuple of (quality: 'good'|'warning'|'bad', reason: str)
+    Basic URL validation (Universal mode).
+    We no longer block based on keywords like 'about' or 'department',
+    as these pages might contain links to faculty directories.
     """
+    if not url or not isinstance(url, str):
+        return ("bad", "Invalid or empty URL")
+        
     url_lower = url.lower()
     parsed = urlparse(url_lower)
-    path = parsed.path
     
-    # Check for good patterns first
-    for pattern in GOOD_URL_PATTERNS:
-        if re.search(pattern, path):
-            return ("good", f"URL contains '{pattern}' - likely a faculty directory")
-    
-    # Check for bad patterns
-    for pattern in BAD_URL_PATTERNS:
-        if re.search(pattern, path):
-            return ("bad", f"URL matches '{pattern}' - likely a department landing page, not faculty directory")
-    
+    if not parsed.scheme or not parsed.netloc:
+        return ("bad", "Invalid URL format (missing scheme/netloc)")
+        
     # Check if path is too short (likely homepage)
-    if len(path.strip("/")) < 5:
-        return ("warning", "URL path is very short - might be a homepage, not faculty directory")
+    path = parsed.path
+    if len(path.strip("/")) < 2 and not parsed.query:
+        return ("warning", "URL path appears to be a homepage - Auto-Discovery recommended")
     
-    return ("warning", "Unable to determine URL quality - proceed with caution")
+    return ("good", "Valid URL format")
 
 
 def load_universities(excel_path: str) -> pd.DataFrame:
     """Load and filter universities from Excel file."""
     logger.info(f"Loading Excel file: {excel_path}")
-    df = pd.read_excel(excel_path)
+    universities_df = pd.read_excel(excel_path)
     
     # Filter rows with valid faculty URLs
     url_column = "Uni faculty link"
-    if url_column not in df.columns:
-        logger.error(f"Column '{url_column}' not found. Available: {df.columns.tolist()}")
+    if url_column not in universities_df.columns:
+        logger.error(f"Column '{url_column}' not found. Available: {universities_df.columns.tolist()}")
         raise ValueError(f"Missing column: {url_column}")
     
     # Filter valid URLs
-    valid_df = df[df[url_column].notna() & df[url_column].str.startswith("http", na=False)].copy()
-    logger.info(f"Found {len(valid_df)} universities with valid faculty URLs")
+    valid_universities_df = universities_df[universities_df[url_column].notna() & universities_df[url_column].str.startswith("http", na=False)].copy()
+    logger.info(f"Found {len(valid_universities_df)} universities with valid faculty URLs")
     
-    return valid_df
+    return valid_universities_df
 
 
-def assess_result_quality(data: list, uni_name: str) -> Tuple[str, str]:
+def assess_result_quality(data: list, university_name: str) -> Tuple[str, str]:
     """
     Assess if scrape results look like faculty profiles or department pages.
     
@@ -128,7 +93,7 @@ def assess_result_quality(data: list, uni_name: str) -> Tuple[str, str]:
 
 async def scrape_with_discovery(
     pipeline: ScrapingPipeline,
-    uni_name: str,
+    university_name: str,
     url: str,
     discover_mode: str = "auto"
 ) -> List[dict]:
@@ -140,11 +105,11 @@ async def scrape_with_discovery(
         max_pages=settings.DISCOVER_MAX_PAGES
     )
     
-    logger.info(f"🔍 Discovering faculty pages for {uni_name}...")
+    logger.info(f"🔍 Discovering faculty pages for {university_name}...")
     result = await discoverer.discover(url, mode=discover_mode)
     
     if not result.pages:
-        logger.warning(f"No faculty pages discovered for {uni_name}")
+        logger.warning(f"No faculty pages discovered for {university_name}")
         return []
     
     logger.info(f"   Found {len(result.pages)} potential pages via {result.discovery_method}")
@@ -168,9 +133,9 @@ async def scrape_with_discovery(
     seen = set()
     unique = []
     for p in all_profiles:
-        purl = p.get("profile_url", "")
-        if purl and purl not in seen:
-            seen.add(purl)
+        profile_url = p.get("profile_url", "")
+        if profile_url and profile_url not in seen:
+            seen.add(profile_url)
             unique.append(p)
     
     return unique
@@ -178,7 +143,7 @@ async def scrape_with_discovery(
 
 async def scrape_single(
     pipeline: ScrapingPipeline,
-    uni_name: str,
+    university_name: str,
     url: str,
     output_dir: str,
     rank: str,
@@ -186,16 +151,16 @@ async def scrape_single(
     discover_mode: str = "auto"
 ) -> dict:
     """Scrape a single university and save results."""
-    logger.info(f"Starting scrape: {uni_name}")
+    logger.info(f"Starting scrape: {university_name}")
     logger.debug(f"URL: {url}")
     
     # Pre-check URL quality
     url_quality, url_reason = analyze_url_quality(url)
     if url_quality == "bad" and not discover:
-        logger.warning(f"⚠️ {uni_name}: {url_reason}")
+        logger.warning(f"⚠️ {university_name}: {url_reason}")
     
     result = {
-        "name": uni_name,
+        "name": university_name,
         "url": url,
         "rank": rank,
         "profiles": 0,
@@ -208,13 +173,13 @@ async def scrape_single(
     try:
         # Use discovery if enabled OR if URL quality is bad
         if discover or url_quality == "bad":
-            logger.info(f"🔍 Using auto-discovery for {uni_name}")
-            data = await scrape_with_discovery(pipeline, uni_name, url, discover_mode)
+            logger.info(f"🔍 Using auto-discovery for {university_name}")
+            data = await scrape_with_discovery(pipeline, university_name, url, discover_mode)
         else:
             data = await pipeline.run(url)
         
         # Assess result quality
-        result_quality, result_reason = assess_result_quality(data, uni_name)
+        result_quality, result_reason = assess_result_quality(data, university_name)
         result["result_quality"] = result_quality
         result["result_quality_reason"] = result_reason
         result["profiles"] = len(data)
@@ -229,11 +194,11 @@ async def scrape_single(
         
         # Save individual result with unique filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in uni_name)[:40]
+        safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in university_name)[:40]
         output_file = os.path.join(output_dir, f"{safe_name}_{timestamp}.json")
         
         uni_data = {
-            "university": uni_name,
+            "university": university_name,
             "rank": rank,
             "source_url": url,
             "scraped_at": datetime.now().isoformat(),
@@ -248,10 +213,10 @@ async def scrape_single(
             json.dump(uni_data, f, indent=2)
         
         result["file"] = output_file
-        logger.info(f"{'✅' if result['status'] == 'success' else '⚠️'} {uni_name}: {result_reason} -> {output_file}")
+        logger.info(f"{'✅' if result['status'] == 'success' else '⚠️'} {university_name}: {result_reason} -> {output_file}")
         
     except Exception as e:
-        logger.error(f"❌ {uni_name}: Failed - {e}", exc_info=True)
+        logger.error(f"❌ {university_name}: Failed - {e}", exc_info=True)
         result["status"] = "failed"
         result["error"] = str(e)
     
@@ -270,10 +235,10 @@ async def run_batch(
     """Run batch scraping on all universities in the Excel file."""
     os.makedirs(output_dir, exist_ok=True)
     
-    df = load_universities(excel_path)
+    universities_df = load_universities(excel_path)
     
     if limit:
-        df = df.head(limit)
+        universities_df = universities_df.head(limit)
         logger.info(f"Limited to first {limit} universities")
     
     if discover:
@@ -285,9 +250,9 @@ async def run_batch(
     warnings = []
     skipped = []
     
-    total = len(df)
-    for count, (idx, row) in enumerate(df.iterrows(), 1):
-        uni_name = row.get("Name", f"University_{idx}")
+    total = len(universities_df)
+    for count, (idx, row) in enumerate(universities_df.iterrows(), 1):
+        university_name = row.get("Name", f"University_{idx}")
         url = row["Uni faculty link"]
         rank = str(row.get("Rank", "N/A"))
         
@@ -295,9 +260,9 @@ async def run_batch(
         if skip_bad:
             url_quality, url_reason = analyze_url_quality(url)
             if url_quality == "bad":
-                logger.warning(f"⏭️ SKIPPING [{rank}] {uni_name}: {url_reason}")
+                logger.warning(f"⏭️ SKIPPING [{rank}] {university_name}: {url_reason}")
                 skipped.append({
-                    "name": uni_name,
+                    "name": university_name,
                     "url": url,
                     "rank": rank,
                     "reason": url_reason
@@ -305,11 +270,11 @@ async def run_batch(
                 continue
         
         logger.info(f"\n{'='*60}")
-        logger.info(f"[{count}/{total}] Rank #{rank}: {uni_name}")
+        logger.info(f"[{count}/{total}] Rank #{rank}: {university_name}")
         logger.info(f"{'='*60}")
         
         result = await scrape_single(
-            pipeline, uni_name, url, output_dir, rank,
+            pipeline, university_name, url, output_dir, rank,
             discover=discover, discover_mode=discover_mode
         )
         results.append(result)
@@ -399,19 +364,19 @@ def check_urls_only(excel_path: str, output_dir: str, limit: int = None):
     Outputs a report of good, warning, and bad URLs.
     """
     os.makedirs(output_dir, exist_ok=True)
-    df = load_universities(excel_path)
+    universities_df = load_universities(excel_path)
     
     if limit:
-        df = df.head(limit)
+        universities_df = universities_df.head(limit)
     
     results = {"good": [], "warning": [], "bad": []}
     
     print(f"\n{'='*60}")
-    print(f"URL VALIDATION CHECK - {len(df)} URLs")
+    print(f"URL VALIDATION CHECK - {len(universities_df)} URLs")
     print(f"{'='*60}\n")
     
-    for idx, row in df.iterrows():
-        uni_name = row.get("Name", f"University_{idx}")
+    for idx, row in universities_df.iterrows():
+        university_name = row.get("Name", f"University_{idx}")
         url = row["Uni faculty link"]
         rank = str(row.get("Rank", "N/A"))
         
@@ -419,7 +384,7 @@ def check_urls_only(excel_path: str, output_dir: str, limit: int = None):
         
         entry = {
             "rank": rank,
-            "name": uni_name,
+            "name": university_name,
             "url": url,
             "quality": quality,
             "reason": reason
@@ -434,7 +399,7 @@ def check_urls_only(excel_path: str, output_dir: str, limit: int = None):
         else:
             symbol = "🔴"
         
-        print(f"{symbol} [{rank}] {uni_name}")
+        print(f"{symbol} [{rank}] {university_name}")
         print(f"   URL: {url}")
         print(f"   {reason}\n")
     
@@ -445,7 +410,7 @@ def check_urls_only(excel_path: str, output_dir: str, limit: int = None):
     report = {
         "timestamp": datetime.now().isoformat(),
         "summary": {
-            "total": len(df),
+            "total": len(universities_df),
             "good": len(results["good"]),
             "warning": len(results["warning"]),
             "bad": len(results["bad"])

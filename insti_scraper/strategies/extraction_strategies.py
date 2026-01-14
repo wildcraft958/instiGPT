@@ -2,8 +2,8 @@ import os
 import json
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode, LLMConfig
 from crawl4ai.extraction_strategy import JsonCssExtractionStrategy, LLMExtractionStrategy
-from .models import SelectorSchema, FallbackProfileSchema, FacultyDetail
-from .config import settings
+from insti_scraper.core.models import SelectorSchema, FallbackProfileSchema, FacultyDetail
+from insti_scraper.core.config import settings
 
 async def determine_extraction_schema(url: str, model_name: str) -> SelectorSchema:
     """Determines the CSS extraction schema for a given URL using LLM analysis."""

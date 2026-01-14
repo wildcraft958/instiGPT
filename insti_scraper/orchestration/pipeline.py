@@ -6,7 +6,7 @@ from datetime import datetime
 
 from insti_scraper.scrapers.list_scraper import ListScraper
 from insti_scraper.scrapers.detail_scraper import DetailScraper
-from insti_scraper.config import settings
+from insti_scraper.core.config import settings
 
 class ScrapingPipeline:
     """
@@ -19,13 +19,13 @@ class ScrapingPipeline:
         self.list_scraper = ListScraper()
         self.detail_scraper = DetailScraper()
 
-    async def run(self, start_url: str, phase1_only: bool = False, resume_file: str = None) -> List[Dict]:
+    async def run(self, start_url: str, discovery_only: bool = False, resume_file: str = None) -> List[Dict]:
         """
         Run the end-to-end pipeline.
         
         Args:
             start_url: URL to start discovery from
-            phase1_only: Stop after discovery
+            discovery_only: Stop after discovery
             resume_file: Path to existing JSON to skip Phase 1 and go to Phase 2
         """
         print(f"🚀 Starting Scraping Pipeline")
@@ -52,7 +52,7 @@ class ScrapingPipeline:
             print("❌ No profiles found. Aborting.")
             return []
 
-        if phase1_only:
+        if discovery_only:
             return profiles
 
         # --- PHASE 2: DETAILS ---

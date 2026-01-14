@@ -2,13 +2,13 @@ import asyncio
 import sys
 import argparse
 from insti_scraper.orchestration.pipeline import ScrapingPipeline
-from insti_scraper.config import settings
+from insti_scraper.core.config import settings
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Universal Faculty Scraper (Modular Engine)")
     parser.add_argument("url", help="Starting URL for faculty directory", nargs="?")
     parser.add_argument("--resume", help="Resume from a JSON file (skip Phase 1 discovery)", default=None)
-    parser.add_argument("--phase1-only", action="store_true", help="Run only list discovery (Phase 1)")
+    parser.add_argument("--discovery-only", action="store_true", help="Run only list discovery (Phase 1)")
     parser.add_argument("--model", help="LLM model to use", default=settings.MODEL_NAME)
     return parser.parse_args()
 
@@ -27,7 +27,7 @@ async def main():
     # Run
     await pipeline.run(
         start_url=url,
-        phase1_only=args.phase1_only,
+        discovery_only=args.discovery_only,
         resume_file=args.resume
     )
 

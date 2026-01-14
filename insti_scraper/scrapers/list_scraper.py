@@ -4,8 +4,8 @@ from typing import List, Dict, Any, Optional
 from urllib.parse import urljoin
 
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
-from insti_scraper.config import settings
-from insti_scraper.strategies import (
+from insti_scraper.core.config import settings
+from insti_scraper.strategies.extraction_strategies import (
     determine_extraction_schema,
     create_css_strategy,
     create_fallback_strategy

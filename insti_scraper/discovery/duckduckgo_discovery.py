@@ -18,7 +18,7 @@ except ImportError:
     DDGS = None
 
 from litellm import completion
-from .config import settings
+from insti_scraper.core.config import settings
 
 
 # URL patterns that indicate faculty-related content

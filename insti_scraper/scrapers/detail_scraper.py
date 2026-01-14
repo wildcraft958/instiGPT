@@ -3,8 +3,8 @@ import json
 import signal
 from typing import List, Dict, Any, Union
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
-from insti_scraper.config import settings
-from insti_scraper.strategies import create_detail_strategy
+from insti_scraper.core.config import settings
+from insti_scraper.strategies.extraction_strategies import create_detail_strategy
 
 class DetailScraper:
     """
