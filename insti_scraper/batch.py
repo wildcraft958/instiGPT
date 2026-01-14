@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 
 import pandas as pd
 
-from .crawler import UniversalScraper
+from .orchestration.pipeline import ScrapingPipeline
 from .discovery import FacultyPageDiscoverer, DiscoveredPage
 from .config import settings
 from .logger import logger
@@ -127,7 +127,7 @@ def assess_result_quality(data: list, uni_name: str) -> Tuple[str, str]:
 
 
 async def scrape_with_discovery(
-    scraper: UniversalScraper,
+    pipeline: ScrapingPipeline,
     uni_name: str,
     url: str,
     discover_mode: str = "auto"
@@ -158,7 +158,8 @@ async def scrape_with_discovery(
     for page in directory_pages:
         logger.info(f"   Scraping: {page.url}")
         try:
-            profiles = await scraper.run(page.url)
+            # Run the pipeline on each discovered page
+            profiles = await pipeline.run(page.url)
             all_profiles.extend(profiles)
         except Exception as e:
             logger.error(f"   Error scraping {page.url}: {e}")
@@ -176,7 +177,7 @@ async def scrape_with_discovery(
 
 
 async def scrape_single(
-    scraper: UniversalScraper,
+    pipeline: ScrapingPipeline,
     uni_name: str,
     url: str,
     output_dir: str,
@@ -208,9 +209,9 @@ async def scrape_single(
         # Use discovery if enabled OR if URL quality is bad
         if discover or url_quality == "bad":
             logger.info(f"🔍 Using auto-discovery for {uni_name}")
-            data = await scrape_with_discovery(scraper, uni_name, url, discover_mode)
+            data = await scrape_with_discovery(pipeline, uni_name, url, discover_mode)
         else:
-            data = await scraper.run(url)
+            data = await pipeline.run(url)
         
         # Assess result quality
         result_quality, result_reason = assess_result_quality(data, uni_name)
@@ -278,7 +279,7 @@ async def run_batch(
     if discover:
         logger.info(f"🔍 Discovery mode enabled: {discover_mode}")
     
-    scraper = UniversalScraper(model_name=model)
+    pipeline = ScrapingPipeline(output_dir=output_dir)
     results = []
     bad_links = []
     warnings = []
@@ -308,7 +309,7 @@ async def run_batch(
         logger.info(f"{'='*60}")
         
         result = await scrape_single(
-            scraper, uni_name, url, output_dir, rank,
+            pipeline, uni_name, url, output_dir, rank,
             discover=discover, discover_mode=discover_mode
         )
         results.append(result)
@@ -336,8 +337,7 @@ async def run_batch(
         logger.debug(f"Progress saved: {count}/{total} completed")
         
         # Reset scraper state for next university
-        scraper.seen_urls.clear()
-        scraper.all_profiles.clear()
+        pipeline.list_scraper.seen_urls.clear()
     
     # Save summary
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

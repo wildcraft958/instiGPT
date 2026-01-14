@@ -250,17 +250,17 @@ Then suggest 3 possible CSS selectors in order of specificity:
 
 Return JSON:
 ```json
-{
+{{
   "position": "description of where on page",
   "appearance": "color, size, shape",
   "text": "visible text",
   "context": "what's around it",
   "selectors": [
-    {"selector": "...", "confidence": 0.9},
-    {"selector": "...", "confidence": 0.7},
-    {"selector": "...", "confidence": 0.5}
+    {{"selector": "...", "confidence": 0.9}},
+    {{"selector": "...", "confidence": 0.7}},
+    {{"selector": "...", "confidence": 0.5}}
   ]
-}
+}}
 ```"""
 
 

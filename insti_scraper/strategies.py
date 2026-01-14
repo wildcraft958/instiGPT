@@ -57,8 +57,9 @@ Return JSON with:
 
 IMPORTANT:
 - base_selector must match EACH person as a separate element
-- profile_url field MUST target an <a> tag for the href
-- If there's no separate link, use 'a' as profile_url selector
+- Prefer single, distinct class names (e.g. .profile-card, .stfdetel) over complex chains (e.g. div.row.card) if possible
+- Avoid using classes that look like layout utilities (e.g. .col-md-4, .row, .bx) unless necessary
+- profile_url field TARGETS an <a> tag. IF NO profile link exists, OMIT this field.
 - Look for patterns that repeat for each person listed"""
     
     user_prompt = f"""Analyze this HTML and provide CSS selectors to extract the list of faculty/people profiles.
@@ -66,7 +67,7 @@ IMPORTANT:
 HTML Content:
 {content_sample}
 
-Return ONLY valid JSON with base_selector and fields. The fields MUST include 'name' and 'profile_url'."""
+Return ONLY valid JSON with base_selector and fields. The fields MUST include 'name' (and 'profile_url' if available). Also include 'email', 'title', 'phone' if they appear in the list item."""
     
     print(f"🤖 Asking LLM ({model_name}) to analyze structure...")
     response = completion(
@@ -138,16 +139,33 @@ def create_detail_strategy(model_name: str) -> LLMExtractionStrategy:
         llm_config=LLMConfig(provider=model_name, api_token=os.getenv("OPENAI_API_KEY")),
         schema=FacultyDetail.model_json_schema(),
         extraction_type="schema",
-        instruction=(
-            "Extract the following:"
-            "1. Email (look for mailto links or evident email text)."
-            "2. Research Interests: Look for sections named 'Research', 'Expertise', or 'Current Work'. "
-            "   - If it's a list, extract items."
-            "   - If it's a paragraph, summarize key topics/areas into a list."
-            "3. Publications: Look for 'Selected Publications' or similar lists. Max 5."
-            "If 'Research' is missing, check 'Expertise' or 'Biography' for implied interests."
-        ),
-        chunk_token_threshold=4000,
+        instruction="""Extract comprehensive faculty profile information:
+
+1. **Email**: Look for:
+   - mailto: links
+   - Text containing @ symbol (e.g., john@university.edu)
+   - "Email:" or "E-mail:" labels
+   
+2. **Research Interests**: Look for sections titled:
+   - "Research", "Research Interests", "Research Areas"
+   - "Expertise", "Focus Areas", "Current Work"
+   - "Biography" that mentions research topics
+   Extract as a LIST of distinct topics/areas (max 10).
+
+3. **Publications**: Look for:
+   - "Publications", "Selected Publications", "Recent Papers"
+   - Links to papers or citations
+   Extract the TITLES only (max 5 most recent).
+
+4. **Image URL**: Look for:
+   - Profile photo (usually near the name)
+   - Image with alt text containing name
+   Return the full image URL (src attribute).
+
+Return ALL found data. If a field is not found, return null for strings or empty array for lists.""",
+        chunk_token_threshold=6000,
+        overlap_rate=0.1,
+        apply_chunking=True,
         input_format="markdown",
         verbose=False
     )

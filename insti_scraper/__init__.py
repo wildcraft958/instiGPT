@@ -1,3 +1,3 @@
-from .crawler import UniversalScraper
+from .orchestration.pipeline import ScrapingPipeline
 
-__all__ = ["UniversalScraper"]
+__all__ = ["ScrapingPipeline"]
