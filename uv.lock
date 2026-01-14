@@ -1240,6 +1240,7 @@ dependencies = [
     { name = "litellm" },
     { name = "openpyxl" },
     { name = "pandas" },
+    { name = "pillow" },
     { name = "pydantic" },
 ]
 
@@ -1258,6 +1259,7 @@ requires-dist = [
     { name = "litellm", specifier = ">=1.0.0" },
     { name = "openpyxl", specifier = ">=3.1.0" },
     { name = "pandas", specifier = ">=2.0.0" },
+    { name = "pillow", specifier = ">=12.1.0" },
     { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4.0" },

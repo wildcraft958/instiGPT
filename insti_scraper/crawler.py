@@ -36,67 +36,136 @@ class UniversalScraper:
     async def _phase_1_discovery(self, start_url: str):
         print(f"\n--- PHASE 1: Analyzing {start_url} ---")
         
-        run_config = settings.get_run_config(scan_full_page=True)
         current_url = start_url
         page_count = 0
+        session_id = f"scrape_{hash(start_url)}"
         
-        # JavaScript to wait for AJAX content and scroll
-        ajax_wait_js = '''
+        # JavaScript to maximize table entries and wait for AJAX
+        # This handles DataTables-style pagination by showing max entries
+        max_entries_js = '''
+        // Wait for page to load
         await new Promise(r => setTimeout(r, 2000));
+        
+        // Try to set DataTable to show 100 entries (common max)
+        let select = document.querySelector('select[name*="length"], select[name*="entries"]');
+        if (select) {
+            // Find highest value option
+            let maxVal = 10;
+            for (let opt of select.options) {
+                let val = parseInt(opt.value);
+                if (!isNaN(val) && val > maxVal) maxVal = val;
+            }
+            select.value = maxVal.toString();
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            await new Promise(r => setTimeout(r, 2000));
+        }
+        
+        // Scroll to load all content
         window.scrollTo(0, document.body.scrollHeight);
         await new Promise(r => setTimeout(r, 1500));
         '''
         
+        # JavaScript for clicking "Next" in DataTables
+        next_page_js = '''
+        await new Promise(r => setTimeout(r, 500));
+        let nextBtn = document.querySelector('a.paginate_button.next:not(.disabled), a.next:not(.disabled), [data-dt-idx="next"]:not(.disabled)');
+        if (nextBtn && !nextBtn.classList.contains('disabled')) {
+            nextBtn.click();
+            await new Promise(r => setTimeout(r, 2000));
+        }
+        '''
+        
         async with AsyncWebCrawler(config=BrowserConfig(headless=True, verbose=True)) as crawler:
-            while current_url and page_count < settings.MAX_PAGES:
-                page_count += 1
-                print(f"📄 Processing Page {page_count}: {current_url}")
+            # First page - set max entries
+            print(f"📄 Processing Page 1: {current_url}")
+            
+            try:
+                schema = await determine_extraction_schema(current_url, self.model_name)
+                css_strategy = create_css_strategy(schema)
+                print(f"  📋 Schema: base={schema.base_selector}, fields={list(schema.fields.keys())}")
                 
-                # Step 1: CSS Discovery
-                try:
-                    schema = await determine_extraction_schema(current_url, self.model_name)
-                    css_strategy = create_css_strategy(schema)
-                    
-                    # Debug: show schema
-                    print(f"  📋 Schema: base={schema.base_selector}, fields={list(schema.fields.keys())}")
-                    
-                    # BYPASS cache and wait for AJAX content
-                    res = await crawler.arun(
-                        url=current_url,
-                        config=CrawlerRunConfig(
-                            extraction_strategy=css_strategy,
-                            cache_mode=CacheMode.BYPASS,
-                            scan_full_page=True,
-                            js_code=ajax_wait_js
-                        )
+                # Initial page with max entries
+                res = await crawler.arun(
+                    url=current_url,
+                    config=CrawlerRunConfig(
+                        extraction_strategy=css_strategy,
+                        cache_mode=CacheMode.BYPASS,
+                        scan_full_page=True,
+                        js_code=max_entries_js,
+                        session_id=session_id
                     )
-                    
-                    extracted = []
-                    if res.success and res.extracted_content:
-                        try:
-                            data = json.loads(res.extracted_content)
-                            # Debug: show what we got
-                            print(f"  📊 Raw extracted: {len(data) if isinstance(data, list) else 'not a list'} items")
-                            if isinstance(data, list) and data:
-                                print(f"  📊 First item keys: {list(data[0].keys()) if isinstance(data[0], dict) else 'not dict'}")
-                            
-                            extracted = [item for item in data if isinstance(item, dict) and item.get("profile_url")]
-                        except Exception as e:
-                            print(f"  ❌ JSON parse error: {e}")
-                    
-                    # Step 2: Fallback
-                    if not extracted:
-                        extracted = await self._run_fallback(crawler, current_url, run_config)
-
-                    # Deduplicate & Add
+                )
+                
+                if res.success and res.extracted_content:
+                    extracted = self._parse_extracted(res.extracted_content)
                     self._add_profiles(extracted, current_url)
+                    page_count = 1
+                    
+                    # Check if there's pagination - look for more items
+                    total_hint = self._get_total_hint(res.html or "")
+                    print(f"  📊 Total hint from page: {total_hint}")
+                    
+                    # Iterate through pages if we have pagination
+                    max_pages_to_try = min(settings.MAX_PAGES, 50)  # Cap at 50 pages
+                    prev_count = len(self.all_profiles)
+                    
+                    while page_count < max_pages_to_try:
+                        page_count += 1
+                        print(f"📄 Processing Page {page_count}...")
+                        
+                        # Click next using session (js_only to reuse page)
+                        res = await crawler.arun(
+                            url=current_url,
+                            config=CrawlerRunConfig(
+                                extraction_strategy=css_strategy,
+                                session_id=session_id,
+                                js_only=True,
+                                js_code=next_page_js
+                            )
+                        )
+                        
+                        if res.success and res.extracted_content:
+                            extracted = self._parse_extracted(res.extracted_content)
+                            self._add_profiles(extracted, current_url)
+                            
+                            # Stop if no new profiles (reached end)
+                            if len(self.all_profiles) == prev_count:
+                                print(f"  ℹ️ No new profiles on page {page_count}, stopping pagination")
+                                break
+                            prev_count = len(self.all_profiles)
+                        else:
+                            print(f"  ⚠️ Page {page_count} extraction failed")
+                            break
+                
+                # Fallback if CSS extraction failed
+                if not self.all_profiles:
+                    extracted = await self._run_fallback(crawler, current_url, settings.get_run_config())
+                    self._add_profiles(extracted, current_url)
+                    
+            except Exception as e:
+                print(f"  ❌ Error processing page {current_url}: {e}")
+    
+    def _parse_extracted(self, extracted_content: str) -> list:
+        """Parse extracted JSON content."""
+        try:
+            data = json.loads(extracted_content)
+            if isinstance(data, list):
+                print(f"  📊 Raw extracted: {len(data)} items")
+                if data and isinstance(data[0], dict):
+                    print(f"  📊 First item keys: {list(data[0].keys())}")
+                return [item for item in data if isinstance(item, dict) and item.get("profile_url")]
+        except Exception as e:
+            print(f"  ❌ JSON parse error: {e}")
+        return []
+    
+    def _get_total_hint(self, html: str) -> int:
+        """Try to extract total count from 'Showing X of Y' text."""
+        import re
+        match = re.search(r'of\s+(\d+(?:,\d+)?)\s+entries', html, re.IGNORECASE)
+        if match:
+            return int(match.group(1).replace(',', ''))
+        return 0
 
-                except Exception as e:
-                    print(f"  ❌ Error processing page {current_url}: {e}")
-
-                # Pagination placeholder - currently we just break to avoid infinite loops on same page
-                # In a full implementation, we'd look for "Next" links here.
-                break 
 
     async def _run_fallback(self, crawler: AsyncWebCrawler, url: str, base_config: CrawlerRunConfig) -> List[Dict]:
         print("  ⚠️ CSS extraction yielded 0 results. Switching to LLM Fallback...")
