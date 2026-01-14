@@ -1,11 +1,11 @@
 """
-Faculty page discovery using sitemap and deep crawling.
+Faculty page discovery using DuckDuckGo search, sitemap and deep crawling.
 
 This module provides intelligent URL discovery for faculty pages
 from any university URL using a hybrid approach:
-1. URL-based pre-filtering (fast)
-2. Content-based semantic matching (accurate)
-3. Multi-layer scoring for prioritization
+1. DuckDuckGo web search (PRIMARY - most reliable)
+2. Sitemap-based discovery (fallback)
+3. Deep crawling with semantic matching (last resort)
 """
 import asyncio
 import re
@@ -114,14 +114,18 @@ class FacultyPageDiscoverer:
     async def discover(
         self, 
         start_url: str, 
-        mode: str = "auto"
+        mode: str = "auto",
+        university_name: str = None,
+        model: str = None
     ) -> DiscoveryResult:
         """
         Discover faculty pages from any URL.
         
         Args:
             start_url: The starting URL (can be homepage or any page)
-            mode: Discovery mode - 'sitemap', 'deep', or 'auto'
+            mode: Discovery mode - 'search' (DDG), 'sitemap', 'deep', or 'auto'
+            university_name: Name of university (for DDG search)
+            model: LLM model for URL selection
         
         Returns:
             DiscoveryResult with discovered pages
@@ -132,26 +136,60 @@ class FacultyPageDiscoverer:
         result = DiscoveryResult()
         self._seen_urls.clear()
         
-        # Tier 1: Try sitemap
+        # Tier 1: DuckDuckGo search (PRIMARY for 'search' and 'auto' modes)
+        if mode in ("search", "auto"):
+            try:
+                from .duckduckgo_discovery import discover_faculty_url, is_ddgs_available
+                
+                if is_ddgs_available():
+                    name = university_name or self._extract_university_name(start_url)
+                    logger.info(f"🔎 DuckDuckGo search for: {name}")
+                    
+                    faculty_url = await discover_faculty_url(
+                        university_name=name,
+                        homepage_url=start_url,
+                        model=model
+                    )
+                    
+                    if faculty_url:
+                        result.pages.append(DiscoveredPage(
+                            url=faculty_url,
+                            score=1.0,  # High confidence - LLM selected
+                            page_type="directory",
+                            source="duckduckgo"
+                        ))
+                        result.discovery_method = "duckduckgo"
+                        self._seen_urls.add(faculty_url)
+                        logger.info(f"✅ DuckDuckGo: Found {faculty_url}")
+                        
+                        if mode == "search":
+                            return result
+                else:
+                    logger.warning("DuckDuckGo search not available. Install: uv add duckduckgo-search")
+            except ImportError:
+                logger.warning("DuckDuckGo module not found")
+            except Exception as e:
+                logger.error(f"DuckDuckGo search failed: {e}")
+        
+        # Tier 2: Try sitemap
         if mode in ("sitemap", "auto"):
             sitemap_pages = await self._try_sitemap(start_url)
             if sitemap_pages:
                 result.sitemap_found = True
                 result.pages.extend(sitemap_pages)
-                result.discovery_method = "sitemap"
+                if not result.discovery_method:
+                    result.discovery_method = "sitemap"
                 logger.info(f"✅ Sitemap: Found {len(sitemap_pages)} faculty-related URLs")
                 
                 # If we found enough from sitemap, we're done
                 if len(sitemap_pages) >= 10 or mode == "sitemap":
                     return result
         
-        # Tier 2: Deep crawl
-        if mode in ("deep", "auto"):
+        # Tier 3: Deep crawl (last resort)
+        if mode in ("deep", "auto") and len(result.pages) < 5:
             logger.info("🕸️ Starting deep crawl for faculty pages...")
             deep_pages = await self._deep_crawl(start_url)
             
-            # deep_pages are already deduplicated in _deep_crawl via _seen_urls
-            # Just add them directly to result
             result.pages.extend(deep_pages)
             result.pages_crawled = len(deep_pages)
             
@@ -168,6 +206,19 @@ class FacultyPageDiscoverer:
         
         logger.info(f"📊 Total unique pages discovered: {len(result.pages)}")
         return result
+    
+    def _extract_university_name(self, url: str) -> str:
+        """Extract university name from URL for search."""
+        parsed = urlparse(url)
+        domain = parsed.netloc
+        
+        # Remove common prefixes/suffixes
+        name = domain.replace("www.", "").replace(".edu", "").replace(".ac.in", "")
+        name = name.replace(".ac.uk", "").replace(".org", "")
+        
+        # Convert domain parts to title case
+        parts = name.split(".")
+        return " ".join(part.title() for part in parts)
     
     async def _try_sitemap(self, url: str) -> List[DiscoveredPage]:
         """Try to discover URLs from sitemap.xml."""

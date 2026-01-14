@@ -5,7 +5,7 @@ import json
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 from .crawler import UniversalScraper
 from .discovery import FacultyPageDiscoverer, DiscoveryResult
-from .strategies import classify_page_type
+from .page_classifier import classify_page_type  # Updated to new hybrid classifier
 from .config import settings
 
 
@@ -22,7 +22,7 @@ async def run_with_discovery(
         max_pages=settings.DISCOVER_MAX_PAGES
     )
     
-    result = await discoverer.discover(url, mode=discover_mode)
+    result = await discoverer.discover(url, mode=discover_mode, model=model)
     
     if not result.pages:
         print("❌ No faculty pages discovered. Try with a different URL.")
@@ -145,9 +145,9 @@ Examples:
         help="Enable auto-discovery from any URL (not just faculty pages)"
     )
     parser.add_argument(
-        "--discover-mode", choices=["sitemap", "deep", "auto"],
+        "--discover-mode", choices=["search", "sitemap", "deep", "auto"],
         default="auto",
-        help="Discovery mode: sitemap (fast), deep (thorough), auto (default)"
+        help="Discovery mode: search (DuckDuckGo, default), sitemap, deep, auto"
     )
     
     args = parser.parse_args()
