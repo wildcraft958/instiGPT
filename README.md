@@ -50,83 +50,48 @@ export OLLAMA_BASE_URL="http://localhost:11434"
 
 ## 📖 Usage
 
-### 1. Single University Scrape
-Scrape a specific URL and discover faculty profiles.
+### 1. Scrape a University
+Auto-discover and extract faculty profiles from a given URL.
 
 ```bash
-# Direct scrape of a known list page
-insti-scraper --url "https://nse.mit.edu/people/faculty" --output results.json
+# Basic Scrape (Auto-discovery enabled by default)
+uv run insti-scraper scrape "https://www.cse.iitb.ac.in"
 
-# Auto-discover faculty pages from a homepage
-insti-scraper --url "https://www.stanford.edu" --discover
+# Disable enrichment (skip Google Scholar)
+uv run insti-scraper scrape "https://cse.iitkgp.ac.in" --no-enrich
 ```
 
-### 2. Batch Processing
-Process multiple universities from an Excel file (Input columns: `Name`, `Uni faculty link`).
+### 2. List Database Content
+View the extracted professors in a rich CLI table.
 
 ```bash
-insti-batch --input targets.xlsx --output-dir ./results
-```
-
-**Options:**
-- `--discover`: Enable auto-discovery for all links (useful if links are generic homepages).
-- `--limit 5`: Process only the first 5 rows.
-- `--skip-bad`: Skip URLs that look like "bad" links (e.g., login pages).
-
-## 📊 Output Format
-
-The scraper produces rich JSON output. Note the flat structure for Google Scholar data:
-
-```json
-[
-  {
-    "name": "Inder Sekhar Yadav",
-    "university": "IIT Kharagpur",
-    "department": "Humanities",
-    "profile_url": "https://iitkgp.ac.in/department/HS/faculty/isy",
-    "email": "isy@hss.iitkgp.ac.in",
-    "research_interests": ["Financial Economics", "Macroeconomics"],
-    
-    // Google Scholar Data
-    "google_scholar_url": "https://scholar.google.com/citations?user=aol7UFwAAAAJ",
-    "h_index": "12",
-    "total_citations": "1203",
-    "paper_titles": [
-      "Financial development and economic growth...",
-      "The nexus between firm size, growth and profitability..."
-    ]
-  }
-]
+uv run insti-scraper list
 ```
 
 ## 🏗️ Architecture
 
-1.  **Phase 1: Discovery**
-    *   Crawls the entry URL.
-    *   Uses Vision/LLM analysis to identify "directory" pages.
-    *   Extracts basic profile links using generated CSS selectors.
-2.  **Phase 2: Enrichment**
-    *   Visits each profile page.
-    *   Extracts email, detailed research interests, and bio.
-3.  **Phase 3: Scholar Linking**
-    *   Searches DuckDuckGo for the professor's Scholar profile.
-    *   Uses LLM to verify the correct match.
-    *   Scrapes metrics (H-index, Citations) directly from Scholar.
+The project now uses a **Service-Oriented Architecture** with **SQLModel** persistence.
+
+1.  **Discovery Service**: Analyzes pages to find faculty directories using Vision/LLM and Crawl4AI.
+2.  **Extraction Service**: Extracts rich profile data (Name, Dept, Interests, Papers) using LLMs.
+    - *Features*: Infer Department context, extract Publication Summaries, handle Garbage Links.
+3.  **Enrichment Service**: Enhances profiles with Google Scholar metrics (H-Index, Citations).
+4.  **Persistence**: Data is stored in a normalized `insti.db` SQLite database with correct University/Department hierarchy.
 
 ## 📂 Project Structure
 
 ```text
 instiGPT/
 ├── insti_scraper/          # Main package
-│   ├── core/               # Config and models
-│   ├── scrapers/           # Scraper logic
-│   │   ├── list_scraper.py      # Phase 1
-│   │   ├── detail_scraper.py    # Phase 2
-│   │   └── google_scholar_scraper.py # Phase 3
-│   └── orchestration/      # Pipeline management
-├── scripts/                # Utility scripts
-├── archives/               # Old logs and data storage
-└── targets.xlsx            # Batch input file
+│   ├── core/               # Config, Database, Prompts
+│   ├── domain/             # SQLModel Tables (University, Dept, Professor)
+│   ├── services/           # Business Logic
+│   │   ├── discovery_service.py   # Page Classification
+│   │   ├── extraction_service.py  # LLM Extraction
+│   │   └── enrichment_service.py  # Google Scholar
+│   └── main.py             # CLI Entrypoint
+├── tests/                  # Pytest suite
+└── logs/                   # Execution logs
 ```
 
 ## 📄 License

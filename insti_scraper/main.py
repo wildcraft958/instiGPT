@@ -57,6 +57,7 @@ async def run_scrape_flow(url: str, enrich: bool = True):
         
         total_extracted = 0
         new_professors = []
+        count_new = 0
         
         for i, page in enumerate(discovered_pages):
             progress.update(task_id, description=f"[cyan]Processing {page.url}...")
@@ -145,7 +146,7 @@ async def run_scrape_flow(url: str, enrich: bool = True):
             # Only enrich a few for demo to save time/rate limits
             to_enrich_ids = [p.id for p in new_professors[:5] if p.id] 
             
-            with Session(engine) as session:
+            with Session(engine, expire_on_commit=False) as session:
                 for p_id in to_enrich_ids:
                     # Reload from DB within active session
                     db_prof = session.get(Professor, p_id)
