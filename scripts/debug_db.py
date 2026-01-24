@@ -1,5 +1,5 @@
 from sqlmodel import Session, select, func
-from insti_scraper.core.database import engine
+from insti_scraper.database.database import engine
 from insti_scraper.domain.models import Professor, University, Department
 
 def check_db():

@@ -9,7 +9,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from sqlmodel import select, Session
 
 from insti_scraper.core.config import settings
-from insti_scraper.core.database import create_db_and_tables, engine, get_session
+from insti_scraper.database.database import create_db_and_tables, engine, get_session
 from insti_scraper.core.cost_tracker import cost_tracker
 from insti_scraper.domain.models import University, Department, Professor
 from insti_scraper.services.discovery_service import DiscoveryService

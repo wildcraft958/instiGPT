@@ -42,16 +42,17 @@ class Settings:
         
         logging.basicConfig(
             level="INFO",
-            format="%(asctime)s | %(levelname)s | %(name)s:%(funcName)s:%(lineno)d | %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
+            format="%(message)s", # Clean format: Just the message for console
+            datefmt="[%X]",
             handlers=[
-                RichHandler(rich_tracebacks=True, show_time=False),
+                RichHandler(rich_tracebacks=True, show_time=True, show_path=False), # Hide extensive paths
                 logging.FileHandler(log_file)
             ]
         )
         # Suppress noisy libraries
         logging.getLogger("httpx").setLevel(logging.WARNING)
         logging.getLogger("crawl4ai").setLevel(logging.WARNING)
+        logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
     @staticmethod
     def get_run_config(
