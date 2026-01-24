@@ -50,10 +50,10 @@ class ExtractionService:
         content = response.choices[0].message.content
         return json.loads(content)
 
-    async def extract_with_fallback(self, url: str, html_content: str) -> List[Professor]:
+    async def extract_with_fallback(self, url: str, html_content: str) -> tuple[List[Professor], str]:
         """
-        Extracts professors using a rigorous LLM approach if CSS fails.
-        Forces high-reasoning model (GPT-4o/Claude) for this step.
+        Extracts professors and department context using a rigorous LLM approach.
+        Returns: (List[Professor], department_name)
         """
         model_name = settings.get_model_for_task("detail_extraction")
         
@@ -61,14 +61,17 @@ class ExtractionService:
         user_prompt = f"""Extract ALL ACADEMIC FACULTY from this page: {url}
         
         HTML Content:
-        {html_content[:60000]} # Limit context window to save cost/avoid noise
+        {html_content[:60000]} # Limit context window
         
-        CRITICAL FILTERING:
-        - IGNORE links like 'Home', 'Research', 'Calendar', 'Contact Us', 'Student Resources'.
-        - IGNORE Staff/Admin profiles.
-        - ONLY return people with academic titles (Professor, Lecturer, Fellow).
+        CRITICAL INSTRUCTIONS:
+        1. **Department Context**: Analyze the page title/header to infer the specific Department Name (e.g., "Computer Science", "Electrical Engineering"). Return this as top-level key 'department_name'.
+        2. **Rich Data**: For each faculty member, extract:
+           - publications: A short string summary (e.g. "Top papers in AI/ML") or list of top papers.
+           - research_interests: List of strings.
+           - education: String detail (e.g. "PhD from MIT").
+        3. **Filtering**: IGNORE Admin/Staff/Students.
         
-        Return JSON list of objects matching the schema."""
+        Return JSON object with keys: "department_name", "faculty" (list of objects)."""
         
         response = completion(
             model=model_name,
@@ -83,12 +86,7 @@ class ExtractionService:
         # Track Cost
         try:
              cost = completion_cost(completion_response=response)
-             cost_tracker.track_usage(
-                 model_name, 
-                 response.usage.prompt_tokens, 
-                 response.usage.completion_tokens, 
-                 cost
-             )
+             cost_tracker.track_usage(model_name, response.usage.prompt_tokens, response.usage.completion_tokens, cost)
         except:
              pass
 
@@ -96,21 +94,17 @@ class ExtractionService:
             content = response.choices[0].message.content
             raw_data = json.loads(content)
             
-            # DEBUG LOG
             logger.info(f"      [LLM Response Keys]: {raw_data.keys() if isinstance(raw_data, dict) else 'LIST'}")
             
-            # data content might be wrapped in a key like "faculty" or just a list
-            if isinstance(raw_data, list):
-                profiles_list = raw_data
+            # Extract Department logic
+            department_name = "General"
+            if isinstance(raw_data, dict):
+                department_name = raw_data.get("department_name", "General")
+                profiles_list = raw_data.get("faculty", raw_data.get("profiles", []))
             else:
-                # Try common keys
-                keys = ["faculty", "profiles", "professors", "people", "staff", "members"]
-                profiles_list = []
-                for k in keys:
-                    if k in raw_data:
-                        profiles_list = raw_data[k]
-                        break
+                profiles_list = raw_data if isinstance(raw_data, list) else []
             
+            logger.info(f"      [DEBUG] Inferred Department: {department_name}")
             logger.info(f"      [DEBUG] Raw extracted count: {len(profiles_list)}")
             
             valid_professors = []
@@ -124,17 +118,26 @@ class ExtractionService:
                     continue
                 
                 # 2. URL Check
-                # If URL is missing, we leave it as None. The DB model now handles this.
                 if not p_url or self._is_garbage_link(p_url):
                     p_url = None
+                
+                # Handle dictionary or string for rich fields if schema varies
+                res_ints = p.get('research_interests', [])
+                if isinstance(res_ints, str): res_ints = [res_ints]
                 
                 valid_professors.append(Professor(
                     name=name,
                     profile_url=p_url,
                     title=p.get('title'),
-                    email=p.get('email')
+                    email=p.get('email'),
+                    research_interests=res_ints,
+                    publication_summary=p.get('publications') if isinstance(p.get('publications'), str) else str(p.get('publications')),
+                    education=p.get('education')
                 ))
-            return valid_professors
+            return valid_professors, department_name
+            
+        except json.JSONDecodeError:
+            return [], "General"
             
         except json.JSONDecodeError:
             return []

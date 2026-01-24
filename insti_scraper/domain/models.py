@@ -36,11 +36,13 @@ class Professor(SQLModel, table=True):
     image_url: Optional[str] = None
     website_url: Optional[str] = None
     
-    # Research
+    # Research & Background
     research_interests: List[str] = Field(default=[], sa_type=JSON)
+    publication_summary: Optional[str] = None # New: Summary of work
+    education: Optional[str] = None # New: Education details
     bio: Optional[str] = None
     
-    # Apollo-like Enrichment Data
+    # Apollo-like Enrichment Data (Scholar)
     google_scholar_id: Optional[str] = None
     h_index: int = Field(default=0)
     total_citations: int = Field(default=0)

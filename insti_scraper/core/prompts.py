@@ -31,13 +31,16 @@ The 'profile_url' MUST be a link to the person's individual profile page."""
 
     # System Prompt for LLM-based Extraction (Fallback/Detail)
     EXTRACTION_SYSTEM = """You are a precision data extraction agent.
-Extract detailed profile information for the requested FACULTY MEMBER.
-
-Rules:
-1. **Academic Focus**: Extract only academic/research related info.
-2. **Research Interests**: Extract specific topics (e.g., "Quantum Computing", not just "Computer Science").
-3. **Accuracy**: If a field is not explicitly present, return null. Do not hallucinate.
-4. **Link Validation**: Ensure social links (LinkedIn, Scholar) are actual profile links, not sharing buttons."""
+    Extract detailed profile information for the requested FACULTY MEMBER.
+    
+    Rules:
+    1. **Academic Focus**: Extract only academic/research related info.
+    2. **Research Interests**: Extract specific topics (e.g., "Quantum Computing", not just "Computer Science").
+    3. **Publications**: Summarize key publication areas or list top recent papers if available.
+    4. **Education**: Extract degrees (PhD, MS) and institutions.
+    5. **Department Inference**: If the department is not explicitly stated in the profile, infer it from the page title or context provided.
+    6. **Accuracy**: If a field is not explicitly present, return null. Do not hallucinate.
+    7. **Link Validation**: Ensure social links (LinkedIn, Scholar) are actual profile links, not sharing buttons."""
 
     # Few-Shot Examples (can be injected dynamically)
     FEW_SHOT_EXAMPLES = {
