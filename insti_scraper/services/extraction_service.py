@@ -10,6 +10,9 @@ from insti_scraper.core.prompts import Prompts
 from insti_scraper.core.cost_tracker import cost_tracker
 from insti_scraper.domain.models import Professor
 
+import logging
+logger = logging.getLogger(__name__)
+
 class ExtractionService:
     def __init__(self):
         pass
@@ -90,19 +93,47 @@ class ExtractionService:
              pass
 
         try:
-            raw_data = json.loads(response.choices[0].message.content)
+            content = response.choices[0].message.content
+            raw_data = json.loads(content)
+            
+            # DEBUG LOG
+            logger.info(f"      [LLM Response Keys]: {raw_data.keys() if isinstance(raw_data, dict) else 'LIST'}")
+            
             # data content might be wrapped in a key like "faculty" or just a list
-            profiles_list = raw_data if isinstance(raw_data, list) else raw_data.get("faculty", raw_data.get("profiles", []))
+            if isinstance(raw_data, list):
+                profiles_list = raw_data
+            else:
+                # Try common keys
+                keys = ["faculty", "profiles", "professors", "people", "staff", "members"]
+                profiles_list = []
+                for k in keys:
+                    if k in raw_data:
+                        profiles_list = raw_data[k]
+                        break
+            
+            logger.info(f"      [DEBUG] Raw extracted count: {len(profiles_list)}")
             
             valid_professors = []
             for p in profiles_list:
-                # 🛑 Smart Link Filtering (Regex)
-                if self._is_garbage_link(p.get('name', '')) or self._is_garbage_link(p.get('profile_url', '')):
+                name = p.get('name', '').strip()
+                p_url = p.get('profile_url', '')
+                
+                # 1. Name Check is strict
+                if self._is_garbage_link(name):
+                    logger.info(f"      [FILTER] Skipped garbage name: {name}")
                     continue
-                    
+                
+                # 2. URL Check is loose (allow empty, handle garbage)
+                # If URL is missing or garbage, generate a synthetic one to allow DB save
+                if not p_url or self._is_garbage_link(p_url):
+                    # Create synthetic URL using name hash to satisfy DB constraint
+                    import hashlib
+                    name_hash = hashlib.md5(name.encode()).hexdigest()[:8]
+                    p_url = f"{url}#{name_hash}"
+                
                 valid_professors.append(Professor(
-                    name=p.get('name'),
-                    profile_url=p.get('profile_url'),
+                    name=name,
+                    profile_url=p_url,
                     title=p.get('title'),
                     email=p.get('email')
                 ))

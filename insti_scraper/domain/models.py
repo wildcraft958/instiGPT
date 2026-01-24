@@ -32,7 +32,7 @@ class Professor(SQLModel, table=True):
     office: Optional[str] = None
     
     # Profile & Links
-    profile_url: str = Field(unique=True)
+    profile_url: Optional[str] = Field(default=None) # Relaxed: Not unique, not required
     image_url: Optional[str] = None
     website_url: Optional[str] = None
     

@@ -58,8 +58,13 @@ class DiscoveryService:
                  logger.error(f"Failed to crawl {start_url}")
                  return []
              
+             
              # Extract links
              internal_links = set()
+             # KEY FIX: Always consider the start_url itself as a candidate!
+             if self._is_promising_url(start_url):
+                 internal_links.add(start_url)
+                 
              for link_obj in result.links.get('internal', []):
                  href = link_obj.get('href', '')
                  full_url = urljoin(start_url, href)
