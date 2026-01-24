@@ -50,12 +50,14 @@ class EnrichmentService:
             
             # 2. Extract metrics using the passed crawler
             try:
-                res = await crawler.arun(scholar_url)
-                if res.success:
-                    # Simple regex extraction from the raw text or HTML
-                    # H-index is usually in a table with id "gsc_rsb_st"
-                    # Text: "Citations All Since 2019 ... h-index 12 10"
-                    content = res.markdown
+                # Use a real user agent to attempt bypass
+                result = await crawler.arun(
+                    scholar_url,
+                    magic=True,
+                    user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                )
+                if result.success:
+                    content = result.markdown
                     
                     # Robust Regex for Citations
                     # Look for "Citations" followed by number
