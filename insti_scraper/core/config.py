@@ -1,6 +1,7 @@
 import os
+import logging
+from rich.logging import RichHandler
 from crawl4ai import CrawlerRunConfig, CacheMode
-
 
 # Keywords that indicate faculty-related content
 FACULTY_KEYWORDS = [
@@ -15,10 +16,9 @@ FACULTY_URL_PATTERNS = [
     "*directory*", "*profiles*", "*our-team*", "*researchers*"
 ]
 
-
 class Settings:
     # Model settings
-    MODEL_NAME = "openai/gpt-4o-mini"  # Default to cheaper model
+    MODEL_NAME = "openai/gpt-4o-mini"
     
     # Scraping settings
     MAX_PAGES = 5
@@ -34,9 +34,22 @@ class Settings:
     PREFER_LOCAL_MODELS = True
     
     @staticmethod
+    def setup_logging():
+        """Configures Rich logging."""
+        logging.basicConfig(
+            level="INFO",
+            format="%(message)s",
+            datefmt="[%X]",
+            handlers=[RichHandler(rich_tracebacks=True)]
+        )
+        # Suppress noisy libraries
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("crawl4ai").setLevel(logging.WARNING)
+
+    @staticmethod
     def get_run_config(
         magic: bool = True, 
-        scan_full_page: bool = False, 
+        scan_full_page: bool = False,
         headless: bool = True,
         use_cache: bool = None
     ) -> CrawlerRunConfig:
@@ -54,44 +67,24 @@ class Settings:
     def get_model_for_task(task: str, prefer_local: bool = None) -> str:
         """
         Get appropriate model for a specific task.
-        
-        Prefers Ollama models when OLLAMA_BASE_URL is set to save API costs.
-        
-        Args:
-            task: One of 'schema_discovery', 'page_classification', 'detail_extraction'
-            prefer_local: Override for PREFER_LOCAL_MODELS setting
-        
-        Returns:
-            Model string in litellm format (e.g., 'ollama/llama3.1:8b')
         """
         use_local = prefer_local if prefer_local is not None else Settings.PREFER_LOCAL_MODELS
         
         if use_local and os.getenv("OLLAMA_BASE_URL"):
-            ollama_models = {
-                "schema_discovery": "ollama/llama3.1:8b",
-                "page_classification": "ollama/qwen2.5:7b",
-                "percentage_extraction": "ollama/llama3.1:8b",
-                "detail_extraction": "ollama/llama3.1:8b",
-                "scholar_linking": "ollama/llama3.1:8b",
-                "fallback": "ollama/llama3.1:8b",
-            }
-            return ollama_models.get(task, "ollama/llama3.1:8b")
+            # Local models (free)
+            return "ollama/llama3.1:8b"
         
-        # Cloud models (cheaper options)
-        cloud_models = {
-            "schema_discovery": "openai/gpt-4o-mini",
-            "page_classification": "openai/gpt-4o-mini",
-            "detail_extraction": "openai/gpt-4o-mini",
-            "scholar_linking": "openai/gpt-4o-mini",
-            "fallback": "openai/gpt-4o-mini",
+        # Cloud models with Smart Routing
+        # Use stronger models for difficult extraction
+        strong_models = {
+            "detail_extraction": "openai/gpt-4o",
+            "scholar_linking": "openai/gpt-4o",
         }
-        return cloud_models.get(task, "openai/gpt-4o-mini")
+        return strong_models.get(task, "openai/gpt-4o-mini")
     
     @staticmethod
     def is_ollama_available() -> bool:
-        """Check if Ollama is configured and should be used."""
         return bool(os.getenv("OLLAMA_BASE_URL"))
-
 
 settings = Settings()
 
