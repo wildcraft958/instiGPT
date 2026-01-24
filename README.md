@@ -11,6 +11,7 @@
   - H-Index
   - Total Citations
   - Top Paper Titles
+  - Research Interests
 - **🛠️ LLM Agnostic**: Supports **OpenAI (GPT-4o)** for quality or **Ollama** for free local inference.
 - **📦 Batch Processing**: Process hundreds of universities from an Excel sheet.
 
@@ -76,19 +77,20 @@ The project now uses a **Service-Oriented Architecture** with **SQLModel** persi
 2.  **Extraction Service**: Extracts rich profile data (Name, Dept, Interests, Papers) using LLMs.
     - *Features*: Infer Department context, extract Publication Summaries, handle Garbage Links.
 3.  **Enrichment Service**: Enhances profiles with Google Scholar metrics (H-Index, Citations).
-4.  **Persistence**: Data is stored in a normalized `insti.db` SQLite database with correct University/Department hierarchy.
+4.  **Persistence**: Data is stored in a normalized `insti.db` SQLite database with correct University/Department hierarchy. Logic resides in `insti_scraper/database/`.
 
 ## 📂 Project Structure
 
 ```text
 instiGPT/
 ├── insti_scraper/          # Main package
-│   ├── core/               # Config, Database, Prompts
+│   ├── database/           # SQLModel & Database Logic
 │   ├── domain/             # SQLModel Tables (University, Dept, Professor)
 │   ├── services/           # Business Logic
 │   │   ├── discovery_service.py   # Page Classification
 │   │   ├── extraction_service.py  # LLM Extraction
-│   │   └── enrichment_service.py  # Google Scholar
+│   │   └── enrichment_service.py  # Google Scholar (Metrics + Papers + Interests)
+│   ├── core/               # Config, Cost, Prompts
 │   └── main.py             # CLI Entrypoint
 ├── tests/                  # Pytest suite
 └── logs/                   # Execution logs
