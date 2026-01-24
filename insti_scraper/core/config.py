@@ -35,12 +35,19 @@ class Settings:
     
     @staticmethod
     def setup_logging():
-        """Configures Rich logging."""
+        """Configures Rich logging and File logging."""
+        os.makedirs("logs", exist_ok=True)
+        import datetime
+        log_file = f"logs/scraper_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        
         logging.basicConfig(
             level="INFO",
-            format="%(message)s",
-            datefmt="[%X]",
-            handlers=[RichHandler(rich_tracebacks=True)]
+            format="%(asctime)s | %(levelname)s | %(name)s:%(funcName)s:%(lineno)d | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+            handlers=[
+                RichHandler(rich_tracebacks=True, show_time=False),
+                logging.FileHandler(log_file)
+            ]
         )
         # Suppress noisy libraries
         logging.getLogger("httpx").setLevel(logging.WARNING)

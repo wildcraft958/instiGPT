@@ -105,12 +105,25 @@ async def run_scrape_flow(url: str, enrich: bool = True):
                 
             count_new = 0
             for prof in new_professors:
-                # Check duplication
-                existing = session.exec(select(Professor).where(Professor.profile_url == prof.profile_url)).first()
+                # Professional Deduplication: Check Name + Department
+                # (profile_url is unreliable as a unique key for scraping)
+                statement = select(Professor).where(
+                    Professor.name == prof.name,
+                    Professor.department_id == dept.id
+                )
+                existing = session.exec(statement).first()
+                
                 if not existing:
                     prof.department_id = dept.id
                     session.add(prof)
                     count_new += 1
+                    logger.info(f"   [DB] Added new professor: {prof.name}")
+                else:
+                    logger.info(f"   [DB] Details found for existing: {prof.name} (Duplicate)")
+                    # Optional: Update existing record if new info found
+                    if prof.profile_url and not existing.profile_url:
+                        existing.profile_url = prof.profile_url
+                        session.add(existing)
             
             session.commit()
         

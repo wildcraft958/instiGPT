@@ -123,13 +123,10 @@ class ExtractionService:
                     logger.info(f"      [FILTER] Skipped garbage name: {name}")
                     continue
                 
-                # 2. URL Check is loose (allow empty, handle garbage)
-                # If URL is missing or garbage, generate a synthetic one to allow DB save
+                # 2. URL Check
+                # If URL is missing, we leave it as None. The DB model now handles this.
                 if not p_url or self._is_garbage_link(p_url):
-                    # Create synthetic URL using name hash to satisfy DB constraint
-                    import hashlib
-                    name_hash = hashlib.md5(name.encode()).hexdigest()[:8]
-                    p_url = f"{url}#{name_hash}"
+                    p_url = None
                 
                 valid_professors.append(Professor(
                     name=name,
