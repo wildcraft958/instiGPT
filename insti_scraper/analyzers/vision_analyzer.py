@@ -156,13 +156,15 @@ COMPREHENSIVE_VISION_PROMPT = """Analyze this webpage screenshot comprehensively
 - Next button location/selector hint
 
 ### 2. PAGE CLASSIFICATION
-- A: Directory with clickable profile links
-- B: Cards/list with visible contact info (name, email, title)
-- C: Department gateway (links to sub-pages)
+- A: Directory with clickable profile links AND profile images (or placeholders)
+- B: Cards/list with visible contact info AND profile images
+- C: Department gateway (links to sub-pages, usually text-only or icon-based)
 - D: Paginated DataTable
 - E: Search/filter interface
 - F: Individual profile page
 - Z: Blocked/inaccessible
+
+CRITICAL: If a list DOES NOT have profile images/photos for people, it is likely Type C (Gateway) or a Contact List, NOT a Faculty Directory (A/B). Faculty directories almost always have photos.
 
 ### 3. ACCESS BLOCKS (check carefully!)
 - CAPTCHA (reCAPTCHA, hCaptcha images)
@@ -225,6 +227,11 @@ What is the primary language of content?
     "name": "CSS hint for name",
     "link": "CSS hint for profile URL",
     "title": "CSS hint for job title"
+  },
+  "content_visuals": {
+    "has_profile_images": true/false,
+    "images_are_placeholders": true/false,
+    "layout_density": "high|medium|low"
   },
   "language": "en|hi|zh|ar|etc",
   "confidence": 0.85,

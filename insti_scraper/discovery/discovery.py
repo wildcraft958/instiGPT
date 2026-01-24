@@ -226,8 +226,8 @@ class FacultyPageDiscoverer:
         parsed = urlparse(url)
         base_url = f"{parsed.scheme}://{parsed.netloc}"
         
-        # Common sitemap locations
-        sitemap_urls = [
+        # Queue for bfs
+        sitemap_queue = [
             f"{base_url}/sitemap.xml",
             f"{base_url}/sitemap_index.xml",
             f"{base_url}/sitemap/sitemap.xml",
@@ -235,15 +235,33 @@ class FacultyPageDiscoverer:
         
         # Also check robots.txt for sitemap
         robots_sitemaps = await self._get_sitemaps_from_robots(base_url)
-        sitemap_urls.extend(robots_sitemaps)
+        sitemap_queue.extend(robots_sitemaps)
+        
+        processed_sitemaps = set()
         
         async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True) as client:
-            for sitemap_url in sitemap_urls:
+            while sitemap_queue:
+                # Limit recursion safety (max 10 sitemaps/indices)
+                if len(processed_sitemaps) > 10:
+                    break
+                    
+                sitemap_url = sitemap_queue.pop(0)
+                if sitemap_url in processed_sitemaps:
+                    continue
+                
+                processed_sitemaps.add(sitemap_url)
+                
                 try:
                     response = await client.get(sitemap_url)
                     if response.status_code == 200 and "xml" in response.headers.get("content-type", ""):
-                        found_pages = self._parse_sitemap(response.text, base_url)
+                        found_pages, nested = self._parse_sitemap(response.text, base_url)
                         pages.extend(found_pages)
+                        
+                        # Add nested sitemaps to queue
+                        for ns in nested:
+                             if ns not in processed_sitemaps:
+                                 sitemap_queue.append(ns)
+                                 
                         logger.debug(f"   Found {len(found_pages)} URLs in {sitemap_url}")
                 except Exception as e:
                     logger.debug(f"   Sitemap {sitemap_url}: {e}")
@@ -266,9 +284,11 @@ class FacultyPageDiscoverer:
             pass
         return sitemaps
     
-    def _parse_sitemap(self, xml_content: str, base_url: str) -> List[DiscoveredPage]:
-        """Parse sitemap XML and filter for faculty-related URLs."""
+    
+    def _parse_sitemap(self, xml_content: str, base_url: str) -> tuple[List[DiscoveredPage], List[str]]:
+        """Parse sitemap XML and filter for faculty-related URLs. Returns (pages, nested_sitemaps)."""
         pages = []
+        nested_sitemaps = []
         
         try:
             # Remove namespace for easier parsing
@@ -279,8 +299,9 @@ class FacultyPageDiscoverer:
             for sitemap in root.findall(".//sitemap"):
                 loc = sitemap.find("loc")
                 if loc is not None and loc.text:
-                    # TODO: Recursively fetch nested sitemaps
-                    pass
+                    nested_url = loc.text.strip()
+                    logger.debug(f"   found nested sitemap: {nested_url}")
+                    nested_sitemaps.append(nested_url)
             
             # Handle regular sitemap
             for url_elem in root.findall(".//url"):
@@ -302,7 +323,7 @@ class FacultyPageDiscoverer:
         except ET.ParseError as e:
             logger.debug(f"   Sitemap parse error: {e}")
         
-        return pages
+        return pages, nested_sitemaps
     
     def _score_url(self, url: str) -> float:
         """Score a URL based on how likely it leads to faculty content."""

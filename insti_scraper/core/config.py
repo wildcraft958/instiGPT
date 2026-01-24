@@ -70,7 +70,9 @@ class Settings:
             ollama_models = {
                 "schema_discovery": "ollama/llama3.1:8b",
                 "page_classification": "ollama/qwen2.5:7b",
+                "percentage_extraction": "ollama/llama3.1:8b",
                 "detail_extraction": "ollama/llama3.1:8b",
+                "scholar_linking": "ollama/llama3.1:8b",
                 "fallback": "ollama/llama3.1:8b",
             }
             return ollama_models.get(task, "ollama/llama3.1:8b")
@@ -80,6 +82,7 @@ class Settings:
             "schema_discovery": "openai/gpt-4o-mini",
             "page_classification": "openai/gpt-4o-mini",
             "detail_extraction": "openai/gpt-4o-mini",
+            "scholar_linking": "openai/gpt-4o-mini",
             "fallback": "openai/gpt-4o-mini",
         }
         return cloud_models.get(task, "openai/gpt-4o-mini")

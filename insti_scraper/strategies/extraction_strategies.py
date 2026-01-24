@@ -5,7 +5,7 @@ from crawl4ai.extraction_strategy import JsonCssExtractionStrategy, LLMExtractio
 from insti_scraper.core.models import SelectorSchema, FallbackProfileSchema, FacultyDetail
 from insti_scraper.core.config import settings
 
-async def determine_extraction_schema(url: str, model_name: str) -> SelectorSchema:
+async def determine_extraction_schema(url: str, model_name: str, crawler: AsyncWebCrawler) -> SelectorSchema:
     """Determines the CSS extraction schema for a given URL using LLM analysis."""
     print(f"🧠 Analyzing structure of {url}...")
     
@@ -16,13 +16,13 @@ async def determine_extraction_schema(url: str, model_name: str) -> SelectorSche
     await new Promise(r => setTimeout(r, 1500));
     '''
     
-    browser_conf = BrowserConfig(headless=True)
+    # Use existing crawler instance
+    # browser_conf = BrowserConfig(headless=True) # Unused now
     run_conf = CrawlerRunConfig(cache_mode=CacheMode.BYPASS, js_code=ajax_wait_js, scan_full_page=True)
     
-    async with AsyncWebCrawler(config=browser_conf) as crawler:
-        result = await crawler.arun(url=url, config=run_conf)
-        if not result.success:
-            raise Exception(f"Failed to fetch page for analysis: {result.error_message}")
+    result = await crawler.arun(url=url, config=run_conf)
+    if not result.success:
+        raise Exception(f"Failed to fetch page for analysis: {result.error_message}")
     
     html_content = result.html
     # Optimize content for LLM
@@ -96,6 +96,80 @@ Return ONLY valid JSON with base_selector and fields. The fields MUST include 'n
     
     return SelectorSchema(base_selector=data.get('base_selector', 'div'), fields=fields)
 
+async def determine_gateway_schema(url: str, model_name: str, crawler: AsyncWebCrawler) -> SelectorSchema:
+    """
+    Determines the CSS extraction schema for a Department Gateway / Directory Hub page.
+    We are looking for links to:
+    - Departments (e.g. "Aerospace Engineering")
+    - Schools / Centers
+    - "Faculty" or "People" sub-pages within a department
+    """
+    print(f"🧠 [Gateway] Analyzing structure of {url}...")
+    
+    
+    # JavaScript to ensure dynamic content loads (robust wait)
+    ajax_wait_js = '''
+    await new Promise(r => setTimeout(r, 2000));
+    window.scrollTo(0, document.body.scrollHeight);
+    await new Promise(r => setTimeout(r, 1000));
+    '''
+    
+    run_conf = CrawlerRunConfig(cache_mode=CacheMode.BYPASS, js_code=ajax_wait_js, scan_full_page=True)
+    
+    result = await crawler.arun(url=url, config=run_conf)
+    if not result.success:
+        raise Exception(f"Failed to fetch page for gateway analysis: {result.error_message}")
+            
+    html_content = result.html
+    start_index = 0
+    if "<main" in html_content: start_index = html_content.find("<main")
+    elif "<body" in html_content: start_index = html_content.find("<body")
+    content_sample = html_content[start_index : start_index + 40000]
+
+    from litellm import completion
+    
+    system_prompt = """You are an expert web scraping configuration tool.
+Analyze the provided HTML and return a JSON with CSS selectors to extract LINKS to SUB-DIRECTORIES.
+
+We are on a 'Gateway' page (like a list of Departments, or an 'Academic Units' page).
+We want to find links that likely lead to faculty lists.
+
+Target Links:
+- Department names (e.g. 'Department of Computer Science', 'Aerospace')
+- 'Faculty' or 'People' links (e.g. 'Faculty List', 'Our Team')
+- 'Schools' or 'Centers'
+
+Return JSON with:
+{
+  "base_selector": "CSS selector for the repeating container (e.g. li, div.dept-card, tr)",
+  "fields": {
+    "name": "Text of the link/department",
+    "link": "The href attribute (must be an <a> tag)"
+  }
+}"""
+
+    user_prompt = f"""Analyze this HTML and provide CSS selectors to extract Department/Unit links.
+
+HTML Content:
+{content_sample}
+
+Return ONLY valid JSON."""
+
+    print(f"🤖 [Gateway] Asking LLM ({model_name}) to establish navigation schema...")
+    response = completion(
+        model=model_name,
+        messages=[{'role': 'system', 'content': system_prompt}, {'role': 'user', 'content': user_prompt}],
+        response_format={"type": "json_object"},
+        api_base=os.getenv("OLLAMA_BASE_URL") if "ollama" in model_name else None
+    )
+    
+    content = response.choices[0].message.content
+    data = json.loads(content)
+    
+    # Normalize
+    fields = data.get('fields', {})
+    return SelectorSchema(base_selector=data.get('base_selector', 'div'), fields=fields)
+
 def create_css_strategy(schema: SelectorSchema) -> JsonCssExtractionStrategy:
     css_schema_dict = {
         "baseSelector": schema.base_selector,
@@ -139,31 +213,23 @@ def create_detail_strategy(model_name: str) -> LLMExtractionStrategy:
         llm_config=LLMConfig(provider=model_name, api_token=os.getenv("OPENAI_API_KEY")),
         schema=FacultyDetail.model_json_schema(),
         extraction_type="schema",
-        instruction="""Extract comprehensive faculty profile information:
+        instruction="""Extract comprehensive faculty profile information and return a JSON object matching the schema.
 
-1. **Email**: Look for:
-   - mailto: links
-   - Text containing @ symbol (e.g., john@university.edu)
-   - "Email:" or "E-mail:" labels
-   
-2. **Research Interests**: Look for sections titled:
-   - "Research", "Research Interests", "Research Areas"
-   - "Expertise", "Focus Areas", "Current Work"
-   - "Biography" that mentions research topics
-   Extract as a LIST of distinct topics/areas (max 10).
+1. **Basic Info**: Name, Designation (e.g. Professor, Assistant Professor), Email, Phone Number (Office), Office Address/Room Number.
+2. **Research Interests**: Extract as a list of distinct topics/areas (max 10).
+3. **Publications**: Extract titles of selected/recent papers (max 5).
+4. **Social Links**: Look for links to:
+   - LinkedIn
+   - Twitter / X
+   - Google Scholar
+   - ResearchGate
+   - Personal Website
+   - GitHub/GitLab
+   Map them to the 'social_links' dictionary with keys like "linkedin", "twitter", "website", etc.
+5. **Image**: Full URL of the profile photo.
 
-3. **Publications**: Look for:
-   - "Publications", "Selected Publications", "Recent Papers"
-   - Links to papers or citations
-   Extract the TITLES only (max 5 most recent).
-
-4. **Image URL**: Look for:
-   - Profile photo (usually near the name)
-   - Image with alt text containing name
-   Return the full image URL (src attribute).
-
-Return ALL found data. If a field is not found, return null for strings or empty array for lists.""",
-        chunk_token_threshold=6000,
+If a field is not found, return null (for strings) or empty list/dict (for collections).""",
+        chunk_token_threshold=8000,
         overlap_rate=0.1,
         apply_chunking=True,
         input_format="markdown",
