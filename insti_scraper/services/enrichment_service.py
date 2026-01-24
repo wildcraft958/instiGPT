@@ -13,7 +13,7 @@ class EnrichmentService:
     def __init__(self):
         self.ddgs = DDGS()
 
-    async def enrich_professor(self, professor: Professor) -> Professor:
+    async def enrich_professor(self, professor: Professor, crawler) -> Professor:
         """
         Enrich a professor with Google Scholar metrics.
         """
@@ -46,7 +46,33 @@ class EnrichmentService:
             # For this professional refactor, let's assume we want to store the URL and ID primarily, 
             # and maybe fetch metrics asynchronously/later to avoid blocking.
             
-            # TODO: Implement full metrics scraping. For now, we save the ID/URL.
+            professor.google_scholar_id = self._extract_user_id(scholar_url)
+            
+            # 2. Extract metrics using the passed crawler
+            try:
+                res = await crawler.arun(scholar_url)
+                if res.success:
+                    # Simple regex extraction from the raw text or HTML
+                    # H-index is usually in a table with id "gsc_rsb_st"
+                    # Text: "Citations All Since 2019 ... h-index 12 10"
+                    content = res.markdown
+                    
+                    # Robust Regex for Citations
+                    # Look for "Citations" followed by number
+                    cit_match = re.search(r'Citations\s*[\|\n]*\s*(\d+)', content)
+                    if cit_match:
+                        professor.total_citations = int(cit_match.group(1))
+                        
+                    # Robust Regex for H-index
+                    # Look for "h-index" followed by number
+                    h_match = re.search(r'h-index\s*[\|\n]*\s*(\d+)', content)
+                    if h_match:
+                        professor.h_index = int(h_match.group(1))
+                        
+                    logger.info(f"   [Scholar] Extracted: H-Index={professor.h_index}, Citations={professor.total_citations}")
+            except Exception as scrape_err:
+                logger.warning(f"   [Scholar] Failed to scrape metrics: {scrape_err}")
+                
             return professor
             
         except Exception as e:

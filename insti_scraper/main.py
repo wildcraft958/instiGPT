@@ -56,21 +56,21 @@ async def run_scrape_flow(url: str, enrich: bool = True):
         task_id = progress.add_task(f"[cyan]⛏️ Phase 2: Extraction - Processing {len(discovered_pages)} pages...", total=len(discovered_pages))
         
         total_extracted = 0
-        new_professors = []
+        new_professor_ids = []
         count_new = 0
         
-        for i, page in enumerate(discovered_pages):
-            progress.update(task_id, description=f"[cyan]Processing {page.url}...")
-            
-            # TODO: Fetch content properly (ExtractionService should handle fetching or take content)
-            # For now, let's assume ExtractionService handles fetching implicitly or we need a fetcher here.
-            # Using crawl4ai locally here to fetch content for extraction service
-            from crawl4ai import AsyncWebCrawler
-            
-            async with AsyncWebCrawler() as crawler:
+        # Optimized: Reuse crawler session for all pages
+        from crawl4ai import AsyncWebCrawler
+        
+        async with AsyncWebCrawler() as crawler:
+            for i, page in enumerate(discovered_pages):
+                progress.update(task_id, description=f"[cyan]Processing {page.url}...")
+                
+                # Fetch content using the shared crawler session
                 result = await crawler.arun(page.url)
+                
                 if result.success:
-                    # Extraction now returns tuple: (professors, extracted_dept_name)
+                    # Extraction Service now handles the content parsing
                     professors, extracted_dept_name = await extraction_service.extract_with_fallback(page.url, result.html)
                     
                     if professors:
@@ -78,16 +78,8 @@ async def run_scrape_flow(url: str, enrich: bool = True):
                         
                         # Store context for persistence step
                         for prof in professors:
-                            prof.website_url = url # Temporary link to university URL
-                            # Attach the extracted department name to the object transiently (not part of model, but useful)
-                            # Or we can group them here. Let's create a wrapper or just use a dict.
-                            # Hack: Use bio field temporarily if needed, or just handle in persistence loop immediately?
-                            # Better: Handle persistence immediately inside this loop or return a structure.
-                            # For refactor speed: let's save the extracted name in a transient attribute or just process DB save here?
-                            # We are iterating pages. Let's process the persistence for this *page* immediately to avoid losing context.
+                            prof.website_url = url
                             
-                            pass
-
                         # IMMEDIATE PERSISTENCE (Moved from Phase 3 to here to keep Dept context)
                         with Session(engine) as session:
                             uni_name = discovery_service._extract_university_name(url)
@@ -98,7 +90,6 @@ async def run_scrape_flow(url: str, enrich: bool = True):
                                 session.commit()
                                 session.refresh(uni)
                             
-                            # Use Inferred Department or Default if extraction failed
                             dept_target_name = extracted_dept_name if extracted_dept_name and extracted_dept_name != "General" else "General"
                             
                             dept = session.exec(select(Department).where(Department.name == dept_target_name, Department.university_id == uni.id)).first()
@@ -118,8 +109,9 @@ async def run_scrape_flow(url: str, enrich: bool = True):
                                 if not existing:
                                     prof.department_id = dept.id
                                     session.add(prof)
+                                    session.flush() # Force ID generation
                                     count_new += 1
-                                    new_professors.append(prof) # Keep for enrichment list
+                                    new_professor_ids.append(prof.id)
                                     logger.info(f"   [DB] Added: {prof.name} ({dept_target_name})")
                                 else:
                                     # Update existing with rich data if available
@@ -132,32 +124,34 @@ async def run_scrape_flow(url: str, enrich: bool = True):
                             
                     else:
                         console.print(f"      ⚪ {page.url}: No profiles found (filtered/empty)")
-            
-            progress.advance(task_id)
+                
+                progress.advance(task_id)
 
         # 3. Persistence Phase (NOW HANDLED INCREMENTALLY ABOVE)
         # We keep this block just for the final log message
         console.print(f"   ✅ Saved [green]{count_new}[/green] new/updated profiles to Database.")
         
         # 4. Enrichment Phase
-        if enrich and count_new > 0 and new_professors:
-            task_id = progress.add_task(f"[cyan]🧠 Phase 4: Enrichment - Querying Google Scholar for {min(5, len(new_professors))} profiles...", total=None)
+        if enrich and new_professor_ids:
+            task_id = progress.add_task(f"[cyan]🧠 Phase 4: Enrichment - Querying Google Scholar for {min(5, len(new_professor_ids))} profiles...", total=None)
             
             # Only enrich a few for demo to save time/rate limits
-            to_enrich_ids = [p.id for p in new_professors[:5] if p.id] 
+            to_enrich_ids = new_professor_ids[:5] 
             
-            with Session(engine, expire_on_commit=False) as session:
-                for p_id in to_enrich_ids:
-                    # Reload from DB within active session
-                    db_prof = session.get(Professor, p_id)
-                    if db_prof:
-                         # Eager load department name for logging/search query
-                        dept_name = db_prof.department.name if db_prof.department else "General"
-                        
-                        logger.info(f"   [Enrich] Enriching {db_prof.name}...")
-                        db_prof = await enrichment_service.enrich_professor(db_prof)
-                        session.add(db_prof)
-                        session.commit() # Commit after each to save progress
+            # Use shared crawler session for enrichment too
+            async with AsyncWebCrawler() as crawler:
+                with Session(engine, expire_on_commit=False) as session:
+                    for p_id in to_enrich_ids:
+                        # Reload from DB within active session
+                        db_prof = session.get(Professor, p_id)
+                        if db_prof:
+                             # Eager load department name for logging/search query
+                            dept_name = db_prof.department.name if db_prof.department else "General"
+                            
+                            logger.info(f"   [Enrich] Enriching {db_prof.name}...")
+                            db_prof = await enrichment_service.enrich_professor(db_prof, crawler)
+                            session.add(db_prof)
+                            session.commit() # Commit after each to save progress
                 
             progress.update(task_id, completed=True)
             console.print("   ✅ Enrichment complete.")
@@ -174,16 +168,23 @@ def list_professors_command():
         table.add_column("Department", style="cyan")
         table.add_column("Name", style="bold white")
         table.add_column("Interests", max_width=30, style="dim")
-        table.add_column("Papers", justify="right")
+        table.add_column("H-Index", justify="right", style="green")
+        table.add_column("Citations", justify="right", style="green")
         
         for p in professors:
             # Join interests if list
             interests = ", ".join(p.research_interests[:3]) if p.research_interests else "-"
             uni_name = p.department.university.name if p.department and p.department.university else "?"
             dept_name = p.department.name if p.department else "General"
-            papers_count = len(p.top_papers) if p.top_papers else 0
             
-            table.add_row(uni_name, dept_name, p.name, interests, str(papers_count))
+            table.add_row(
+                uni_name, 
+                dept_name, 
+                p.name, 
+                interests, 
+                str(p.h_index), 
+                str(p.total_citations)
+            )
             
         console.print(table)
         console.print(f"\nTotal Professors: [bold]{len(professors)}[/bold]")
