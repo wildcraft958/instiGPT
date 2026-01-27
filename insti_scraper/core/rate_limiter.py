@@ -4,6 +4,7 @@ Rate limiting wrapper for Crawl4AI using MemoryAdaptiveDispatcher.
 Provides configurable request throttling to avoid overwhelming target servers.
 """
 
+import random
 import asyncio
 from dataclasses import dataclass
 from typing import Optional, Tuple, List
@@ -70,7 +71,7 @@ class AdaptiveRateLimiter:
         
         This can be used for manual rate limiting outside of arun_many.
         """
-        delay = asyncio.uniform(*self.config.base_delay)
+        delay = random.uniform(*self.config.base_delay)
         await asyncio.sleep(delay)
     
     def get_stats(self) -> dict:

@@ -11,6 +11,7 @@ from sqlmodel import select, Session
 from insti_scraper.core.config import settings
 from insti_scraper.database.database import create_db_and_tables, engine, get_session
 from insti_scraper.core.cost_tracker import cost_tracker
+from insti_scraper.core.rate_limiter import get_rate_limiter
 from insti_scraper.domain.models import University, Department, Professor
 from insti_scraper.services.discovery_service import DiscoveryService
 from insti_scraper.services.extraction_service import ExtractionService
@@ -63,11 +64,19 @@ async def run_scrape_flow(url: str, enrich: bool = True):
         from crawl4ai import AsyncWebCrawler
         
         async with AsyncWebCrawler() as crawler:
+            rate_limiter = get_rate_limiter()
+            
             for i, page in enumerate(discovered_pages):
+                await rate_limiter.wait_if_needed(page.url)
                 progress.update(task_id, description=f"[cyan]Processing {page.url}...")
                 
                 # Fetch content using the shared crawler session
-                result = await crawler.arun(page.url)
+                try:
+                    result = await crawler.arun(page.url)
+                except Exception as e:
+                    logger.error(f"      ❌ Crawler error for {page.url}: {e}")
+                    continue
+
                 
                 if result.success:
                     # Extraction Service now handles the content parsing

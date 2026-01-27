@@ -9,13 +9,16 @@ from insti_scraper.core.config import settings
 from insti_scraper.core.prompts import Prompts
 from insti_scraper.core.cost_tracker import cost_tracker
 from insti_scraper.domain.models import Professor
+from insti_scraper.core.schema_cache import get_schema_cache, SelectorSchema
+from insti_scraper.core.retry_wrapper import retry_async, DEFAULT_RETRY_CONFIG
+from insti_scraper.analyzers.vision_analyzer import VisionPageAnalyzer
 
 import logging
 logger = logging.getLogger(__name__)
 
 class ExtractionService:
     def __init__(self):
-        pass
+        self.vision_analyzer = VisionPageAnalyzer()
 
     async def analyze_structure(self, url: str, html_content: str, model_name: str) -> dict:
         """
@@ -50,6 +53,7 @@ class ExtractionService:
         content = response.choices[0].message.content
         return json.loads(content)
 
+    @retry_async(DEFAULT_RETRY_CONFIG)
     async def extract_with_fallback(self, url: str, html_content: str) -> tuple[List[Professor], str]:
         """
         Extracts professors and department context using a rigorous LLM approach.
@@ -57,6 +61,26 @@ class ExtractionService:
         """
         model_name = settings.get_model_for_task("detail_extraction")
         
+        # 0. Check Schema Cache
+        schema_cache = get_schema_cache()
+        cached_schema = schema_cache.get(url)
+        if cached_schema:
+            logger.info(f"      [Cache] Found existing schema for {url}")
+            # TODO: Implement selector-based extraction using cached_schema
+            # For now, we fall back to LLM but this acknowledges the cache exists
+        else:
+            # 1. Vision Analysis for Schema Discovery
+            logger.info(f"      [Vision] Analyzing page structure for {url}...")
+            try:
+                vision_result = await self.vision_analyzer.analyze(url)
+                if vision_result.schema_hints:
+                    logger.info(f"      [Vision] Found schema hints: {vision_result.schema_hints.keys()}")
+                    # We can use these hints to guide the LLM or save a new schema
+                    # For now, we'll append hints to the prompt context
+                    html_content = f"VISION_HINTS: {json.dumps(vision_result.schema_hints)}\n\n" + html_content
+            except Exception as e:
+                logger.warning(f"      [Vision] Analysis failed (ignoring): {e}")
+
         # Smart Prompting: Explicitly filter out navigation links
         user_prompt = f"""Extract ALL ACADEMIC FACULTY from this page: {url}
         
