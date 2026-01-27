@@ -78,8 +78,8 @@ class Settings:
         """
         use_local = prefer_local if prefer_local is not None else Settings.PREFER_LOCAL_MODELS
         
-        if use_local and os.getenv("OLLAMA_BASE_URL"):
-            # Local models (free)
+        if use_local:
+            # Local models (free) - relies on default localhost:11434 if env var not set
             return "ollama/llama3.1:8b"
         
         # Cloud models with Smart Routing

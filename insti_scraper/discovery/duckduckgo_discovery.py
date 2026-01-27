@@ -18,6 +18,7 @@ except ImportError:
     DDGS = None
 
 from litellm import completion
+from litellm.exceptions import RateLimitError
 from insti_scraper.core.config import settings
 
 
@@ -237,16 +238,30 @@ If none are suitable, return "NONE".
 """
     
     try:
-        response = completion(
-            model=model,
-            messages=[
-                {"role": "system", "content": "Output only the raw URL string or 'NONE'."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0,
-            max_tokens=150,
-            api_base=os.getenv("OLLAMA_BASE_URL") if "ollama" in model.lower() else None
-        )
+        try:
+            response = completion(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "Output only the raw URL string or 'NONE'."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0,
+                max_tokens=150,
+                api_base=os.getenv("OLLAMA_BASE_URL") if "ollama" in model.lower() else None
+            )
+        except RateLimitError:
+            print("   ⚠️ OpenAI Quota Exceeded! Switching to local model for discovery...")
+            fallback_model = settings.get_model_for_task("detail_extraction", prefer_local=True)
+            response = completion(
+                model=fallback_model,
+                messages=[
+                    {"role": "system", "content": "Output only the raw URL string or 'NONE'."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0,
+                max_tokens=150,
+                api_base=os.getenv("OLLAMA_BASE_URL")
+            )
         
         result = response.choices[0].message.content.strip()
         

@@ -3,6 +3,7 @@ import os
 import re
 from typing import List, Optional, Dict
 from litellm import completion, completion_cost
+from litellm.exceptions import RateLimitError
 
 from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, CacheMode
 from insti_scraper.core.config import settings
@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)
 class ExtractionService:
     def __init__(self):
         self.vision_analyzer = VisionPageAnalyzer()
+        self.force_local = False
 
     async def analyze_structure(self, url: str, html_content: str, model_name: str) -> dict:
         """
@@ -97,15 +99,41 @@ class ExtractionService:
         
         Return JSON object with keys: "department_name", "faculty" (list of objects)."""
         
-        response = completion(
-            model=model_name,
-            messages=[
-                {'role': 'system', 'content': Prompts.EXTRACTION_SYSTEM},
-                {'role': 'user', 'content': user_prompt}
-            ],
-            response_format={"type": "json_object"},
-            api_base=os.getenv("OLLAMA_BASE_URL") if "ollama" in model_name else None
-        )
+        # Check if we are forced to local model due to previous rate limits
+        if self.force_local:
+             model_name = settings.get_model_for_task("detail_extraction", prefer_local=True)
+             logger.info(f"      [Fallback] Using local model: {model_name}")
+
+        try:
+            response = completion(
+                model=model_name,
+                messages=[
+                    {'role': 'system', 'content': Prompts.EXTRACTION_SYSTEM},
+                    {'role': 'user', 'content': user_prompt}
+                ],
+                response_format={"type": "json_object"},
+                api_base=os.getenv("OLLAMA_BASE_URL") if "ollama" in model_name else None
+            )
+        except RateLimitError:
+            logger.error("      ⚠️ OpenAI Quota Exceeded! Switching to local model (Ollama) for this and future requests.")
+            self.force_local = True
+            model_name = settings.get_model_for_task("detail_extraction", prefer_local=True)
+            
+            # Double check: if config still gave us OpenAI, force Ollama
+            if "openai" in model_name.lower():
+                 model_name = "ollama/llama3.1:8b"
+                 logger.warning("      ⚠️ Config returned OpenAI model for local fallback. Forcing 'ollama/llama3.1:8b'.")
+
+            # Retry with local model
+            response = completion(
+                model=model_name,
+                messages=[
+                    {'role': 'system', 'content': Prompts.EXTRACTION_SYSTEM},
+                    {'role': 'user', 'content': user_prompt}
+                ],
+                response_format={"type": "json_object"},
+                api_base=os.getenv("OLLAMA_BASE_URL")
+            )
         
         # Track Cost
         try:
