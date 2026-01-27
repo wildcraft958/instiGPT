@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class EnrichmentService:
     def __init__(self):
-        self.ddgs = DDGS()
+        pass
 
     async def enrich_professor(self, professor: Professor, crawler=None) -> Professor: # crawler unused but kept for compatibility
         """
@@ -28,8 +28,13 @@ class EnrichmentService:
         try:
             # 1. Search for profile
             query = f"{professor.name} {professor.department.name} \"Google Scholar\""
-            results = list(self.ddgs.text(query, max_results=3))
-            
+            results = []
+            try:
+                with DDGS() as ddgs:
+                    results = list(ddgs.text(query, max_results=3))
+            except Exception as e:
+                logger.warning(f"   [Scholar] DDGS Search failed: {e}")
+
             scholar_url = None
             for res in results:
                 if "scholar.google" in res['href'] and "citations?user=" in res['href']:
@@ -63,8 +68,11 @@ class EnrichmentService:
                             # But findAll returns the td cells linearly.
                             # Row 1 (Citations): td[0], td[1]
                             # Row 2 (h-index): td[2], td[3]
-                            professor.total_citations = int(stats_table[0].text)
-                            professor.h_index = int(stats_table[2].text)
+                            try:
+                                professor.total_citations = int(stats_table[0].text.replace(',', '').strip())
+                                professor.h_index = int(stats_table[2].text.replace(',', '').strip())
+                            except ValueError:
+                                logger.warning(f"   [Scholar] Failed to parse stats: {stats_table[0].text}, {stats_table[2].text}")
                             
                             logger.info(f"   [Scholar] Extracted: H-Index={professor.h_index}, Citations={professor.total_citations}")
                         else:

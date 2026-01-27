@@ -100,7 +100,7 @@ class ExtractionService:
             department_name = "General"
             if isinstance(raw_data, dict):
                 department_name = raw_data.get("department_name", "General")
-                profiles_list = raw_data.get("faculty", raw_data.get("profiles", []))
+                profiles_list = raw_data.get("faculty") or raw_data.get("profiles") or []
             else:
                 profiles_list = raw_data if isinstance(raw_data, list) else []
             
