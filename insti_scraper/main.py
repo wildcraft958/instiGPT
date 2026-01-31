@@ -414,6 +414,10 @@ def main():
     
     # List Command
     list_parser = subparsers.add_parser("list", help="List scraped professors")
+
+    # CSV Export Command
+    csv_parser = subparsers.add_parser("csv", help="Export database to CSV")
+    csv_parser.add_argument("--output", "-o", default="output_data/professors.csv", help="Output CSV file path")
     
     args = parser.parse_args()
     
@@ -430,8 +434,49 @@ def main():
         console.print("\n[dim]This will be integrated in a future update.[/dim]")
     elif args.command == "list":
         list_professors_command()
+    elif args.command == "csv":
+        export_csv_command(args.output)
     else:
         parser.print_help()
+
+def export_csv_command(output_file: str):
+    import csv
+    
+    # ensure output directory exists
+    os.makedirs(os.path.dirname(os.path.abspath(output_file)) or ".", exist_ok=True)
+    
+    with Session(engine) as session:
+        professors = session.exec(select(Professor)).all()
+        
+        if not professors:
+            console.print("[bold yellow]⚠️ No professors found in database.[/bold yellow]")
+            return
+
+        with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            # Write Header
+            writer.writerow(["University", "Department", "Name", "Title", "Email", "Profile URL", "Research Interests", "H-Index", "Citations"])
+            
+            count = 0
+            for p in professors:
+                uni_name = p.department.university.name if p.department and p.department.university else "Unknown"
+                dept_name = p.department.name if p.department else "General"
+                interests = ", ".join(p.research_interests) if p.research_interests else ""
+                
+                writer.writerow([
+                    uni_name,
+                    dept_name,
+                    p.name,
+                    p.title,
+                    p.email,
+                    p.profile_url,
+                    interests,
+                    p.h_index,
+                    p.total_citations
+                ])
+                count += 1
+                
+        console.print(f"✅ Exported [bold green]{count}[/bold green] professors to [bold]{output_file}[/bold]")
 
 if __name__ == "__main__":
     main()
