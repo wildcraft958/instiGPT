@@ -26,9 +26,9 @@ Before you start, make sure you have:
     curl -LsSf https://astral.sh/uv/install.sh | sh
     ```
     *(Wait for it to finish and restart your terminal if needed)*
-4.  **Install the scraper**:
+4.  **Install everything**:
     ```bash
-    uv sync
+    make install
     ```
 
 ---
@@ -53,14 +53,14 @@ This is the fun part! Just tell it which university to scrape.
 ### A. The "I'm Feeling Lucky" Mode (Auto-Discover)
 If you only know the university homepage, run this:
 ```bash
-uv run python -m insti_scraper scrape "https://www.stanford.edu"
+make run URL="https://www.stanford.edu"
 ```
 *The scraper will automatically find the faculty list for you!* 🕵️‍♂️
 
 ### B. The "I Know Exactly Where It Is" Mode
 If you have the exact link to a department's faculty list:
 ```bash
-uv run python -m insti_scraper scrape "https://cs.stanford.edu/people/faculty" --direct
+make direct URL="https://cs.stanford.edu/people/faculty"
 ```
 
 ---
@@ -71,11 +71,11 @@ Once it finishses, you probably want to see the data.
 
 1.  **To see it in your terminal**:
     ```bash
-    uv run python -m insti_scraper list
+    make list
     ```
 2.  **To get a nice Excel/CSV file**:
     ```bash
-    uv run python -m insti_scraper csv --output my_data.csv
+    make csv FILE=my_data.csv
     ```
     *Now open `my_data.csv` in Excel!* 📈
 

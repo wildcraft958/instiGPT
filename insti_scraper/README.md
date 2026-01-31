@@ -71,11 +71,9 @@ graph TD
     cd insti-scraper
     ```
 
-2.  **Install Dependencies**:
+2.  **Install & Setup**:
     ```bash
-    uv sync
-    # OR
-    pip install -e .
+    make install
     ```
 
 3.  **Environment Configuration**:
@@ -95,7 +93,19 @@ graph TD
 
 ## 📖 CLI Reference
 
-The application is driven by a unified CLI endpoint: `python -m insti_scraper`
+The application can be run via `make` (recommended) or the unified CLI endpoint: `python -m insti_scraper`
+
+### Quick Start with Makefile
+| Command | Description |
+|:---|:---|
+| `make install` | Install all dependencies |
+| `make run URL=...` | Scrape a university (Auto-Discover) |
+| `make direct URL=...` | Scrape a specific list directly |
+| `make list` | View current data |
+| `make csv FILE=...` | Export to CSV |
+| `make test` | Run all tests |
+
+---
 
 ### 1. `scrape` - The Main Engine
 Scrape a single university or specific department.
