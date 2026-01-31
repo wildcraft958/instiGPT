@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 from litellm import completion, completion_cost
 from litellm.exceptions import RateLimitError
 
@@ -12,7 +12,7 @@ from insti_scraper.core.cost_tracker import cost_tracker
 from insti_scraper.domain.models import Professor
 from insti_scraper.core.schema_cache import get_schema_cache, SelectorSchema
 from insti_scraper.core.retry_wrapper import retry_async, DEFAULT_RETRY_CONFIG
-from insti_scraper.analyzers.vision_analyzer import VisionPageAnalyzer
+from insti_scraper.analyzers.vision_analyzer import VisionPageAnalyzer, PageType, BlockType, VisualAnalysisResult
 
 import logging
 logger = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ class ExtractionService:
     def __init__(self):
         self.vision_analyzer = VisionPageAnalyzer()
         self.force_local = False
+        self._last_vision_result: Optional[VisualAnalysisResult] = None
 
     async def analyze_structure(self, url: str, html_content: str, model_name: str) -> dict:
         """
@@ -55,13 +56,61 @@ class ExtractionService:
         content = response.choices[0].message.content
         return json.loads(content)
 
+    async def analyze_page(self, url: str) -> Tuple[VisualAnalysisResult, str]:
+        """
+        Run vision analysis on a URL and return classification status.
+        
+        Returns:
+            Tuple of (VisualAnalysisResult, status_message)
+            Status can be: "ok", "blocked", "gateway", "paginated"
+        """
+        try:
+            result = await self.vision_analyzer.analyze(url)
+            self._last_vision_result = result
+            
+            # Check for blocked access
+            if result.is_blocked():
+                block_msg = f"Page blocked: {result.block_type.value} - {result.block_description}"
+                logger.warning(f"      ❌ {block_msg}")
+                return result, "blocked"
+            
+            # Check page type
+            page_type = result.page_type
+            
+            if page_type == PageType.DEPARTMENT_GATEWAY:
+                logger.info(f"      📂 Detected Department Gateway (Type C) - needs deeper crawling")
+                return result, "gateway"
+            
+            if page_type == PageType.PAGINATED_LIST:
+                logger.info(f"      📄 Detected Paginated List (Type D) - {result.max_pages_needed} pages estimated")
+                return result, "paginated"
+            
+            if page_type == PageType.INDIVIDUAL_PROFILE:
+                logger.info(f"      👤 Detected Individual Profile (Type F) - not a directory")
+                return result, "profile"
+            
+            # Normal directory pages (Type A/B)
+            logger.info(f"      ✅ Page Type: {page_type.value} (confidence: {result.page_type_confidence:.0%})")
+            return result, "ok"
+            
+        except Exception as e:
+            logger.warning(f"      ⚠️ Vision analysis failed: {e}")
+            return VisualAnalysisResult(), "ok"  # Fall back to extraction anyway
+
     @retry_async(DEFAULT_RETRY_CONFIG)
-    async def extract_with_fallback(self, url: str, html_content: str) -> tuple[List[Professor], str]:
+    async def extract_with_fallback(self, url: str, html_content: str, skip_vision: bool = False) -> tuple[List[Professor], str]:
         """
         Extracts professors and department context using a rigorous LLM approach.
+        
+        Args:
+            url: Page URL
+            html_content: HTML to extract from
+            skip_vision: If True, skip vision analysis (for paginated sub-pages)
+            
         Returns: (List[Professor], department_name)
         """
         model_name = settings.get_model_for_task("detail_extraction")
+        vision_context = ""
         
         # 0. Check Schema Cache
         schema_cache = get_schema_cache()
@@ -69,23 +118,35 @@ class ExtractionService:
         if cached_schema:
             logger.info(f"      [Cache] Found existing schema for {url}")
             # TODO: Implement selector-based extraction using cached_schema
-            # For now, we fall back to LLM but this acknowledges the cache exists
-        else:
-            # 1. Vision Analysis for Schema Discovery
-            logger.info(f"      [Vision] Analyzing page structure for {url}...")
-            try:
-                vision_result = await self.vision_analyzer.analyze(url)
-                if vision_result.schema_hints:
-                    logger.info(f"      [Vision] Found schema hints: {vision_result.schema_hints.keys()}")
-                    # We can use these hints to guide the LLM or save a new schema
-                    # For now, we'll append hints to the prompt context
-                    html_content = f"VISION_HINTS: {json.dumps(vision_result.schema_hints)}\n\n" + html_content
-            except Exception as e:
-                logger.warning(f"      [Vision] Analysis failed (ignoring): {e}")
+        
+        # 1. Vision Analysis (unless skipped)
+        if not skip_vision:
+            result, status = await self.analyze_page(url)
+            
+            if status == "blocked":
+                return [], f"BLOCKED:{result.block_type.value}"
+            
+            if status == "gateway":
+                return [], "GATEWAY"  # Signal to main.py to crawl department links
+            
+            if status == "profile":
+                return [], "PROFILE"  # Single profile, not a directory
+            
+            if status == "paginated":
+                return [], "PAGINATED"  # Signal to main.py to use pagination handler
+            
+            # Add vision hints to prompt context
+            if result.schema_hints:
+                logger.info(f"      [Vision] Schema hints: {list(result.schema_hints.keys())}")
+                vision_context = f"VISION_HINTS: {json.dumps(result.schema_hints)}\n"
+            
+            if result.pagination_type not in ("unknown", "none"):
+                vision_context += f"PAGINATION_TYPE: {result.pagination_type}, ESTIMATED_PAGES: {result.max_pages_needed}\n"
 
         # Smart Prompting: Explicitly filter out navigation links
         user_prompt = f"""Extract ALL ACADEMIC FACULTY from this page: {url}
         
+        {vision_context}
         HTML Content:
         {html_content[:60000]} # Limit context window
         
@@ -98,6 +159,7 @@ class ExtractionService:
         3. **Filtering**: IGNORE Admin/Staff/Students.
         
         Return JSON object with keys: "department_name", "faculty" (list of objects)."""
+
         
         # Check if we are forced to local model due to previous rate limits
         if self.force_local:
