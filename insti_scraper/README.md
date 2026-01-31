@@ -28,7 +28,7 @@ Insti-Scraper is an advanced, autonomous scraping system designed to extract hig
 
 ---
 
-## �️ Architecture Overview
+## 🛠️ Architecture Overview
 
 ```mermaid
 graph TD
@@ -48,6 +48,8 @@ graph TD
     G --> H[(Database)]
     H --> I[Enrichment Agent]
 ```
+
+> **Note**: An editable version of this diagram is available at `docs/architecture.drawio` (VS Code Draw.io Extension compatible).
 
 ---
 
@@ -168,8 +170,8 @@ You can import core components to build custom pipelines.
 
 ```python
 import asyncio
-from insti_scraper.discovery import FacultyPageDiscoverer
-from insti_scraper.services import ExtractionService
+from insti_scraper.engine.discovery import FacultyPageDiscoverer
+from insti_scraper.services.extraction_service import ExtractionService
 
 async def custom_pipeline():
     # 1. Discover

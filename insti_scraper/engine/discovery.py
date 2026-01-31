@@ -159,9 +159,8 @@ class FacultyPageDiscoverer:
             logger.debug("Profile loader not available")
         
         # Tier 1: DuckDuckGo search (PRIMARY for 'search' and 'auto' modes)
-        if mode in ("search", "auto"):
             try:
-                from .duckduckgo_discovery import discover_faculty_url, is_ddgs_available
+                from .duckduckgo import discover_faculty_url, is_ddgs_available
                 
                 if is_ddgs_available():
                     name = university_name or self._extract_university_name(start_url)
@@ -554,7 +553,7 @@ class FacultyPageDiscoverer:
         
         if ambiguous_candidates:
              try:
-                from insti_scraper.analyzers.vision_analyzer import VisionPageAnalyzer, PageType
+                from insti_scraper.engine.vision_analyzer import VisionPageAnalyzer, PageType
                 analyzer = VisionPageAnalyzer()
                 
                 for page in ambiguous_candidates:

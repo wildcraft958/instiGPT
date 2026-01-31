@@ -268,7 +268,7 @@ async def extract_with_pagination(
         # If standard regex failed to detect pagination, ask Vision
         if pagination_info.pagination_type in ("none", "unknown"):
              try:
-                 from insti_scraper.analyzers.vision_analyzer import VisionPageAnalyzer
+                 from insti_scraper.engine.vision_analyzer import VisionPageAnalyzer
                  logger.info("   👀 Standard pagination detection failed. Trying Vision Anchor...")
                  
                  analyzer = VisionPageAnalyzer()

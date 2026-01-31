@@ -12,15 +12,15 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from sqlmodel import select, Session
 
 from insti_scraper.core.config import settings
-from insti_scraper.database.database import create_db_and_tables, engine, get_session
+from insti_scraper.data.database import create_db_and_tables, engine, get_session
 from insti_scraper.core.cost_tracker import cost_tracker
 from insti_scraper.core.rate_limiter import get_rate_limiter
 from insti_scraper.core.auto_config import AutoConfig
-from insti_scraper.domain.models import University, Department, Professor
-from insti_scraper.discovery.discovery import FacultyPageDiscoverer, DiscoveredPage
+from insti_scraper.data.models import University, Department, Professor
+from insti_scraper.engine.discovery import FacultyPageDiscoverer, DiscoveredPage
 from insti_scraper.services.extraction_service import ExtractionService
 from insti_scraper.services.enrichment_service import EnrichmentService
-from insti_scraper.handlers.pagination_handler import extract_with_pagination
+from insti_scraper.engine.pagination import extract_with_pagination
 
 # Initialize rich console
 console = Console()
@@ -203,7 +203,7 @@ async def run_scrape_flow(url: str, enrich: bool = True, direct: bool = False):
                         continue
                     
                     # Use GatewayPageHandler to extract department links
-                    from insti_scraper.handlers import GatewayPageHandler
+                    from insti_scraper.engine.page_handlers import GatewayPageHandler
                     handler = GatewayPageHandler()
                     gateway_result = await handler.extract(gateway_url, result.html)
                     

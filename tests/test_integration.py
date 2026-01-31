@@ -7,11 +7,11 @@ import pytest
 import asyncio
 from unittest.mock import Mock, AsyncMock, patch
 
-from insti_scraper.discovery.discovery import FacultyPageDiscoverer, DiscoveredPage
+from insti_scraper.engine.discovery import FacultyPageDiscoverer, DiscoveredPage
 from insti_scraper.services.extraction_service import ExtractionService
 from insti_scraper.config import get_university_profile, ProfileLoader
 from insti_scraper.core.selector_strategies import FallbackExtractor, COMMON_STRATEGIES
-from insti_scraper.handlers import GatewayPageHandler, DirectoryPageHandler
+from insti_scraper.engine.page_handlers import GatewayPageHandler, DirectoryPageHandler
 
 
 class TestUniversityProfiles:
@@ -79,7 +79,7 @@ class TestSelectorStrategies:
         results, strategy = extractor.extract(html)
         
         assert len(results) == 2
-        assert strategy == "datatable"
+        assert strategy.name == "datatable"
         assert results[0]['name'] == "Dr. John Smith"
         assert "jsmith@uni.edu" in results[0].get('email', '')
     
@@ -101,7 +101,7 @@ class TestSelectorStrategies:
         results, strategy = extractor.extract(html)
         
         assert len(results) >= 1
-        assert "cards" in strategy or "generic" in strategy
+        assert "cards" in strategy.name or "generic" in strategy.name
     
     def test_fallback_order(self):
         """Strategies should be tried in priority order."""

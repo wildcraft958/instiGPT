@@ -9,10 +9,10 @@ from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, CacheMode
 from insti_scraper.core.config import settings
 from insti_scraper.core.prompts import Prompts
 from insti_scraper.core.cost_tracker import cost_tracker
-from insti_scraper.domain.models import Professor
+from insti_scraper.data.models import Professor
 from insti_scraper.core.schema_cache import get_schema_cache, SelectorSchema
 from insti_scraper.core.retry_wrapper import retry_async, DEFAULT_RETRY_CONFIG
-from insti_scraper.analyzers.vision_analyzer import VisionPageAnalyzer, PageType, BlockType, VisualAnalysisResult
+from insti_scraper.engine.vision_analyzer import VisionPageAnalyzer, PageType, BlockType, VisualAnalysisResult
 
 import logging
 logger = logging.getLogger(__name__)
@@ -200,7 +200,7 @@ class ExtractionService:
             
             try:
                 # Import here to avoid circular dependencies
-                from insti_scraper.analyzers.vision_analyzer import VisionPageAnalyzer
+                from insti_scraper.engine.vision_analyzer import VisionPageAnalyzer
                 from insti_scraper.core.selector_generator import visual_selector_generator
                 from insti_scraper.config.profile_updater import profile_updater
                 from insti_scraper.config import get_university_profile

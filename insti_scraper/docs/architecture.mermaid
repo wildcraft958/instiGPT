@@ -1,0 +1,16 @@
+graph TD
+    A[Start: University URL] --> B{Discovery Agent}
+    B -->|Fast Path| B1[Sitemap/Keywords]
+    B -->|Ambiguous Path| B2[Vision Anchor Verification]
+    B1 --> C[Candidate Directories]
+    B2 --> C
+    
+    C --> D{Extraction Agent}
+    D --> E[Pagination Handler]
+    E -->|Rel='next'| E1[Standard Click]
+    E -->|Vision Fallback| E2[Visual Anchor Click]
+    
+    E1 & E2 --> F[Page Content]
+    F --> G[LLM Extraction]
+    G --> H[(Database)]
+    H --> I[Enrichment Agent]

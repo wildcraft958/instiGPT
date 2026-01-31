@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
 
-from insti_scraper.domain.models import Professor
+from insti_scraper.data.models import Professor
 from insti_scraper.config import SelectorConfig, get_university_profile
 from insti_scraper.core.logger import logger
 

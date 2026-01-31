@@ -5,7 +5,7 @@ from ddgs import DDGS
 import httpx
 from bs4 import BeautifulSoup
 
-from insti_scraper.domain.models import Professor
+from insti_scraper.data.models import Professor
 from insti_scraper.core.cost_tracker import cost_tracker
 from insti_scraper.core.config import settings
 
