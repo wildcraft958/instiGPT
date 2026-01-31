@@ -61,13 +61,13 @@ async def run_scrape_flow(url: str, enrich: bool = True, direct: bool = False):
             task_id = progress.add_task("[cyan]🔍 Phase 1: Discovery - Auto-detecting faculty pages...", total=None)
             result = await discoverer.discover(url, mode="auto")
             discovered_pages = result.faculty_pages
+            progress.update(task_id, completed=True)
         
         if not discovered_pages:
             progress.stop()
             console.print("[bold red]❌ No faculty pages found.[/bold red]")
             return
 
-        progress.update(task_id, completed=True)
         console.print(f"   ✅ Found [green]{len(discovered_pages)}[/green] potential directories.")
         
         # 2. Extraction Phase
