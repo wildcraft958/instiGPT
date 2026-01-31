@@ -210,15 +210,15 @@ class ExtractionService:
                 # Let's run a quick vision analysis specifically for names if not already robust
                 
                 analyzer = VisionPageAnalyzer()
-                # Run lightweight analysis just for names? The full analysis covers it.
+                # Run dedicated visual anchor extraction
                 logger.info("      [Visual] Capturing screenshot to find visual anchors...")
-                vision_result = await analyzer.analyze(url)
+                sample_names = await analyzer.extract_visual_anchors(url)
                 
-                if vision_result and vision_result.sample_names:
-                    logger.info(f"      [Visual] Found anchors: {vision_result.sample_names}")
+                if sample_names:
+                    logger.info(f"      [Visual] Found anchors: {sample_names}")
                     
                     # Generate Selector
-                    generated_strategy = visual_selector_generator.generate_from_names(html_content, vision_result.sample_names)
+                    generated_strategy = visual_selector_generator.generate_from_names(html_content, sample_names)
                     
                     if generated_strategy:
                         # Try extracting with new strategy

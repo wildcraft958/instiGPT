@@ -198,12 +198,6 @@ For faculty/people listings, identify:
 ### 7. LANGUAGE
 What is the primary language of content?
 
-### 8. VISUAL ANCHORS (New!)
-Identify 3-4 distinct faculty/person names visible in the screenshot.
-- Choose names that look like they are part of the main list/grid.
-- Avoid header/footer links or navigation items.
-- These will be used to reverse-engineer CSS selectors.
-- **CRITICAL**: Do NOT invent names. Do NOT use "John Doe", "Jane Doe", etc. If text is not readable, return empty list.
 
 ## OUTPUT FORMAT (JSON only)
 ```json
@@ -245,40 +239,25 @@ Identify 3-4 distinct faculty/person names visible in the screenshot.
   },
   "language": "en|hi|zh|ar|etc",
   "confidence": 0.85,
-  "patterns": ["list of visual observations"],
-  "sample_names": ["Name 1", "Name 2", "Name 3"]
+  "patterns": ["list of visual observations"]
 }
 ```"""
 
 
-CSS_SELECTOR_PROMPT = """Given this screenshot, I need to click on or select a specific element.
+VISUAL_ANCHORS_PROMPT = """Given this screenshot, identify 3-4 distinct faculty/person names.
 
-TARGET: {target_description}
+TARGET: Faculty List/Grid
 
-Describe the element's:
-1. EXACT visual position (top-left, center, bottom-right, etc.)
-2. Color and appearance
-3. Text content if any
-4. Surrounding elements
-
-Then suggest 3 possible CSS selectors in order of specificity:
-1. ID-based (if visible)
-2. Class-based
-3. Position-based fallback
+INSTRUCTIONS:
+1. Look for names that follow a repeating pattern (title cards, table rows).
+2. Avoid navigation links, header/footer items, or random text.
+3. **CRITICAL**: Do NOT invent names. Do NOT use "John Doe", "Jane Doe", etc. If text is not readable, return empty list.
 
 Return JSON:
 ```json
-{{
-  "position": "description of where on page",
-  "appearance": "color, size, shape",
-  "text": "visible text",
-  "context": "what's around it",
-  "selectors": [
-    {{"selector": "...", "confidence": 0.9}},
-    {{"selector": "...", "confidence": 0.7}},
-    {{"selector": "...", "confidence": 0.5}}
-  ]
-}}
+{
+  "sample_names": ["Name 1", "Name 2", "Name 3"]
+}
 ```"""
 
 
@@ -858,20 +837,18 @@ class VisionPageAnalyzer:
     # Feature 1: CSS Selector Generation
     # =========================================================================
     
-    async def generate_css_selector(
+    async def extract_visual_anchors(
         self, 
-        url: str, 
-        target_description: str
-    ) -> List[Dict[str, Any]]:
+        url: str
+    ) -> List[str]:
         """
-        Generate CSS selectors for a described element.
+        Extract visual anchors (faculty names) from a page.
         
         Args:
             url: Page URL
-            target_description: What to select (e.g., "Next button", "Faculty name")
             
         Returns:
-            List of {selector, confidence} dicts
+            List of names found in the screenshot
         """
         screenshot = await self.capture_screenshot(url)
         if screenshot is None:
@@ -881,11 +858,10 @@ class VisionPageAnalyzer:
         if image_b64 is None:
             return []
         
-        prompt = CSS_SELECTOR_PROMPT.format(target_description=target_description)
-        result = await self._call_vision_api(image_b64, prompt)
+        result = await self._call_vision_api(image_b64, VISUAL_ANCHORS_PROMPT)
         
-        if result and "selectors" in result:
-            return result["selectors"]
+        if result and "sample_names" in result:
+            return result["sample_names"]
         
         return []
 
