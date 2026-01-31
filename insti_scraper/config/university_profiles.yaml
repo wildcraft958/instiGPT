@@ -1,80 +1,59 @@
-# University Profiles Configuration
-# 
-# This file contains custom configurations for universities that need
-# special handling (specific selectors, known faculty URLs, etc.)
-#
-# Structure:
-#   domain_pattern: Regex to match university domains
-#   name: Human-readable name
-#   faculty_urls: Known faculty page URLs (bypasses discovery)
-#   selectors: Custom CSS selectors for extraction
-#   pagination: Pagination configuration overrides
-
 profiles:
-
-  # Princeton University
-  - domain_pattern: "princeton\\.edu"
-    name: "Princeton University"
-    faculty_urls:
-      - "https://www.princeton.edu/meet-princeton/people"
-      - "https://cs.princeton.edu/people/faculty"
-      - "https://ece.princeton.edu/people/faculty"
-      - "https://mae.princeton.edu/people/faculty"
-    selectors:
-      container: ".people-list, .faculty-list, .views-row"
-      name: ".field-name-title a, h3 a, .people-name"
-      title: ".field-name-field-title, .position, .people-title"
-      email: "a[href^='mailto:']"
-      profile_link: ".field-name-title a, h3 a"
-    pagination:
-      type: "click"
-      max_pages: 10
-
-  # MIT
-  - domain_pattern: "mit\\.edu"
-    name: "Massachusetts Institute of Technology"
-    faculty_urls:
-      - "https://www.eecs.mit.edu/people/faculty-advisors"
-      - "https://meche.mit.edu/people"
-    selectors:
-      container: ".person-card, .profile-item"
-      name: ".card-title, .name"
-      title: ".card-subtitle, .title"
-    pagination:
-      type: "infinite_scroll"
-      scroll_pause: 2.0
-
-  # Stanford
-  - domain_pattern: "stanford\\.edu"
-    name: "Stanford University"
-    faculty_urls:
-      - "https://profiles.stanford.edu/browse/all"
-    selectors:
-      container: ".profile-item"
-    pagination:
-      type: "alpha"
-
-  # IIT Pattern (most Indian IITs)
-  - domain_pattern: "iit[a-z]+\\.ac\\.in"
-    name: "Indian Institute of Technology"
-    discovery_hints:
-      - "/people/"
-      - "/faculty/"
-      - "faclistbydepartment"
-    selectors:
-      container: "table.faclist tr, .faculty-card"
-      name: "td:first-child a, .faculty-name"
-      email: "td a[href^='mailto:']"
-    pagination:
-      type: "datatable"
-      items_per_page: 25
-
-  # Generic University Pattern
-  - domain_pattern: ".*\\.edu$"
-    name: "Generic US University"
-    discovery_hints:
-      - "/people/"
-      - "/faculty/"
-      - "/directory/"
-    selectors: null  # Use auto-detection
-    pagination: null  # Use auto-detection
+- domain_pattern: princeton\.edu
+  name: Princeton University
+  faculty_urls:
+  - https://www.princeton.edu/meet-princeton/people
+  - https://www.cs.princeton.edu/people/faculty
+  - https://ece.princeton.edu/people/faculty
+  - https://mae.princeton.edu/people/faculty
+  - https://cs.princeton.edu/people/faculty
+  selectors:
+    container: .people-list, .faculty-list, .views-row
+    name: .field-name-title a, h3 a, .people-name
+    title: .field-name-field-title, .position, .people-title
+    email: a[href^='mailto:']
+    profile_link: .field-name-title a, h3 a
+  pagination:
+    type: click
+    max_pages: 10
+- domain_pattern: mit\.edu
+  name: Massachusetts Institute of Technology
+  faculty_urls:
+  - https://www.eecs.mit.edu/people/faculty-advisors
+  - https://meche.mit.edu/people
+  selectors:
+    container: .person-card, .profile-item
+    name: .card-title, .name
+    title: .card-subtitle, .title
+  pagination:
+    type: infinite_scroll
+    scroll_pause: 2.0
+- domain_pattern: stanford\.edu
+  name: Stanford University
+  faculty_urls:
+  - https://profiles.stanford.edu/browse/all
+  selectors:
+    container: .profile-item
+  pagination:
+    type: alpha
+- domain_pattern: iit[a-z]+\.ac\.in
+  name: Indian Institute of Technology
+  discovery_hints:
+  - /people/
+  - /faculty/
+  - faclistbydepartment
+  selectors:
+    container: table.faclist tr, .faculty-card
+    name: td:first-child a, .faculty-name
+    email: td a[href^='mailto:']
+  pagination:
+    type: datatable
+    items_per_page: 25
+- domain_pattern: .*\.edu$
+  name: Generic US University
+  discovery_hints:
+  - /people/
+  - /faculty/
+  - /directory/
+  selectors: null
+  pagination: null

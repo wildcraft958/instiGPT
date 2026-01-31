@@ -161,12 +161,12 @@ class FallbackExtractor:
         self.strategies.append(strategy)
         self.strategies.sort(key=lambda s: s.priority)
     
-    def extract(self, html: str) -> tuple[List[Dict], str]:
+    def extract(self, html: str) -> tuple[List[Dict], Optional['SelectorStrategy']]:
         """
         Try all strategies and return first successful result.
         
         Returns:
-            Tuple of (results, strategy_name)
+            Tuple of (results, strategy_object)
         """
         soup = BeautifulSoup(html, 'html.parser')
         
@@ -176,20 +176,20 @@ class FallbackExtractor:
                 
                 if len(results) >= strategy.min_results:
                     logger.info(f"   [Selector] Strategy '{strategy.name}' found {len(results)} items")
-                    return results, strategy.name
+                    return results, strategy
                     
             except Exception as e:
                 logger.debug(f"   Strategy '{strategy.name}' failed: {e}")
                 continue
         
         logger.warning("   [Selector] All strategies failed, falling back to LLM")
-        return [], "none"
+        return [], None
     
     def extract_with_validation(
         self, 
         html: str, 
         validator: Callable[[Dict], bool] = None
-    ) -> tuple[List[Dict], str]:
+    ) -> tuple[List[Dict], Optional['SelectorStrategy']]:
         """
         Extract with optional validation function.
         
@@ -198,7 +198,7 @@ class FallbackExtractor:
             validator: Function to validate each extracted item
             
         Returns:
-            Tuple of (valid_results, strategy_name)
+            Tuple of (valid_results, strategy_object)
         """
         results, strategy = self.extract(html)
         

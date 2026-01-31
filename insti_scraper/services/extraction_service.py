@@ -143,22 +143,81 @@ class ExtractionService:
             if result.pagination_type not in ("unknown", "none"):
                 vision_context += f"PAGINATION_TYPE: {result.pagination_type}, ESTIMATED_PAGES: {result.max_pages_needed}\n"
 
-        # Smart Prompting: Explicitly filter out navigation links
+        # 2. Try CSS Selector Extraction First (Fast Path)
+        from insti_scraper.core.selector_strategies import create_extractor_with_overrides
+        from bs4 import BeautifulSoup
+        
+        logger.info("      [Extraction] Step 1: CSS selectors...")
+        extractor = create_extractor_with_overrides(url)
+        # Now returns (results, strategy_object)
+        css_results, strategy = extractor.extract(html_content)
+        
+        if css_results and len(css_results) >= 3:  # At least 3 faculty
+            logger.info(f"      ✅ CSS success ({strategy.name}): {len(css_results)} faculty")
+            
+            # Learn: Update profile with working selectors if applicable
+            try:
+                from insti_scraper.config.profile_updater import profile_updater
+                from insti_scraper.config import get_university_profile
+                
+                profile = get_university_profile(url)
+                if profile:
+                    profile_updater.update_profile_selectors(profile.domain_pattern, strategy)
+                    profile_updater.add_faculty_url(profile.domain_pattern, url)
+            except Exception as e:
+                logger.warning(f"      ⚠️ Failed to update profile config: {e}")
+            
+            # Infer department from page
+            soup = BeautifulSoup(html_content, 'html.parser')
+            dept_name = "General"
+            title = soup.find('title')
+            if title:
+                dept_name = self._infer_department_from_text(title.get_text())
+            
+            professors = []
+            for item in css_results:
+                if not item.get('name'):
+                    continue
+                prof = Professor(
+                    name=item['name'],
+                    title=item.get('title', ''),
+                    email=item.get('email'),
+                    profile_url=item.get('profile_url') or item.get('link'),
+                    research_interests=item.get('research_interests', [])
+                )
+                professors.append(prof)
+            
+            return professors, dept_name
+        else:
+            logger.info(f"      ⚠️ CSS: {len(css_results)} results, trying LLM")
+
+        # 3. LLM Fallback - Convert to Markdown (cleaner + smaller)
+        logger.info("      [Extraction] Step 2: Converting to markdown...")
+        from markdownify import markdownify as md
+        
+        markdown_content = md(html_content, heading_style="ATX", strip=['script', 'style', 'nav', 'footer'])
+        markdown_content = markdown_content[:200000]  # ~200k chars for GPT-4
+        
+        logger.info(f"      [Extraction] Markdown size: {len(markdown_content)} chars")
+
         user_prompt = f"""Extract ALL ACADEMIC FACULTY from this page: {url}
         
         {vision_context}
-        HTML Content:
-        {html_content[:60000]} # Limit context window
+        PAGE CONTENT (Markdown):
+        {markdown_content}
         
         CRITICAL INSTRUCTIONS:
-        1. **Department Context**: Analyze the page title/header to infer the specific Department Name (e.g., "Computer Science", "Electrical Engineering"). Return this as top-level key 'department_name'.
-        2. **Rich Data**: For each faculty member, extract:
-           - publications: A short string summary (e.g. "Top papers in AI/ML") or list of top papers.
-           - research_interests: List of strings.
-           - education: String detail (e.g. "PhD from MIT").
-        3. **Filtering**: IGNORE Admin/Staff/Students.
+        1. **Department Context**: Infer department name from headers/title. Return as 'department_name'.
+        2. **Extract ALL faculty**: Process entire page, don't stop early.
+        3. **Rich Data**: For each faculty:
+           - name (required)
+           - title (e.g. "Professor")
+           - email (if available)
+           - profile_url (link to their page)
+           - research_interests (list)
+        4. **Filtering**: IGNORE Admin/Staff/Students.
         
-        Return JSON object with keys: "department_name", "faculty" (list of objects)."""
+        Return JSON: {{"department_name": "...", "faculty": [...]}}"""
 
         
         # Check if we are forced to local model due to previous rate limits
@@ -219,6 +278,19 @@ class ExtractionService:
                 profiles_list = raw_data if isinstance(raw_data, list) else []
             
             logger.info(f"      [DEBUG] Inferred Department: {department_name}")
+            logger.info(f"      [DEBUG] Raw extracted count: {len(profiles_list)}")
+            
+            # Learn: If LLM found faculty, this is a valid faculty URL
+            if len(profiles_list) >= 3:
+                try:
+                    from insti_scraper.config.profile_updater import profile_updater
+                    from insti_scraper.config import get_university_profile
+                    
+                    profile = get_university_profile(url)
+                    if profile:
+                        profile_updater.add_faculty_url(profile.domain_pattern, url)
+                except Exception as e:
+                    logger.warning(f"      ⚠️ Failed to update profile URL: {e}")
             logger.info(f"      [DEBUG] Raw extracted count: {len(profiles_list)}")
             
             valid_professors = []
