@@ -152,3 +152,40 @@ AGGRESSIVE_RETRY_CONFIG = RetryConfig(
     max_delay=60.0,
     exponential_factor=2.0
 )
+
+# LLM-specific retry config (handles rate limits gracefully)
+def get_llm_retry_config():
+    """Get retry config for LLM API calls with proper exception types."""
+    try:
+        from litellm.exceptions import RateLimitError, APIConnectionError, APIError, Timeout
+        return RetryConfig(
+            max_attempts=5,
+            base_delay=5.0,  # Start slower for rate limits
+            max_delay=120.0,  # Allow longer waits for rate limits
+            exponential_factor=2.5,
+            retry_exceptions=(
+                RateLimitError,
+                APIConnectionError,
+                APIError,
+                Timeout,
+                TimeoutError,
+                ConnectionError,
+            )
+        )
+    except ImportError:
+        return AGGRESSIVE_RETRY_CONFIG
+
+LLM_RETRY_CONFIG = get_llm_retry_config()
+
+# Crawler-specific retry config
+CRAWLER_RETRY_CONFIG = RetryConfig(
+    max_attempts=3,
+    base_delay=3.0,
+    max_delay=15.0,
+    exponential_factor=2.0,
+    retry_exceptions=(
+        TimeoutError,
+        ConnectionError,
+        asyncio.TimeoutError,
+    )
+)

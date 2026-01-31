@@ -89,6 +89,10 @@ async def run_scrape_flow(url: str, enrich: bool = True):
                     # Extraction Service now handles the content parsing + vision analysis
                     professors, extracted_dept_name = await extraction_service.extract_with_fallback(page.url, result.html)
                     
+                    # Handle None case (extraction returned nothing)
+                    if extracted_dept_name is None:
+                        extracted_dept_name = "General"
+                    
                     # Handle special status codes from vision analysis
                     if extracted_dept_name.startswith("BLOCKED:"):
                         block_type = extracted_dept_name.split(":")[1]
@@ -167,6 +171,78 @@ async def run_scrape_flow(url: str, enrich: bool = True):
                         console.print(f"      ⚪ {page.url}: No profiles found (filtered/empty)")
                 
                 progress.advance(task_id)
+
+        # 2.5 Process Gateway Pages (if any were detected)
+        if gateway_pages:
+            task_id = progress.add_task(f"[yellow]📂 Phase 2.5: Processing {len(gateway_pages)} gateway pages...", total=len(gateway_pages))
+            
+            for gateway_url in gateway_pages:
+                progress.update(task_id, description=f"[yellow]Crawling gateway: {gateway_url}...")
+                
+                try:
+                    # Fetch gateway page and extract department links
+                    result = await crawler.arun(gateway_url)
+                    if not result.success:
+                        continue
+                    
+                    # Use GatewayPageHandler to extract department links
+                    from insti_scraper.handlers import GatewayPageHandler
+                    handler = GatewayPageHandler()
+                    gateway_result = await handler.extract(gateway_url, result.html)
+                    
+                    # Process each department link found
+                    for dept_url in gateway_result.next_pages[:10]:  # Limit to 10 depts
+                        if dept_url.startswith('/'):
+                            from urllib.parse import urljoin
+                            dept_url = urljoin(gateway_url, dept_url)
+                        
+                        if dept_url in self._seen_urls if hasattr(self, '_seen_urls') else False:
+                            continue
+                        
+                        console.print(f"      🔗 Processing department: {dept_url}")
+                        
+                        dept_result = await crawler.arun(dept_url)
+                        if dept_result.success:
+                            professors, dept_name = await extraction_service.extract_with_fallback(
+                                dept_url, dept_result.html, skip_vision=True
+                            )
+                            
+                            if professors:
+                                console.print(f"         📄 Found {len(professors)} in {dept_name}")
+                                
+                                # Persist to DB
+                                with Session(engine) as session:
+                                    uni_name = discoverer._extract_university_name(url)
+                                    uni = session.exec(select(University).where(University.name == uni_name)).first()
+                                    if uni:
+                                        dept = session.exec(select(Department).where(
+                                            Department.name == dept_name, 
+                                            Department.university_id == uni.id
+                                        )).first()
+                                        if not dept:
+                                            dept = Department(name=dept_name, university_id=uni.id, url=dept_url)
+                                            session.add(dept)
+                                            session.commit()
+                                            session.refresh(dept)
+                                        
+                                        for prof in professors:
+                                            existing = session.exec(
+                                                select(Professor).where(Professor.name == prof.name, Professor.department_id == dept.id)
+                                            ).first()
+                                            if not existing:
+                                                prof.department_id = dept.id
+                                                session.add(prof)
+                                                count_new += 1
+                                        session.commit()
+                        
+                        await rate_limiter.wait_if_needed(dept_url)
+                    
+                except Exception as e:
+                    logger.error(f"   ❌ Gateway processing error: {e}")
+                
+                progress.advance(task_id)
+            
+            console.print(f"   ✅ Gateway processing complete - added {count_new} more profiles")
 
         # 3. Persistence Phase (NOW HANDLED INCREMENTALLY ABOVE)
         # We keep this block just for the final log message

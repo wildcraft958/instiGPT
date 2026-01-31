@@ -252,9 +252,6 @@ class ExtractionService:
             
         except json.JSONDecodeError:
             return [], "General"
-            
-        except json.JSONDecodeError:
-            return []
 
     def _is_garbage_link(self, text: str) -> bool:
         """Returns True if the text looks like a navigation link or noise."""

@@ -31,7 +31,7 @@ class Settings:
     
     # Cost-saving defaults
     CACHE_ENABLED = True
-    PREFER_LOCAL_MODELS = True
+    PREFER_LOCAL_MODELS = False  # Set to True if running Ollama locally
     
     @staticmethod
     def setup_logging():
