@@ -136,6 +136,28 @@ class FacultyPageDiscoverer:
         result = DiscoveryResult()
         self._seen_urls.clear()
         
+        # Tier 0: Check for known university profile (fastest)
+        try:
+            from insti_scraper.config import get_university_profile
+            profile = get_university_profile(start_url)
+            if profile and profile.faculty_urls:
+                logger.info(f"   📋 Found {profile.name} profile with {len(profile.faculty_urls)} known URLs")
+                for url in profile.faculty_urls:
+                    result.pages.append(DiscoveredPage(
+                        url=url,
+                        score=1.0,
+                        page_type="directory",
+                        source="profile"
+                    ))
+                    self._seen_urls.add(url)
+                result.discovery_method = "profile"
+                
+                # If profile has enough URLs, skip other discovery
+                if len(profile.faculty_urls) >= 3:
+                    return result
+        except ImportError:
+            logger.debug("Profile loader not available")
+        
         # Tier 1: DuckDuckGo search (PRIMARY for 'search' and 'auto' modes)
         if mode in ("search", "auto"):
             try:
