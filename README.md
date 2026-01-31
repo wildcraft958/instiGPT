@@ -1,147 +1,271 @@
-# InstiGPT Faculty Scraper
+# Insti-Scraper Professional
 
-**AI-powered universal faculty data scraper** that extracts professor profiles from any university website and enriches them with Google Scholar metrics.
+**The High-Performance, Agentic Faculty Data Extraction Engine**
 
-## 🚀 Key Features
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- **🔍 Universal Auto-Discovery**: Auto-detects faculty pages via sitemap, DuckDuckGo search, or deep crawling
-- **📸 Vision Analysis**: Uses GPT-4o-mini to classify pages (directory, gateway, profile, blocked)
-- **⚡ Multi-Fallback Extraction**: CSS selectors → LLM extraction → Pagination handling
-- **🎓 Google Scholar Linking**: Enriches profiles with H-Index, citations, top papers
-- **🛡️ Block Detection**: Detects CAPTCHA, Cloudflare, login walls automatically
-- **📋 University Profiles**: Pre-configured URLs/selectors for Princeton, MIT, Stanford, IITs
-- **📦 Batch Processing**: Process hundreds of universities from an Excel sheet
+Insti-Scraper is an advanced, autonomous scraping system designed to extract high-fidelity professor profiles from university websites. Unlike traditional regex-based scrapers, it uses **Multimodal LLMs (Vision Anchors)** to "see" and understand page structures, allowing it to navigate complex, modern web applications (React, Angular, DataTables) that standard tools miss.
 
-## 🛠️ Installation
+---
 
-Prerequisites: `python >= 3.10`, `uv` (recommended).
+## 🌟 Core Capabilities
 
-```bash
-# 1. Create and activate virtual environment
-uv venv .venv
-source .venv/bin/activate
+### 🧠 Agentic Discovery
+- **Auto-Detection**: Give it a university home page (e.g., `mit.edu`), and it autonomously finds the faculty directory.
+- **Smart Filtering**: Distinguishes between *actual* faculty lists and "news" or "events" pages using semantic analysis.
 
-# 2. Install dependencies (editable mode recommended for dev)
-uv pip install -e .
+### 👀 Vision Anchors (The "Secret Sauce")
+- **Lazy Evaluation Architecture**: To minimize costs, Vision APIs (GPT-4o) are only triggered when standard methods fail.
+    - **Visual Discovery**: Visually confirms ambiguous pages ("Is this a directory or a blog post?").
+    - **Visual Pagination**: Finds non-standard "Next" buttons (icons, lazy-loaded divs) that lack HTML attributes.
+    - **Visual Extraction**: Reverse-engineers CSS selectors by identifying visual patterns of names on the page.
 
-# 3. Setup browser for Crawl4AI
-python -m playwright install chromium
+### 🛡️ Robust Extraction
+- **Garbage Filtering**: Automatically removes staff, admins, and students to keep the dataset clean.
+- **Rich Data**: Extracts Name, Title, Email, Profile URL, Research Interests, and Publications.
+- **Enrichment**: (Optional) Cross-references data with Google Scholar for H-Index and Citation counts.
+
+---
+
+## 🛠️ Architecture Overview
+
+```mermaid
+graph TD
+    A[Start: University URL] --> B{Discovery Agent}
+    B -->|Fast Path| B1[Sitemap/Keywords]
+    B -->|Ambiguous Path| B2[Vision Anchor Verification]
+    B1 --> C[Candidate Directories]
+    B2 --> C
+    
+    C --> D{Extraction Agent}
+    D --> E[Pagination Handler]
+    E -->|Rel='next'| E1[Standard Click]
+    E -->|Vision Fallback| E2[Visual Anchor Click]
+    
+    E1 & E2 --> F[Page Content]
+    F --> G[LLM Extraction]
+    G --> H[(Database)]
+    H --> I[Enrichment Agent]
 ```
 
-## ⚙️ Configuration
+> **Note**: An editable version of this diagram is available at `docs/architecture.drawio` (VS Code Draw.io Extension compatible).
 
-Create a `.env` file or export environment variables:
+---
 
-### Option A: OpenAI (Recommended)
+## 🚀 Installation
+
+> [!TIP]
+> **New to coding?** Read our [Simplified User Guide](file:///home/bakasur/Downloads/instiGPT/USER_GUIDE.md) for a step-by-step walkthrough.
+
+### Prerequisites
+- Python 3.10+
+- `uv` (recommended) or `pip`
+- Standard unix tools (Linux/macOS)
+
+### Setup
+
+1.  **Clone Request**:
+    ```bash
+    git clone https://github.com/your-repo/instigpt.git
+    cd insti-scraper
+    ```
+
+2.  **Install & Setup**:
+    ```bash
+    make install
+    ```
+
+3.  **Environment Configuration**:
+    Create a `.env` file in the root directory:
+    ```ini
+    # Required: For Vision and Extraction APIs
+    OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxx
+
+    # Optional: For local LLM inference
+    # OLLAMA_BASE_URL=http://localhost:11434
+    
+    # Optional: Database path
+    DATABASE_URL=sqlite:///faculty.db
+    ```
+
+---
+
+## 📖 CLI Reference
+
+The application can be run via `make` (recommended) or the unified CLI endpoint: `python -m insti_scraper`
+
+### Quick Start with Makefile
+| Command | Description |
+|:---|:---|
+| `make install` | Install all dependencies |
+| `make run URL=...` | Scrape a university (Auto-Discover) |
+| `make direct URL=...` | Scrape a specific list directly |
+| `make discover URL=...` | Discovery Only (debug links) |
+| `make list` | View current data |
+| `make csv [FILE=...]` | Export to CSV |
+| `make test` | Run all tests |
+
+---
+
+### 1. `scrape` - The Main Engine
+Scrape a single university or specific department.
+
 ```bash
-export OPENAI_API_KEY="sk-..."
+python -m insti_scraper scrape [URL] [OPTIONS]
 ```
 
-### Option B: Ollama (Free/Local)
-```bash
-ollama serve
-ollama pull llama3.1:8b
+**Arguments:**
+| Argument | Description | Default |
+|:---|:---|:---|
+| `url` | Target URL (University Homepage or Faculty List) | Required |
+| `--no-enrich` | Skip Google Scholar enrichment step | False |
+| `--direct`, `-d` | **Direct Mode**: Treat URL as the final directory. Skips discovery phase. | False |
 
-export OLLAMA_BASE_URL="http://localhost:11434"
+**Example:**
+```bash
+# Auto-discover from homepage
+python -m insti_scraper scrape "https://www.stanford.edu"
+
+# Scrape a specific known list directly
+python -m insti_scraper scrape "https://cs.stanford.edu/people/faculty" --direct
 ```
 
-## 📖 Usage
+### 2. `discover` - Discovery Only
+Run *only* the discovery phase to find potential directory URLs without scraping them. Useful for debugging or building a seed list.
 
-### 1. Scrape a University
 ```bash
-# Basic scrape with enrichment
-python -m insti_scraper scrape "https://princeton.edu"
-
-# Skip Google Scholar enrichment (faster)
-python -m insti_scraper scrape "https://mit.edu" --no-enrich
+python -m insti_scraper discover [URL] [OPTIONS]
 ```
 
-### 2. Discover Faculty Pages Only
+**Options:**
+- `--mode`: Strategy to use.
+    - `auto` (Default): Hybrid approach (Keywords -> Sitemap -> Vision).
+    - `sitemap`: Only check sitemap.xml.
+    - `deep`: Deep crawl with domain filtering.
+    - `search`: Use DuckDuckGo to search for "University Name Faculty".
+
+**Example:**
 ```bash
-python -m insti_scraper discover "https://stanford.edu"
+python -m insti_scraper discover "https://www.mit.edu" --mode auto
 ```
 
-### 3. Batch Process from Excel
+### 3. `batch` - Production Processing
+Process thousands of universities from an Excel sheet.
+
 ```bash
-python -m insti_scraper batch universities.xlsx --output ./results
+python -m insti_scraper batch [EXCEL_FILE] [OPTIONS]
 ```
 
-### 4. List Database Content
+**Arguments:**
+- `excel`: Path to `{university, url}` excel file.
+- `--output`: Directory to save results.
+- `--limit`: Max number of universities to process (for testing).
+
+### 4. `list` - View Data
+View the currently scraped data in the database.
+
 ```bash
 python -m insti_scraper list
 ```
 
-## 🏗️ Architecture
+### 5. `csv` - Export Data
+Export the SQLite database to a CSV file for analysis.
 
+```bash
+python -m insti_scraper csv --output results/faculty_2026.csv
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         DISCOVERY PHASE                         │
-├─────────────────────────────────────────────────────────────────┤
-│  1. Check University Profiles (YAML config)                     │
-│  2. DuckDuckGo Search (site:domain + faculty keywords)          │
-│  3. Sitemap Parsing                                             │
-│  4. Deep Crawling (BFS with keyword scoring)                    │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        EXTRACTION PHASE                         │
-├─────────────────────────────────────────────────────────────────┤
-│  1. Vision Analysis: Classify page type (A-F, Z)                │
-│     - Type A: Full directory → Extract directly                 │
-│     - Type C: Gateway → Crawl department links                  │
-│     - Type D: Paginated → Use pagination handler                │
-│     - Type F: Individual → Skip or extract single               │
-│  2. Multi-Fallback Selectors: DataTables, Cards, Grids          │
-│  3. LLM Extraction: GPT-4o for complex layouts                  │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                       ENRICHMENT PHASE                          │
-├─────────────────────────────────────────────────────────────────┤
-│  Google Scholar → H-Index, Citations, Top Papers                │
-└─────────────────────────────────────────────────────────────────┘
-```
+
+---
 
 ## 📂 Project Structure
 
-```
+```text
 insti_scraper/
-├── config/                   # University profiles & config
-│   ├── university_profiles.yaml
-│   └── profile_loader.py
-├── core/                     # Core utilities
-│   ├── config.py             # Settings
-│   ├── retry_wrapper.py      # Exponential backoff
-│   ├── selector_strategies.py # Multi-fallback CSS
-│   └── auto_config.py        # Pagination detection
-├── discovery/                # Page discovery
-│   ├── discovery.py          # FacultyPageDiscoverer
-│   └── duckduckgo_discovery.py
-├── handlers/                 # Page type handlers
-│   ├── page_handlers.py      # Abstract handlers
-│   └── pagination_handler.py
-├── services/                 # Business logic
-│   ├── extraction_service.py # LLM extraction
-│   ├── enrichment_service.py # Scholar enrichment
-│   └── vision_analyzer.py    # Screenshot analysis
-├── domain/                   # Data models
-│   └── models.py             # University, Dept, Professor
-├── database/                 # Persistence
-│   └── crud.py
-└── main.py                   # CLI entrypoint
+├── engine/              # Core Scraping Logic
+│   ├── discovery.py     # Faculty Discovery Agent
+│   ├── page_handlers.py # Page-type specialized logic
+│   └── pagination.py    # Standard & Vision pagination
+├── data/                # Data Persistence
+│   ├── models.py        # SQLModels for Prof/Dept/Uni
+│   └── database.py      # SQLite/SQLAlchemy setup
+├── core/                # System Utilities
+│   ├── selector_gen.py  # Visual Anchor reverse-engineering
+│   ├── auto_config.py   # Page analysis & meta-detection
+│   └── rate_limiter.py  # Polite scraping logic
+├── services/            # High-level API Services
+│   ├── extraction.py    # LLM-augmented data mining
+│   └── enrichment.py    # Google Scholar integration
+└── main.py              # CLI Entrypoint
 ```
 
-## 🧪 Running Tests
+---
 
-```bash
-# Run all tests
-pytest tests/ -v
+You can import core components to build custom pipelines.
 
-# Run integration tests only
-pytest tests/test_integration.py -v
+```python
+import asyncio
+from insti_scraper.engine.discovery import FacultyPageDiscoverer
+from insti_scraper.services.extraction_service import ExtractionService
+
+async def custom_pipeline():
+    # 1. Discover
+    discoverer = FacultyPageDiscoverer()
+    result = await discoverer.discover("https://www.yale.edu")
+    
+    # 2. Extract
+    service = ExtractionService()
+    for page in result.faculty_pages:
+        # Use Vision-augmented extraction
+        profs, dept = await service.extract_with_fallback(page.url, html_content)
+        print(f"Found {len(profs)} in {dept}")
+
+if __name__ == "__main__":
+    asyncio.run(custom_pipeline())
 ```
 
-## 📄 License
-MIT
+---
+
+## 📊 Output Data Schema
+
+The system extracts the following fields for every profile:
+
+```json
+{
+  "name": "Dr. Jane Doe",
+  "title": "Associate Professor",
+  "email": "jane.doe@univ.edu",
+  "profile_url": "https://univ.edu/faculty/jane-doe",
+  "website_url": "https://univ.edu",
+  "department": "Computer Science",
+  "research_interests": ["Machine Learning", "Computer Vision"],
+  "h_index": 45,            // Enriched
+  "total_citations": 3420,  // Enriched
+  "publication_summary": "..."
+}
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Vision Rejection (`❌ Vision rejected`)
+If discovery keeps rejecting a valid URL:
+1.  The page might look "sparse" (no photos).
+2.  **Fix**: Use `make direct URL=...` to force the scraper to accept the URL.
+
+### No faculty found
+If the scraper finds nothing:
+1.  Run `make discover URL=...` to see all potential links found.
+2.  If you see a valid list in the terminal, copy it and run `make direct URL=[THAT_LINK]`.
+
+### Rate Limits
+If you see `429 Too Many Requests`:
+1.  The `RateLimiter` ensures polite scraping.
+2.  Increase delays in `insti_scraper/core/rate_limiter.py`.
+
+---
+
+## 📜 License
+
+MIT License. See `LICENSE` for details.

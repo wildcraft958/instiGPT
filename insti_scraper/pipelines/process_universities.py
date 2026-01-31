@@ -14,10 +14,39 @@ from urllib.parse import urlparse
 
 import pandas as pd
 
-from insti_scraper.orchestration.pipeline import ScrapingPipeline
-from insti_scraper.discovery.discovery import FacultyPageDiscoverer, DiscoveredPage
+from insti_scraper.engine.discovery import FacultyPageDiscoverer, DiscoveredPage
+from insti_scraper.services.extraction_service import ExtractionService
+from insti_scraper.services.enrichment_service import EnrichmentService
 from insti_scraper.core.config import settings
 from insti_scraper.core.logger import logger
+from insti_scraper.core.rate_limiter import get_rate_limiter
+from crawl4ai import AsyncWebCrawler
+
+class ScrapingPipeline:
+    def __init__(self, output_dir: str = "output_data"):
+        self.output_dir = output_dir
+        self.extraction_service = ExtractionService()
+        self.enrichment_service = EnrichmentService()
+        self.rate_limiter = get_rate_limiter()
+        # Mock list_scraper for compatibility if needed, or remove usage
+        self.list_scraper = type('obj', (object,), {'seen_urls': set()})
+
+    async def run(self, url: str) -> List[dict]:
+        """
+        Run the scraping pipeline for a single URL.
+        """
+        await self.rate_limiter.wait_if_needed(url)
+        
+        async with AsyncWebCrawler() as crawler:
+            result = await crawler.arun(url)
+            if not result.success:
+                logger.error(f"Failed to crawl {url}")
+                return []
+            
+            professors, dept_name = await self.extraction_service.extract_with_fallback(url, result.html)
+            
+            # Convert to dicts
+            return [p.dict() for p in professors]
 
 
 def analyze_url_quality(url: str) -> Tuple[str, str]:
