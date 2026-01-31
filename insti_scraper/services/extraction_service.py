@@ -189,7 +189,74 @@ class ExtractionService:
             
             return professors, dept_name
         else:
-            logger.info(f"      ⚠️ CSS: {len(css_results)} results, trying LLM")
+            logger.info(f"      ⚠️ CSS: {len(css_results)} results, trying Visual Heuristic...")
+            
+            # [Step 1.5] Visual Heuristic Selector Generation
+            # If standard selectors failed, use Vision to see "Anchor Names" and reverse-engineer a selector.
+            
+            # Use the Vision result we got earlier (or fetch it now if skipped? currently main.py does vision analysis?)
+            # Wait, main.py passes `html`, not vision result. 
+            # We need to run vision analysis here if we want sample names.
+            
+            try:
+                # Import here to avoid circular dependencies
+                from insti_scraper.analyzers.vision_analyzer import VisionPageAnalyzer
+                from insti_scraper.core.selector_generator import visual_selector_generator
+                from insti_scraper.config.profile_updater import profile_updater
+                from insti_scraper.config import get_university_profile
+                
+                # Check if we have sample names from previous Vision pass (if passed in context?)
+                # Actually, main.py -> extract_with_fallback doesn't accept vision result object.
+                # Let's run a quick vision analysis specifically for names if not already robust
+                
+                analyzer = VisionPageAnalyzer()
+                # Run lightweight analysis just for names? The full analysis covers it.
+                logger.info("      [Visual] Capturing screenshot to find visual anchors...")
+                vision_result = await analyzer.analyze(url)
+                
+                if vision_result and vision_result.sample_names:
+                    logger.info(f"      [Visual] Found anchors: {vision_result.sample_names}")
+                    
+                    # Generate Selector
+                    generated_strategy = visual_selector_generator.generate_from_names(html_content, vision_result.sample_names)
+                    
+                    if generated_strategy:
+                        # Try extracting with new strategy
+                        gen_results = generated_strategy.extract(BeautifulSoup(html_content, 'html.parser'))
+                        
+                        if len(gen_results) >= 3:
+                            logger.info(f"      ✅ Visual Heuristic Success! Found {len(gen_results)} faculty")
+                            
+                            # Save this new strategy to Config!
+                            profile = get_university_profile(url)
+                            if profile:
+                                profile_updater.update_profile_selectors(profile.domain_pattern, generated_strategy)
+                                profile_updater.add_faculty_url(profile.domain_pattern, url)
+                                logger.info(f"      💾 Learned new selectors for {profile.name}")
+                            
+                            # Return results
+                            professors = []
+                            for item in gen_results:
+                                if not item.get('name'): continue
+                                professors.append(Professor(
+                                    name=item['name'],
+                                    title=item.get('title', ''),
+                                    email=item.get('email'),
+                                    profile_url=item.get('profile_url') or item.get('link'),
+                                    research_interests=[]
+                                ))
+                            return professors, "General" # TODO: Infer dept
+                        else:
+                            logger.warning(f"      ⚠️ Generated selector '{generated_strategy.container}' found only {len(gen_results)} items. ignoring.")
+                    else:
+                        logger.warning("      ⚠️ Could not generate valid selector from anchors.")
+                else:
+                    logger.warning("      ⚠️ No visual anchors found.")
+                    
+            except Exception as e:
+                logger.error(f"      ❌ Visual extraction failed: {e}")
+            
+            logger.info("      [Fallback] Proceeding to deep LLM extraction...")
 
         # 3. LLM Fallback - Convert to Markdown (cleaner + smaller)
         logger.info("      [Extraction] Step 2: Converting to markdown...")

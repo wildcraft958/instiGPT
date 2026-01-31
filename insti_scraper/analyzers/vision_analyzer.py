@@ -108,6 +108,9 @@ class VisualAnalysisResult:
     detected_patterns: List[str] = field(default_factory=list)
     language_detected: str = "en"
     
+    # [NEW] Visual Anchors for Selector Generation
+    sample_names: List[str] = field(default_factory=list)
+    
     def to_pagination_info(self) -> PaginationInfo:
         """Convert to PaginationInfo for compatibility."""
         return PaginationInfo(
@@ -195,6 +198,12 @@ For faculty/people listings, identify:
 ### 7. LANGUAGE
 What is the primary language of content?
 
+### 8. VISUAL ANCHORS (New!)
+Identify 3-4 distinct faculty/person names visible in the screenshot.
+- Choose names that look like they are part of the main list/grid.
+- Avoid header/footer links or navigation items.
+- These will be used to reverse-engineer CSS selectors.
+
 ## OUTPUT FORMAT (JSON only)
 ```json
 {
@@ -235,7 +244,8 @@ What is the primary language of content?
   },
   "language": "en|hi|zh|ar|etc",
   "confidence": 0.85,
-  "patterns": ["list of visual observations"]
+  "patterns": ["list of visual observations"],
+  "sample_names": ["Name 1", "Name 2", "Name 3"]
 }
 ```"""
 
@@ -554,7 +564,8 @@ class VisionPageAnalyzer:
             # Meta
             language_detected=data.get("language", "en"),
             confidence=float(data.get("confidence", 0.5)),
-            detected_patterns=data.get("patterns", [])
+            detected_patterns=data.get("patterns", []),
+            sample_names=data.get("sample_names", [])
         )
     
     def _print_analysis_result(self, result: VisualAnalysisResult):
