@@ -4,16 +4,13 @@
 
 ## 🚀 Key Features
 
-- **🔍 Universal Auto-Discovery**: Automatically detects faculty list pages from a university homepage or sub-page.
-- **⚡ Hybrid Extraction**: Uses fast CSS selectors for speed, falling back to LLM-based extraction for complex layouts.
-- **🧠 Semantic Page Analysis**: Intelligently identifies "Faculty Directories" vs "Staff" or "News" pages.
-- **🎓 Google Scholar Linking**: **[NEW]** Automatically searches and links faculty to their Google Scholar profiles to fetch:
-  - H-Index
-  - Total Citations
-  - Top Paper Titles
-  - Research Interests
-- **🛠️ LLM Agnostic**: Supports **OpenAI (GPT-4o)** for quality or **Ollama** for free local inference.
-- **📦 Batch Processing**: Process hundreds of universities from an Excel sheet.
+- **🔍 Universal Auto-Discovery**: Auto-detects faculty pages via sitemap, DuckDuckGo search, or deep crawling
+- **📸 Vision Analysis**: Uses GPT-4o-mini to classify pages (directory, gateway, profile, blocked)
+- **⚡ Multi-Fallback Extraction**: CSS selectors → LLM extraction → Pagination handling
+- **🎓 Google Scholar Linking**: Enriches profiles with H-Index, citations, top papers
+- **🛡️ Block Detection**: Detects CAPTCHA, Cloudflare, login walls automatically
+- **📋 University Profiles**: Pre-configured URLs/selectors for Princeton, MIT, Stanford, IITs
+- **📦 Batch Processing**: Process hundreds of universities from an Excel sheet
 
 ## 🛠️ Installation
 
@@ -35,65 +32,115 @@ python -m playwright install chromium
 
 Create a `.env` file or export environment variables:
 
-### Option A: OpenAI (High Quality)
+### Option A: OpenAI (Recommended)
 ```bash
 export OPENAI_API_KEY="sk-..."
 ```
 
 ### Option B: Ollama (Free/Local)
 ```bash
-# Start Ollama server first
-ollama run llama3.1:8b
+ollama serve
+ollama pull llama3.1:8b
 
 export OLLAMA_BASE_URL="http://localhost:11434"
-# The scraper will automatically detect this and switch to local models
 ```
 
 ## 📖 Usage
 
 ### 1. Scrape a University
-Auto-discover and extract faculty profiles from a given URL.
-
 ```bash
-# Basic Scrape (Auto-discovery enabled by default)
-uv run insti-scraper scrape "https://www.cse.iitb.ac.in"
+# Basic scrape with enrichment
+python -m insti_scraper scrape "https://princeton.edu"
 
-# Disable enrichment (skip Google Scholar)
-uv run insti-scraper scrape "https://cse.iitkgp.ac.in" --no-enrich
+# Skip Google Scholar enrichment (faster)
+python -m insti_scraper scrape "https://mit.edu" --no-enrich
 ```
 
-### 2. List Database Content
-View the extracted professors in a rich CLI table.
-
+### 2. Discover Faculty Pages Only
 ```bash
-uv run insti-scraper list
+python -m insti_scraper discover "https://stanford.edu"
+```
+
+### 3. Batch Process from Excel
+```bash
+python -m insti_scraper batch universities.xlsx --output ./results
+```
+
+### 4. List Database Content
+```bash
+python -m insti_scraper list
 ```
 
 ## 🏗️ Architecture
 
-The project now uses a **Service-Oriented Architecture** with **SQLModel** persistence.
-
-1.  **Discovery Service**: Analyzes pages to find faculty directories using Vision/LLM and Crawl4AI.
-2.  **Extraction Service**: Extracts rich profile data (Name, Dept, Interests, Papers) using LLMs.
-    - *Features*: Infer Department context, extract Publication Summaries, handle Garbage Links.
-3.  **Enrichment Service**: Enhances profiles with Google Scholar metrics (H-Index, Citations).
-4.  **Persistence**: Data is stored in a normalized `insti.db` SQLite database with correct University/Department hierarchy. Logic resides in `insti_scraper/database/`.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         DISCOVERY PHASE                         │
+├─────────────────────────────────────────────────────────────────┤
+│  1. Check University Profiles (YAML config)                     │
+│  2. DuckDuckGo Search (site:domain + faculty keywords)          │
+│  3. Sitemap Parsing                                             │
+│  4. Deep Crawling (BFS with keyword scoring)                    │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        EXTRACTION PHASE                         │
+├─────────────────────────────────────────────────────────────────┤
+│  1. Vision Analysis: Classify page type (A-F, Z)                │
+│     - Type A: Full directory → Extract directly                 │
+│     - Type C: Gateway → Crawl department links                  │
+│     - Type D: Paginated → Use pagination handler                │
+│     - Type F: Individual → Skip or extract single               │
+│  2. Multi-Fallback Selectors: DataTables, Cards, Grids          │
+│  3. LLM Extraction: GPT-4o for complex layouts                  │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       ENRICHMENT PHASE                          │
+├─────────────────────────────────────────────────────────────────┤
+│  Google Scholar → H-Index, Citations, Top Papers                │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ## 📂 Project Structure
 
-```text
-instiGPT/
-├── insti_scraper/          # Main package
-│   ├── database/           # SQLModel & Database Logic
-│   ├── domain/             # SQLModel Tables (University, Dept, Professor)
-│   ├── services/           # Business Logic
-│   │   ├── discovery_service.py   # Page Classification
-│   │   ├── extraction_service.py  # LLM Extraction
-│   │   └── enrichment_service.py  # Google Scholar (Metrics + Papers + Interests)
-│   ├── core/               # Config, Cost, Prompts
-│   └── main.py             # CLI Entrypoint
-├── tests/                  # Pytest suite
-└── logs/                   # Execution logs
+```
+insti_scraper/
+├── config/                   # University profiles & config
+│   ├── university_profiles.yaml
+│   └── profile_loader.py
+├── core/                     # Core utilities
+│   ├── config.py             # Settings
+│   ├── retry_wrapper.py      # Exponential backoff
+│   ├── selector_strategies.py # Multi-fallback CSS
+│   └── auto_config.py        # Pagination detection
+├── discovery/                # Page discovery
+│   ├── discovery.py          # FacultyPageDiscoverer
+│   └── duckduckgo_discovery.py
+├── handlers/                 # Page type handlers
+│   ├── page_handlers.py      # Abstract handlers
+│   └── pagination_handler.py
+├── services/                 # Business logic
+│   ├── extraction_service.py # LLM extraction
+│   ├── enrichment_service.py # Scholar enrichment
+│   └── vision_analyzer.py    # Screenshot analysis
+├── domain/                   # Data models
+│   └── models.py             # University, Dept, Professor
+├── database/                 # Persistence
+│   └── crud.py
+└── main.py                   # CLI entrypoint
+```
+
+## 🧪 Running Tests
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run integration tests only
+pytest tests/test_integration.py -v
 ```
 
 ## 📄 License

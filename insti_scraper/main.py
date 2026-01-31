@@ -30,11 +30,17 @@ def setup_app():
     settings.setup_logging()
     create_db_and_tables()
 
-async def run_scrape_flow(url: str, enrich: bool = True):
+async def run_scrape_flow(url: str, enrich: bool = True, direct: bool = False):
     """
     Main orchestration flow for scraping a university.
+    
+    Args:
+        url: University URL (or direct faculty page URL if direct=True)
+        enrich: Whether to enrich with Google Scholar
+        direct: If True, treat URL as faculty directory (skip discovery)
     """
-    console.print(Panel(f"[bold blue]🚀 Insti-Scraper Professional[/bold blue]\nTarget: {url}", border_style="blue"))
+    mode_label = "Direct Mode" if direct else "Auto-Discovery"
+    console.print(Panel(f"[bold blue]🚀 Insti-Scraper Professional[/bold blue]\nTarget: {url}\nMode: {mode_label}", border_style="blue"))
     
     discoverer = FacultyPageDiscoverer()
     extraction_service = ExtractionService()
@@ -46,10 +52,15 @@ async def run_scrape_flow(url: str, enrich: bool = True):
         transient=True
     ) as progress:
         
-        # 1. Discovery Phase
-        task_id = progress.add_task("[cyan]🔍 Phase 1: Discovery - Auto-detecting faculty pages...", total=None)
-        result = await discoverer.discover(url, mode="auto")
-        discovered_pages = result.faculty_pages
+        # 1. Discovery Phase (skip if direct mode)
+        if direct:
+            # Direct mode: treat URL as a faculty directory
+            console.print("   [bold green]📌 Direct Mode[/bold green] - Treating URL as faculty directory")
+            discovered_pages = [DiscoveredPage(url=url, score=100, source="direct")]
+        else:
+            task_id = progress.add_task("[cyan]🔍 Phase 1: Discovery - Auto-detecting faculty pages...", total=None)
+            result = await discoverer.discover(url, mode="auto")
+            discovered_pages = result.faculty_pages
         
         if not discovered_pages:
             progress.stop()
@@ -379,6 +390,8 @@ def main():
     scrape_parser = subparsers.add_parser("scrape", help="Scrape a university")
     scrape_parser.add_argument("url", help="University URL")
     scrape_parser.add_argument("--no-enrich", action="store_true", help="Skip Google Scholar enrichment")
+    scrape_parser.add_argument("--direct", "-d", action="store_true", 
+                               help="Treat URL as faculty directory (skip discovery)")
     
     # Discover Command (NEW)
     discover_parser = subparsers.add_parser("discover", help="Discover faculty pages from a URL")
@@ -401,7 +414,7 @@ def main():
     setup_app()
     
     if args.command == "scrape":
-        asyncio.run(run_scrape_flow(args.url, enrich=not args.no_enrich))
+        asyncio.run(run_scrape_flow(args.url, enrich=not args.no_enrich, direct=args.direct))
     elif args.command == "discover":
         asyncio.run(run_discover_flow(args.url, mode=args.mode))
     elif args.command == "batch":

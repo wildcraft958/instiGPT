@@ -72,18 +72,46 @@ class Settings:
         )
     
     @staticmethod
+    def get_model_provider() -> str:
+        """Get model provider from env: 'openai', 'ollama', or 'auto'."""
+        return os.getenv("MODEL_PROVIDER", "auto").lower()
+    
+    @staticmethod
     def get_model_for_task(task: str, prefer_local: bool = None) -> str:
         """
         Get appropriate model for a specific task.
+        
+        Respects MODEL_PROVIDER env variable:
+        - openai: Always use OpenAI
+        - ollama: Always use Ollama  
+        - auto: Use PREFER_LOCAL_MODELS setting
         """
+        provider = Settings.get_model_provider()
+        
+        # Override with explicit provider setting
+        if provider == "ollama":
+            ollama_model = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+            return f"ollama/{ollama_model}"
+        elif provider == "openai":
+            # Use task-specific models for OpenAI
+            extraction_model = os.getenv("EXTRACTION_MODEL", "openai/gpt-4o")
+            vision_model = os.getenv("VISION_MODEL", "openai/gpt-4o-mini")
+            
+            models = {
+                "detail_extraction": extraction_model,
+                "scholar_linking": extraction_model,
+                "vision": vision_model,
+            }
+            return models.get(task, "openai/gpt-4o-mini")
+        
+        # Auto mode: respect prefer_local or PREFER_LOCAL_MODELS
         use_local = prefer_local if prefer_local is not None else Settings.PREFER_LOCAL_MODELS
         
         if use_local:
-            # Local models (free) - relies on default localhost:11434 if env var not set
-            return "ollama/llama3.1:8b"
+            ollama_model = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+            return f"ollama/{ollama_model}"
         
-        # Cloud models with Smart Routing
-        # Use stronger models for difficult extraction
+        # Default to OpenAI with task-specific models
         strong_models = {
             "detail_extraction": "openai/gpt-4o",
             "scholar_linking": "openai/gpt-4o",
