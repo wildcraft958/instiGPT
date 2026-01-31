@@ -55,6 +55,9 @@ graph TD
 
 ## 🚀 Installation
 
+> [!TIP]
+> **New to coding?** Read our [Simplified User Guide](file:///home/bakasur/Downloads/instiGPT/USER_GUIDE.md) for a step-by-step walkthrough.
+
 ### Prerequisites
 - Python 3.10+
 - `uv` (recommended) or `pip`

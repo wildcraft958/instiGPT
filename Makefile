@@ -42,12 +42,29 @@ run:
 ifndef URL
 	@echo "Usage: make run URL=https://example.edu/faculty"
 else
-	python -m insti_scraper --url "$(URL)"
+	uv run python -m insti_scraper scrape "$(URL)"
+endif
+
+direct:
+ifndef URL
+	@echo "Usage: make direct URL=https://example.edu/faculty"
+else
+	uv run python -m insti_scraper scrape "$(URL)" --direct
 endif
 
 batch:
 ifndef FILE
 	@echo "Usage: make batch FILE=data.xlsx"
 else
-	python -m insti_scraper.batch --input "$(FILE)"
+	uv run python -m insti_scraper batch "$(FILE)"
+endif
+
+list:
+	uv run python -m insti_scraper list
+
+csv:
+ifndef FILE
+	uv run python -m insti_scraper csv
+else
+	uv run python -m insti_scraper csv --output "$(FILE)"
 endif
