@@ -60,7 +60,7 @@ make run URL="https://www.stanford.edu"
 ### B. The "I Know Exactly Where It Is" Mode
 If you have the exact link to a department's faculty list:
 ```bash
-make direct URL="https://cs.stanford.edu/people/faculty"
+make direct URL="https://www.cs.princeton.edu/people/faculty"
 ```
 
 ### C. The "Link Hunter" Mode (Discovery Only)

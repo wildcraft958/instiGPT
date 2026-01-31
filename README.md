@@ -128,7 +128,7 @@ python -m insti_scraper scrape [URL] [OPTIONS]
 python -m insti_scraper scrape "https://www.stanford.edu"
 
 # Scrape a specific known list directly
-python -m insti_scraper scrape "https://cs.stanford.edu/people/faculty" --direct
+python -m insti_scraper scrape "https://www.cs.princeton.edu/people/faculty" --direct
 ```
 
 ### 2. `discover` - Discovery Only
