@@ -203,6 +203,7 @@ Identify 3-4 distinct faculty/person names visible in the screenshot.
 - Choose names that look like they are part of the main list/grid.
 - Avoid header/footer links or navigation items.
 - These will be used to reverse-engineer CSS selectors.
+- **CRITICAL**: Do NOT invent names. Do NOT use "John Doe", "Jane Doe", etc. If text is not readable, return empty list.
 
 ## OUTPUT FORMAT (JSON only)
 ```json

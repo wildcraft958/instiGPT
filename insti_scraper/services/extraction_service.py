@@ -410,3 +410,12 @@ class ExtractionService:
             return False # mailto is fine for email but not for profile_url, but here we check generic text
             
         return False
+
+    def _infer_department_from_text(self, text: str) -> str:
+        """Infer department name from title or header text."""
+        if not text: return "General"
+        # Simple extraction: look for "Department of ..."
+        match = re.search(r'Department of ([^|-]+)', text, re.IGNORECASE)
+        if match:
+             return f"Department of {match.group(1).strip()}"
+        return text.strip()[:50] # Fallback to truncated text

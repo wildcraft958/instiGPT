@@ -43,12 +43,16 @@ profiles:
   - /faculty/
   - faclistbydepartment
   selectors:
-    container: table.faclist tr, .faculty-card
-    name: td:first-child a, .faculty-name
-    email: td a[href^='mailto:']
+    container: .card, .faculty-card, .profile-card, .person-card
+    name: .card-title, .name, h3, h4
+    title: .card-subtitle, .title, .position
+    email: a[href^='mailto:']
+    profile_link: a.card-link, .card-title a, h3 a
   pagination:
     type: datatable
     items_per_page: 25
+  faculty_urls:
+  - https://www.cse.iitb.ac.in/people/faculty
 - domain_pattern: .*\.edu$
   name: Generic US University
   discovery_hints:
