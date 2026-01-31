@@ -11,8 +11,12 @@ help:
 	@echo "  make test       Run tests"
 	@echo "  make clean      Remove build artifacts"
 	@echo ""
-	@echo "  make run URL=<url>          Scrape single URL"
+	@echo "  make run URL=<url>          Scrape single URL (Auto-Discover)"
+	@echo "  make direct URL=<url>       Scrape specific list URL"
+	@echo "  make discover URL=<url>     Discovery Only (find URLs)"
 	@echo "  make batch FILE=<xlsx>      Batch scrape from Excel"
+	@echo "  make list                   View current data"
+	@echo "  make csv [FILE=<name>]      Export to CSV"
 
 # Installation
 install:
@@ -50,6 +54,13 @@ ifndef URL
 	@echo "Usage: make direct URL=https://example.edu/faculty"
 else
 	uv run python -m insti_scraper scrape "$(URL)" --direct
+endif
+
+discover:
+ifndef URL
+	@echo "Usage: make discover URL=https://example.edu"
+else
+	uv run python -m insti_scraper discover "$(URL)"
 endif
 
 batch:

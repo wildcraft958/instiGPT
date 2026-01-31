@@ -63,6 +63,12 @@ If you have the exact link to a department's faculty list:
 make direct URL="https://cs.stanford.edu/people/faculty"
 ```
 
+### C. The "Link Hunter" Mode (Discovery Only)
+If you want to see all the links the scraper found without actually scraping them yet:
+```bash
+make discover URL="https://www.mit.edu"
+```
+
 ---
 
 ## 📊 Step 4: Seeing Your Results

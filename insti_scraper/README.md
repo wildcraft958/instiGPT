@@ -101,8 +101,9 @@ The application can be run via `make` (recommended) or the unified CLI endpoint:
 | `make install` | Install all dependencies |
 | `make run URL=...` | Scrape a university (Auto-Discover) |
 | `make direct URL=...` | Scrape a specific list directly |
+| `make discover URL=...` | Discovery Only (debug links) |
 | `make list` | View current data |
-| `make csv FILE=...` | Export to CSV |
+| `make csv [FILE=...]` | Export to CSV |
 | `make test` | Run all tests |
 
 ---
