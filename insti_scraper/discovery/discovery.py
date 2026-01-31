@@ -544,6 +544,46 @@ class FacultyPageDiscoverer:
         # Sort by score and prioritize directories over profiles
         pages.sort(key=lambda p: (p.page_type == "directory", p.score), reverse=True)
         
+        # [NEW] Vision Verification (Lazy Evaluation)
+        # Verify top candidates if they are ambiguous (score 0.4 - 0.7) and not already confirmed
+        logger.info("   👀 performing vision verification on ambiguous candidates...")
+        verified_pages = []
+        
+        # Only verify top 5 ambiguous pages to save cost
+        ambiguous_candidates = [p for p in pages if 0.4 <= p.score <= 0.7][:5]
+        
+        if ambiguous_candidates:
+             try:
+                from insti_scraper.analyzers.vision_analyzer import VisionPageAnalyzer, PageType
+                analyzer = VisionPageAnalyzer()
+                
+                for page in ambiguous_candidates:
+                    logger.info(f"      📸 Verifying ambiguous page: {page.url} (score: {page.score:.2f})")
+                    try:
+                        # Analyze with vision
+                        vision_result = await analyzer.analyze(page.url)
+                        
+                        if vision_result.page_type in (PageType.DIRECTORY_CLICKABLE, PageType.DIRECTORY_VISIBLE):
+                            logger.info(f"      ✅ Vision confirmed DIRECTORY: {page.url}")
+                            page.score = 0.95 # Boost to near certainty
+                            page.page_type = "directory"
+                            page.source = "deep_crawl_vision"
+                        elif vision_result.page_type == PageType.INDIVIDUAL_PROFILE:
+                             logger.info(f"      👤 Vision identified PROFILE: {page.url}")
+                             page.page_type = "profile" # Keep but don't boost score significantly
+                        else:
+                             logger.info(f"      ❌ Vision rejected (Type {vision_result.page_type.value}): {page.url}")
+                             page.score = 0.1 # Demote
+                             
+                    except Exception as e:
+                        logger.warning(f"      ⚠️ Verification failed for {page.url}: {e}")
+                        
+             except ImportError:
+                 logger.warning("      ⚠️ VisionPageAnalyzer not found, skipping verification")
+        
+        # Re-sort after verification
+        pages.sort(key=lambda p: (p.page_type == "directory", p.score), reverse=True)
+        
         return pages
 
 
