@@ -27,7 +27,13 @@ class EnrichmentService:
         
         try:
             # 1. Search for profile
-            query = f"{professor.name} {professor.department.name} \"Google Scholar\""
+            # Construct a smarter query using University name if available
+            context = professor.department.name
+            if professor.department and professor.department.university:
+                context = professor.department.university.name
+            
+            # Less strict query: Name + Context + "Google Scholar"
+            query = f'{professor.name} {context} "Google Scholar"'
             results = []
             try:
                 with DDGS() as ddgs:

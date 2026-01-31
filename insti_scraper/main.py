@@ -269,8 +269,8 @@ async def run_scrape_flow(url: str, enrich: bool = True, direct: bool = False):
         if enrich and new_professor_ids:
             task_id = progress.add_task(f"[cyan]🧠 Phase 4: Enrichment - Querying Google Scholar for {min(5, len(new_professor_ids))} profiles...", total=None)
             
-            # Only enrich a few for demo to save time/rate limits
-            to_enrich_ids = new_professor_ids[:5] 
+            # Enrich up to 50 profiles (increased from 5)
+            to_enrich_ids = new_professor_ids[:50] 
             
             # Use shared crawler session for enrichment too
             async with AsyncWebCrawler() as crawler:
