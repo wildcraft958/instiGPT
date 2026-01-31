@@ -131,13 +131,40 @@ COMMON_STRATEGIES = [
     # Generic divs with person info
     SelectorStrategy(
         name="generic_div",
-        container="div[class*='person'], div[class*='faculty'], div[class*='profile']",
+        container="div[class*='person'], div[class*='faculty'], div[class*='profile'], div[class*='member']",
         name_selector="h2, h3, h4, .name, [class*='name']",
-        title_selector=".title, .position, [class*='title']",
+        title_selector=".title, .position, [class*='title'], [class*='role']",
         email_selector="a[href^='mailto:']",
         link_selector="h2 a, h3 a, h4 a, .name a",
         priority=7
     ),
+
+    # 8. Sibling Strategy (Header + Paragraph pattern)
+    # Common in simple pages: <h3>Name</h3><p>Title...</p>
+    SelectorStrategy(
+        name="sibling_header",
+        container="div.content, div.main, section", # Broad container
+        name_selector="h3, h4",  # We'll treat the header ITSELF as the item context in logic updates usually, but here we keep standard model
+        # This strategy relies on the custom Sibling logic we need to implement or just smart selectors
+        # For now, let's use a standard selector that tries to approximate this:
+        title_selector="h3 + p, h4 + p",
+        email_selector="h3 + p a[href^='mailto:'], h4 + p a[href^='mailto:']",
+        link_selector="h3 a, h4 a",
+        priority=8,
+        min_results=3 # Needs high confidence to avoid extracting all headers
+    ),
+
+    # 9. Attribute-based (Robust)
+    # Target elements with data- attributes which are often stable
+    SelectorStrategy(
+        name="attributes",
+        container="[data-type='person'], [data-entity='faculty'], [itemtype*='Person']",
+        name_selector="[itemprop='name'], [data-field='name']",
+        title_selector="[itemprop='jobTitle'], [data-field='title']",
+        email_selector="[itemprop='email'], a[href^='mailto:']",
+        link_selector="a[itemprop='url']",
+        priority=9
+    )
 ]
 
 

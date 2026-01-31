@@ -97,89 +97,95 @@ async def run_scrape_flow(url: str, enrich: bool = True, direct: bool = False):
 
                 
                 if result.success:
-                    # Extraction Service now handles the content parsing + vision analysis
-                    professors, extracted_dept_name = await extraction_service.extract_with_fallback(page.url, result.html)
-                    
-                    # Handle None case (extraction returned nothing)
-                    if extracted_dept_name is None:
-                        extracted_dept_name = "General"
-                    
-                    # Handle special status codes from vision analysis
-                    if extracted_dept_name.startswith("BLOCKED:"):
-                        block_type = extracted_dept_name.split(":")[1]
-                        console.print(f"      🚫 {page.url}: [bold red]BLOCKED[/bold red] ({block_type})")
-                        continue
-                    
-                    if extracted_dept_name == "GATEWAY":
-                        console.print(f"      📂 {page.url}: [bold yellow]Department Gateway[/bold yellow] - will crawl links later")
-                        gateway_pages.append(page.url)
-                        continue
-                    
-                    if extracted_dept_name == "PROFILE":
-                        console.print(f"      👤 {page.url}: Individual profile page, skipping")
-                        continue
-                    
-                    if extracted_dept_name == "PAGINATED":
-                        console.print(f"      📄 {page.url}: [bold cyan]Paginated page[/bold cyan] - extracting all pages...")
-                        # Use pagination handler for multi-page extraction
-                        professors, extracted_dept_name = await extract_with_pagination(
-                            page.url, 
-                            extraction_service,
-                            max_pages=50
-                        )
-                        console.print(f"      📊 Total from all pages: [bold green]{len(professors)}[/bold green] profiles")
-                    
-                    if professors:
-                        console.print(f"      📄 {page.url}: Found [bold green]{len(professors)}[/bold green] profiles in '{extracted_dept_name}'")
+                    try:
+                        # Extraction Service now handles the content parsing + vision analysis
+                        professors, extracted_dept_name = await extraction_service.extract_with_fallback(page.url, result.html)
                         
-                        # Store context for persistence step
-                        for prof in professors:
-                            prof.website_url = url
+                        # Handle Null case
+                        if extracted_dept_name is None:
+                            extracted_dept_name = "General"
+                        
+                        # Handle special status codes from vision analysis
+                        if extracted_dept_name.startswith("BLOCKED:"):
+                            block_type = extracted_dept_name.split(":")[1]
+                            console.print(f"      🚫 {page.url}: [bold red]BLOCKED[/bold red] ({block_type})")
+                            continue
+                        
+                        if extracted_dept_name == "GATEWAY":
+                            console.print(f"      📂 {page.url}: [bold yellow]Department Gateway[/bold yellow] - will crawl links later")
+                            gateway_pages.append(page.url)
+                            continue
+                        
+                        if extracted_dept_name == "PROFILE":
+                            console.print(f"      👤 {page.url}: Individual profile page, skipping")
+                            continue
+                        
+                        if extracted_dept_name == "PAGINATED":
+                            console.print(f"      📄 {page.url}: [bold cyan]Paginated page[/bold cyan] - extracting all pages...")
+                            # Use pagination handler for multi-page extraction
+                            professors, extracted_dept_name = await extract_with_pagination(
+                                page.url, 
+                                extraction_service,
+                                max_pages=50
+                            )
+                            console.print(f"      📊 Total from all pages: [bold green]{len(professors)}[/bold green] profiles")
+                        
+                        if professors:
+                            console.print(f"      📄 {page.url}: Found [bold green]{len(professors)}[/bold green] profiles in '{extracted_dept_name}'")
                             
-                        # IMMEDIATE PERSISTENCE (Moved from Phase 3 to here to keep Dept context)
-                        with Session(engine) as session:
-                            uni_name = discoverer._extract_university_name(url)
-                            uni = session.exec(select(University).where(University.name == uni_name)).first()
-                            if not uni:
-                                uni = University(name=uni_name, website=url)
-                                session.add(uni)
-                                session.commit()
-                                session.refresh(uni)
-                            
-                            dept_target_name = extracted_dept_name if extracted_dept_name and extracted_dept_name != "General" else "General"
-                            
-                            dept = session.exec(select(Department).where(Department.name == dept_target_name, Department.university_id == uni.id)).first()
-                            if not dept:
-                                dept = Department(name=dept_target_name, university_id=uni.id, url=page.url)
-                                session.add(dept)
-                                session.commit()
-                                session.refresh(dept)
-                                
+                            # Store context for persistence step
                             for prof in professors:
-                                statement = select(Professor).where(
-                                    Professor.name == prof.name,
-                                    Professor.department_id == dept.id
-                                )
-                                existing = session.exec(statement).first()
+                                prof.website_url = url
                                 
-                                if not existing:
-                                    prof.department_id = dept.id
-                                    session.add(prof)
-                                    session.flush() # Force ID generation
-                                    count_new += 1
-                                    new_professor_ids.append(prof.id)
-                                    logger.info(f"   [DB] Added: {prof.name} ({dept_target_name})")
-                                else:
-                                    # Update existing with rich data if available
-                                    if prof.research_interests: existing.research_interests = prof.research_interests
-                                    if prof.publication_summary: existing.publication_summary = prof.publication_summary
-                                    if prof.education: existing.education = prof.education
-                                    session.add(existing)
+                            # IMMEDIATE PERSISTENCE (Moved from Phase 3 to here to keep Dept context)
+                            with Session(engine) as session:
+                                uni_name = discoverer._extract_university_name(url)
+                                uni = session.exec(select(University).where(University.name == uni_name)).first()
+                                if not uni:
+                                    uni = University(name=uni_name, website=url)
+                                    session.add(uni)
+                                    session.commit()
+                                    session.refresh(uni)
+                                
+                                dept_target_name = extracted_dept_name if extracted_dept_name and extracted_dept_name != "General" else "General"
+                                
+                                dept = session.exec(select(Department).where(Department.name == dept_target_name, Department.university_id == uni.id)).first()
+                                if not dept:
+                                    dept = Department(name=dept_target_name, university_id=uni.id, url=page.url)
+                                    session.add(dept)
+                                    session.commit()
+                                    session.refresh(dept)
                                     
-                            session.commit()
+                                for prof in professors:
+                                    statement = select(Professor).where(
+                                        Professor.name == prof.name,
+                                        Professor.department_id == dept.id
+                                    )
+                                    existing = session.exec(statement).first()
+                                    
+                                    if not existing:
+                                        prof.department_id = dept.id
+                                        session.add(prof)
+                                        session.flush() # Force ID generation
+                                        count_new += 1
+                                        new_professor_ids.append(prof.id)
+                                        logger.info(f"   [DB] Added: {prof.name} ({dept_target_name})")
+                                    else:
+                                        # Update existing with rich data if available
+                                        if prof.research_interests: existing.research_interests = prof.research_interests
+                                        if prof.publication_summary: existing.publication_summary = prof.publication_summary
+                                        if prof.education: existing.education = prof.education
+                                        session.add(existing)
+                                        
+                                session.commit()
+                                
+                        else:
+                            console.print(f"      ⚪ {page.url}: No profiles found (filtered/empty)")
                             
-                    else:
-                        console.print(f"      ⚪ {page.url}: No profiles found (filtered/empty)")
+                    except Exception as e:
+                        logger.error(f"      ❌ Extraction error for {page.url}: {e}")
+                        console.print(f"      ❌ Extraction failed: {e}")
+                        continue
                 
                 progress.advance(task_id)
 
