@@ -75,6 +75,7 @@ async def run_scrape_flow(url: str, enrich: bool = True, direct: bool = False):
         
         total_extracted = 0
         new_professor_ids = []
+        targeted_professor_ids = [] # IDs of all profiles touched in this run (new or updated)
         count_new = 0
         gateway_pages = []  # Pages that need deeper crawling
         
@@ -169,8 +170,10 @@ async def run_scrape_flow(url: str, enrich: bool = True, direct: bool = False):
                                         session.flush() # Force ID generation
                                         count_new += 1
                                         new_professor_ids.append(prof.id)
+                                        targeted_professor_ids.append(prof.id)
                                         logger.info(f"   [DB] Added: {prof.name} ({dept_target_name})")
                                     else:
+                                        targeted_professor_ids.append(existing.id)
                                         # Update existing with rich data if available
                                         if prof.research_interests: existing.research_interests = prof.research_interests
                                         if prof.publication_summary: existing.publication_summary = prof.publication_summary
@@ -249,7 +252,12 @@ async def run_scrape_flow(url: str, enrich: bool = True, direct: bool = False):
                                             if not existing:
                                                 prof.department_id = dept.id
                                                 session.add(prof)
+                                                session.commit() # Commit to get ID
+                                                session.refresh(prof)
                                                 count_new += 1
+                                                targeted_professor_ids.append(prof.id)
+                                            else:
+                                                targeted_professor_ids.append(existing.id)
                                         session.commit()
                         
                         await rate_limiter.wait_if_needed(dept_url)
@@ -266,18 +274,31 @@ async def run_scrape_flow(url: str, enrich: bool = True, direct: bool = False):
         console.print(f"   ✅ Saved [green]{count_new}[/green] new/updated profiles to Database.")
         
         # 4. Enrichment Phase
-        if enrich and new_professor_ids:
-            task_id = progress.add_task(f"[cyan]🧠 Phase 4: Enrichment - Querying Google Scholar for {min(5, len(new_professor_ids))} profiles...", total=None)
+        # FIX: Also target existing profiles that have no enrichment data (h-index=0)
+        # We use targeted_professor_ids which includes all profiles found in this run
+        if enrich and targeted_professor_ids:
             
-            # Enrich up to 50 profiles (increased from 5)
-            to_enrich_ids = new_professor_ids[:50] 
-            
-            # Use shared crawler session for enrichment too
-            async with AsyncWebCrawler() as crawler:
-                with Session(engine, expire_on_commit=False) as session:
-                    for p_id in to_enrich_ids:
-                        # Reload from DB within active session
-                        db_prof = session.get(Professor, p_id)
+            # Filter: Only enrich if it's new OR if it has no data
+            ids_to_enrich = []
+            with Session(engine) as session:
+                for p_id in targeted_professor_ids:
+                   p = session.get(Professor, p_id)
+                   if p and (p_id in new_professor_ids or p.h_index == 0):
+                       ids_to_enrich.append(p_id)
+
+            if ids_to_enrich:
+                # Enrich up to 150 profiles (increased from 50)
+                limit = 150
+                batch = ids_to_enrich[:limit]
+                
+                task_id = progress.add_task(f"[cyan]🧠 Phase 4: Enrichment - Querying Google Scholar for {len(batch)} profiles (Limit {limit})...", total=len(batch))
+                
+                # Use shared crawler session for enrichment too
+                async with AsyncWebCrawler() as crawler:
+                    with Session(engine, expire_on_commit=False) as session:
+                        for p_id in batch:
+                            # Reload from DB within active session
+                            db_prof = session.get(Professor, p_id)
                         if db_prof:
                              # Eager load department name for logging/search query
                             dept_name = db_prof.department.name if db_prof.department else "General"
